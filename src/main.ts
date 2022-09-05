@@ -1,4 +1,5 @@
 import {getInput, setFailed, setOutput} from '@actions/core'
+import {getContextBlock} from './github/context'
 import {getSummary} from './github/summary'
 import {SlackClient} from './slack/client'
 
@@ -16,10 +17,11 @@ async function run(): Promise<void> {
     // context.payload.sender?.avatar_url
 
     const summary = getSummary()
+    const contextBlock = getContextBlock()
     const ts = await slack.postMessage({
       channel,
       text: summary.text,
-      blocks: [summary.block]
+      blocks: [summary.block, contextBlock]
     })
 
     setOutput('ts', ts)
