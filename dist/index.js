@@ -21,12 +21,9 @@ function getContextBlock() {
             image_url: sender.avatar_url,
             alt_text: `@${sender.login}`
         });
-        textParts.push((0, mrkdwn_1.link)({
-            text: sender.login,
-            url: sender.html_url
-        }));
+        textParts.push(sender.login);
     }
-    textParts.push((0, mrkdwn_1.link)(getWorkflow()), (0, mrkdwn_1.link)(getRef()));
+    textParts.push((0, mrkdwn_1.link)(getWorkflow()), getRef());
     elements.push({
         type: 'mrkdwn',
         text: textParts.join('  ∙  ')
@@ -47,22 +44,16 @@ function getWorkflow() {
     }
     return {
         text,
-        url: getCommitUrl()
+        url: `${getCommitUrl()}/checks`
     };
 }
 function getRef() {
     if ((0, webhook_1.isPullRequestEvent)(github_1.context)) {
-        const pullRequest = github_1.context.payload.pull_request;
-        return {
-            text: pullRequest.head.ref,
-            url: pullRequest.html_url
-        };
+        return github_1.context.payload.pull_request.head.ref;
     }
-    return {
-        text: github_1.context.sha.substring(0, 7),
-        url: getCommitUrl()
-    };
+    return github_1.context.sha.substring(0, 7);
 }
+// todo necessary?
 function getCommitUrl() {
     const { owner, repo } = github_1.context.repo;
     return `https://github.com/${owner}/${repo}/commit/${github_1.context.sha}`;
@@ -80,18 +71,26 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getSummary = void 0;
 const github_1 = __nccwpck_require__(5438);
 const mrkdwn_1 = __nccwpck_require__(8699);
+const context_1 = __nccwpck_require__(8963);
 const webhook_1 = __nccwpck_require__(4464);
 function getSummary() {
     const text = getText();
+    const contextBlock = (0, context_1.getContextBlock)();
+    const sender = (0, webhook_1.senderFromPayload)(github_1.context.payload);
     return {
         text: text.plain,
-        block: {
-            type: 'section',
-            text: {
-                type: 'mrkdwn',
-                text: text.mrkdwn
-            }
-        }
+        blocks: [
+            {
+                type: 'section',
+                text: {
+                    type: 'mrkdwn',
+                    text: text.mrkdwn
+                }
+            },
+            contextBlock
+        ],
+        username: sender === null || sender === void 0 ? void 0 : sender.login,
+        icon_url: sender === null || sender === void 0 ? void 0 : sender.avatar_url
     };
 }
 exports.getSummary = getSummary;
@@ -99,7 +98,7 @@ function getText() {
     const summary = `Deploying ${github_1.context.repo.repo}:`;
     const message = getTitle();
     const mrkdwn = [
-        (0, mrkdwn_1.emoji)('white_medium_square'),
+        (0, mrkdwn_1.emoji)('black_square_button'),
         (0, mrkdwn_1.bold)(`Deploying ${github_1.context.repo.repo}:`),
         (0, mrkdwn_1.link)(message)
     ].join(' ');
@@ -154,6 +153,26 @@ exports.senderFromPayload = senderFromPayload;
 
 /***/ }),
 
+/***/ 8657:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getEnv = void 0;
+function getEnv(name) {
+    var _a;
+    const env = String((_a = process.env[name]) !== null && _a !== void 0 ? _a : '').trim();
+    if (!env) {
+        throw new Error(`${name} environment variable required`);
+    }
+    return env;
+}
+exports.getEnv = getEnv;
+
+
+/***/ }),
+
 /***/ 3109:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -170,26 +189,18 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core_1 = __nccwpck_require__(2186);
-const context_1 = __nccwpck_require__(8963);
 const summary_1 = __nccwpck_require__(9651);
+const input_1 = __nccwpck_require__(8657);
 const client_1 = __nccwpck_require__(6593);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const slackToken = process.env.SLACK_BOT_TOKEN;
-            if (!slackToken) {
-                throw new Error('SLACK_BOT_TOKEN environment variable required');
-            }
-            const slack = new client_1.SlackClient(slackToken);
-            const channel = (0, core_1.getInput)('channel', { required: true });
-            // context.payload.sender?.avatar_url
+            const botToken = (0, input_1.getEnv)('SLACK_DEPLOY_BOT_TOKEN');
+            const channel = (0, input_1.getEnv)('SLACK_DEPLOY_CHANNEL');
+            const slack = new client_1.SlackClient(botToken);
+            const threadTs = (0, core_1.getInput)('thread_ts');
             const summary = (0, summary_1.getSummary)();
-            const contextBlock = (0, context_1.getContextBlock)();
-            const ts = yield slack.postMessage({
-                channel,
-                text: summary.text,
-                blocks: [summary.block, contextBlock]
-            });
+            const ts = yield slack.postMessage(Object.assign(Object.assign({}, summary), { channel, unfurl_links: false }));
             (0, core_1.setOutput)('ts', ts);
         }
         catch (error) {

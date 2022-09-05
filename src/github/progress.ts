@@ -1,14 +1,19 @@
 import {context} from '@actions/github'
+import {KnownBlock} from '@slack/web-api'
 import {bold, emoji, link} from '../slack/mrkdwn'
 import {Link} from '../slack/types'
 import {getContextBlock} from './context'
-import {Message, Text} from './types'
-import {isPullRequestEvent, isPushEvent, senderFromPayload} from './webhook'
+import {Text} from './types'
+import {isPullRequestEvent, isPushEvent} from './webhook'
 
-export function getSummary(): Message {
+interface Summary {
+  text: string
+  blocks: KnownBlock[]
+}
+
+export function getSummary(): Summary {
   const text = getText()
   const contextBlock = getContextBlock()
-  const sender = senderFromPayload(context.payload)
 
   return {
     text: text.plain,
@@ -21,9 +26,7 @@ export function getSummary(): Message {
         }
       },
       contextBlock
-    ],
-    username: sender?.login,
-    icon_url: sender?.avatar_url
+    ]
   }
 }
 

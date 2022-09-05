@@ -15,15 +15,10 @@ export function getContextBlock(): ContextBlock {
       image_url: sender.avatar_url,
       alt_text: `@${sender.login}`
     })
-    textParts.push(
-      link({
-        text: sender.login,
-        url: sender.html_url
-      })
-    )
+    textParts.push(sender.login)
   }
 
-  textParts.push(link(getWorkflow()), link(getRef()))
+  textParts.push(link(getWorkflow()), getRef())
 
   elements.push({
     type: 'mrkdwn',
@@ -48,26 +43,19 @@ function getWorkflow(): Link {
 
   return {
     text,
-    url: getCommitUrl()
+    url: `${getCommitUrl()}/checks`
   }
 }
 
-function getRef(): Link {
+function getRef(): string {
   if (isPullRequestEvent(context)) {
-    const pullRequest = context.payload.pull_request
-
-    return {
-      text: pullRequest.head.ref,
-      url: pullRequest.html_url
-    }
+    return context.payload.pull_request.head.ref
   }
 
-  return {
-    text: context.sha.substring(0, 7),
-    url: getCommitUrl()
-  }
+  return context.sha.substring(0, 7)
 }
 
+// todo necessary?
 function getCommitUrl(): string {
   const {owner, repo} = context.repo
 

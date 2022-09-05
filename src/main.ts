@@ -1,27 +1,21 @@
 import {getInput, setFailed, setOutput} from '@actions/core'
-import {getContextBlock} from './github/context'
 import {getSummary} from './github/summary'
+import {getEnv} from './input'
 import {SlackClient} from './slack/client'
 
 async function run(): Promise<void> {
   try {
-    const slackToken = process.env.SLACK_BOT_TOKEN
+    const botToken = getEnv('SLACK_DEPLOY_BOT_TOKEN')
+    const channel = getEnv('SLACK_DEPLOY_CHANNEL')
+    const slack = new SlackClient(botToken)
 
-    if (!slackToken) {
-      throw new Error('SLACK_BOT_TOKEN environment variable required')
-    }
-
-    const slack = new SlackClient(slackToken)
-    const channel = getInput('channel', {required: true})
-
-    // context.payload.sender?.avatar_url
+    const threadTs = getInput('thread_ts')
 
     const summary = getSummary()
-    const contextBlock = getContextBlock()
     const ts = await slack.postMessage({
+      ...summary,
       channel,
-      text: summary.text,
-      blocks: [summary.block, contextBlock]
+      unfurl_links: false
     })
 
     setOutput('ts', ts)
