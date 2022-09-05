@@ -12,25 +12,16 @@ const github_1 = __nccwpck_require__(5438);
 const mrkdwn_1 = __nccwpck_require__(8699);
 const webhook_1 = __nccwpck_require__(4464);
 function getContextBlock() {
-    const elements = [];
-    const textParts = [];
-    const sender = (0, webhook_1.senderFromPayload)(github_1.context.payload);
-    if (sender) {
-        elements.push({
-            type: 'image',
-            image_url: sender.avatar_url,
-            alt_text: `@${sender.login}`
-        });
-        textParts.push(sender.login);
-    }
-    textParts.push((0, mrkdwn_1.link)(getWorkflow()), getRef());
-    elements.push({
-        type: 'mrkdwn',
-        text: textParts.join('  ∙  ')
-    });
+    const workflow = (0, mrkdwn_1.link)(getWorkflow());
+    const ref = getRef();
     return {
         type: 'context',
-        elements
+        elements: [
+            {
+                type: 'mrkdwn',
+                text: [workflow, ref].join('  ∙  ')
+            }
+        ]
     };
 }
 exports.getContextBlock = getContextBlock;
@@ -47,13 +38,15 @@ function getWorkflow() {
         url: `${getCommitUrl()}/checks`
     };
 }
+/**
+ * Return the pull request head branch or short commit hash.
+ */
 function getRef() {
     if ((0, webhook_1.isPullRequestEvent)(github_1.context)) {
         return github_1.context.payload.pull_request.head.ref;
     }
     return github_1.context.sha.substring(0, 7);
 }
-// todo necessary?
 function getCommitUrl() {
     const { owner, repo } = github_1.context.repo;
     return `https://github.com/${owner}/${repo}/commit/${github_1.context.sha}`;
@@ -78,6 +71,8 @@ function getSummary() {
     const contextBlock = (0, context_1.getContextBlock)();
     const sender = (0, webhook_1.senderFromPayload)(github_1.context.payload);
     return {
+        icon_url: sender === null || sender === void 0 ? void 0 : sender.avatar_url,
+        username: sender ? `${sender.login} via GitHub` : undefined,
         text: text.plain,
         blocks: [
             {
@@ -88,22 +83,21 @@ function getSummary() {
                 }
             },
             contextBlock
-        ],
-        username: sender === null || sender === void 0 ? void 0 : sender.login,
-        icon_url: sender === null || sender === void 0 ? void 0 : sender.avatar_url
+        ]
     };
 }
 exports.getSummary = getSummary;
 function getText() {
-    const summary = `Deploying ${github_1.context.repo.repo}:`;
+    const gerund = 'Deploying';
+    const { repo } = github_1.context.repo;
     const message = getTitle();
     const mrkdwn = [
         (0, mrkdwn_1.emoji)('black_square_button'),
-        (0, mrkdwn_1.bold)(`Deploying ${github_1.context.repo.repo}:`),
+        `${gerund} ${(0, mrkdwn_1.bold)(repo)}:`,
         (0, mrkdwn_1.link)(message)
     ].join(' ');
     return {
-        plain: `${summary} ${message.text}`,
+        plain: `${gerund} ${repo}: ${message.text}`,
         mrkdwn
     };
 }

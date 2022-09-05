@@ -11,6 +11,8 @@ export function getSummary(): Message {
   const sender = senderFromPayload(context.payload)
 
   return {
+    icon_url: sender?.avatar_url,
+    username: sender ? `${sender.login} via GitHub` : undefined,
     text: text.plain,
     blocks: [
       {
@@ -21,24 +23,23 @@ export function getSummary(): Message {
         }
       },
       contextBlock
-    ],
-    username: sender?.login,
-    icon_url: sender?.avatar_url
+    ]
   }
 }
 
 function getText(): Text {
-  const summary = `Deploying ${context.repo.repo}:`
+  const gerund = 'Deploying'
+  const {repo} = context.repo
   const message = getTitle()
 
   const mrkdwn = [
     emoji('black_square_button'),
-    bold(`Deploying ${context.repo.repo}:`),
+    `${gerund} ${bold(repo)}:`,
     link(message)
   ].join(' ')
 
   return {
-    plain: `${summary} ${message.text}`,
+    plain: `${gerund} ${repo}: ${message.text}`,
     mrkdwn
   }
 }
