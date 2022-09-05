@@ -2,29 +2,15 @@ import {context} from '@actions/github'
 import {bold, emoji, link} from '../slack/mrkdwn'
 import {Link} from '../slack/types'
 import {getContextBlock} from './context'
+import {createMessage} from './message'
 import {Message, Text} from './types'
-import {isPullRequestEvent, isPushEvent, senderFromPayload} from './webhook'
+import {isPullRequestEvent, isPushEvent} from './webhook'
 
-export function getSummary(): Message {
+export function getSummaryMessage(): Message {
   const text = getText()
   const contextBlock = getContextBlock()
-  const sender = senderFromPayload(context.payload)
 
-  return {
-    icon_url: sender?.avatar_url,
-    username: sender ? `${sender.login} via GitHub` : undefined,
-    text: text.plain,
-    blocks: [
-      {
-        type: 'section',
-        text: {
-          type: 'mrkdwn',
-          text: text.mrkdwn
-        }
-      },
-      contextBlock
-    ]
-  }
+  return createMessage(text, contextBlock)
 }
 
 function getText(): Text {
@@ -34,7 +20,8 @@ function getText(): Text {
 
   const mrkdwn = [
     emoji('black_square_button'),
-    `${gerund} ${bold(repo)}:`,
+    gerund,
+    `${bold(repo)}:`,
     link(message)
   ].join(' ')
 

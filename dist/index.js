@@ -55,24 +55,21 @@ function getCommitUrl() {
 
 /***/ }),
 
-/***/ 9651:
+/***/ 8700:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getSummary = void 0;
+exports.emojiFromStatus = exports.verbFromStatus = exports.createMessage = void 0;
 const github_1 = __nccwpck_require__(5438);
 const mrkdwn_1 = __nccwpck_require__(8699);
-const context_1 = __nccwpck_require__(8963);
 const webhook_1 = __nccwpck_require__(4464);
-function getSummary() {
-    const text = getText();
-    const contextBlock = (0, context_1.getContextBlock)();
+function createMessage(text, contextBlock) {
     const sender = (0, webhook_1.senderFromPayload)(github_1.context.payload);
     return {
         icon_url: sender === null || sender === void 0 ? void 0 : sender.avatar_url,
-        username: sender ? `${sender.login} via GitHub` : undefined,
+        username: sender ? `${sender.login} (via GitHub)` : undefined,
         text: text.plain,
         blocks: [
             {
@@ -86,14 +83,98 @@ function getSummary() {
         ]
     };
 }
-exports.getSummary = getSummary;
+exports.createMessage = createMessage;
+/**
+ * Return past tense verb for the specified job `status`.
+ *
+ * @see https://docs.github.com/en/actions/learn-github-actions/contexts#job-context
+ */
+function verbFromStatus(status, successful = 'Finished') {
+    switch (status) {
+        case 'success':
+            return successful;
+        case 'failure':
+            return 'Failed';
+        case 'cancelled':
+            return 'Cancelled';
+        default:
+            throw new Error(`Unexpected status ${status}`);
+    }
+}
+exports.verbFromStatus = verbFromStatus;
+function emojiFromStatus(status) {
+    switch (status) {
+        case 'success':
+            return (0, mrkdwn_1.emoji)('white_check_mark');
+        case 'failure':
+            return (0, mrkdwn_1.emoji)('x');
+        case 'cancelled':
+            return (0, mrkdwn_1.emoji)('no_entry_sign');
+        default:
+            throw new Error(`Unexpected status ${status}`);
+    }
+}
+exports.emojiFromStatus = emojiFromStatus;
+
+
+/***/ }),
+
+/***/ 6428:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getStageMessage = void 0;
+const github_1 = __nccwpck_require__(5438);
+const mrkdwn_1 = __nccwpck_require__(8699);
+const context_1 = __nccwpck_require__(8963);
+const message_1 = __nccwpck_require__(8700);
+function getStageMessage(status) {
+    const text = getText(status);
+    const contextBlock = (0, context_1.getContextBlock)();
+    return (0, message_1.createMessage)(text, contextBlock);
+}
+exports.getStageMessage = getStageMessage;
+function getText(status) {
+    const verb = (0, message_1.verbFromStatus)(status);
+    const predicate = github_1.context.job;
+    const mrkdwn = [(0, message_1.emojiFromStatus)(status), verb, (0, mrkdwn_1.bold)(predicate)].join(' ');
+    return {
+        plain: `${verb} ${predicate}`,
+        mrkdwn
+    };
+}
+
+
+/***/ }),
+
+/***/ 9651:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getSummaryMessage = void 0;
+const github_1 = __nccwpck_require__(5438);
+const mrkdwn_1 = __nccwpck_require__(8699);
+const context_1 = __nccwpck_require__(8963);
+const message_1 = __nccwpck_require__(8700);
+const webhook_1 = __nccwpck_require__(4464);
+function getSummaryMessage() {
+    const text = getText();
+    const contextBlock = (0, context_1.getContextBlock)();
+    return (0, message_1.createMessage)(text, contextBlock);
+}
+exports.getSummaryMessage = getSummaryMessage;
 function getText() {
     const gerund = 'Deploying';
     const { repo } = github_1.context.repo;
     const message = getTitle();
     const mrkdwn = [
         (0, mrkdwn_1.emoji)('black_square_button'),
-        `${gerund} ${(0, mrkdwn_1.bold)(repo)}:`,
+        gerund,
+        `${(0, mrkdwn_1.bold)(repo)}:`,
         (0, mrkdwn_1.link)(message)
     ].join(' ');
     return {
@@ -183,6 +264,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core_1 = __nccwpck_require__(2186);
+const stage_1 = __nccwpck_require__(6428);
 const summary_1 = __nccwpck_require__(9651);
 const input_1 = __nccwpck_require__(8657);
 const client_1 = __nccwpck_require__(6593);
@@ -193,9 +275,16 @@ function run() {
             const channel = (0, input_1.getEnv)('SLACK_DEPLOY_CHANNEL');
             const slack = new client_1.SlackClient(botToken);
             const threadTs = (0, core_1.getInput)('thread_ts');
-            const summary = (0, summary_1.getSummary)();
-            const ts = yield slack.postMessage(Object.assign(Object.assign({}, summary), { channel, unfurl_links: false }));
-            (0, core_1.setOutput)('ts', ts);
+            if (threadTs) {
+                const status = (0, core_1.getInput)('status', { required: true });
+                const stage = (0, stage_1.getStageMessage)(status);
+                yield slack.postMessage(Object.assign(Object.assign({}, stage), { channel, unfurl_links: false }));
+            }
+            else {
+                const summary = (0, summary_1.getSummaryMessage)();
+                const ts = yield slack.postMessage(Object.assign(Object.assign({}, summary), { channel, unfurl_links: false }));
+                (0, core_1.setOutput)('ts', ts);
+            }
         }
         catch (error) {
             (0, core_1.setFailed)(error instanceof Error ? error.message : String(error));
