@@ -1,6 +1,76 @@
 require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
+/***/ 8963:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getContextBlock = void 0;
+const github_1 = __nccwpck_require__(5438);
+const mrkdwn_1 = __nccwpck_require__(8699);
+const webhook_1 = __nccwpck_require__(4464);
+function getContextBlock() {
+    const elements = [];
+    const textParts = [];
+    const sender = (0, webhook_1.senderFromPayload)(github_1.context.payload);
+    if (sender) {
+        elements.push({
+            type: 'image',
+            image_url: sender.avatar_url,
+            alt_text: `@${sender.login}`
+        });
+        textParts.push((0, mrkdwn_1.link)({
+            text: sender.login,
+            url: sender.html_url
+        }));
+    }
+    textParts.push((0, mrkdwn_1.link)(getWorkflow()), (0, mrkdwn_1.link)(getRef()));
+    elements.push({
+        type: 'mrkdwn',
+        text: textParts.join('  ∙  ')
+    });
+    return {
+        type: 'context',
+        elements
+    };
+}
+exports.getContextBlock = getContextBlock;
+function getWorkflow() {
+    const text = github_1.context.workflow;
+    if ((0, webhook_1.isPullRequestEvent)(github_1.context)) {
+        return {
+            text,
+            url: `${github_1.context.payload.pull_request.html_url}/checks`
+        };
+    }
+    return {
+        text,
+        url: getCommitUrl()
+    };
+}
+function getRef() {
+    if ((0, webhook_1.isPullRequestEvent)(github_1.context)) {
+        const pullRequest = github_1.context.payload.pull_request;
+        return {
+            text: pullRequest.head.ref,
+            url: pullRequest.html_url
+        };
+    }
+    return {
+        text: github_1.context.sha.substring(0, 7),
+        url: getCommitUrl()
+    };
+}
+function getCommitUrl() {
+    const { owner, repo } = github_1.context.repo;
+    return `https://github.com/${owner}/${repo}/commit/${github_1.context.sha}`;
+}
+
+
+/***/ }),
+
 /***/ 9651:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
@@ -65,7 +135,7 @@ function getTitle() {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.isPushEvent = exports.isPullRequestEvent = void 0;
+exports.senderFromPayload = exports.isPushEvent = exports.isPullRequestEvent = void 0;
 function isPullRequestEvent(context) {
     return 'pull_request' === context.eventName;
 }
@@ -74,6 +144,12 @@ function isPushEvent(context) {
     return 'push' === context.eventName;
 }
 exports.isPushEvent = isPushEvent;
+function senderFromPayload({ sender }) {
+    if ((sender === null || sender === void 0 ? void 0 : sender.login) && sender.avatar_url) {
+        return sender;
+    }
+}
+exports.senderFromPayload = senderFromPayload;
 
 
 /***/ }),
@@ -94,6 +170,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core_1 = __nccwpck_require__(2186);
+const context_1 = __nccwpck_require__(8963);
 const summary_1 = __nccwpck_require__(9651);
 const client_1 = __nccwpck_require__(6593);
 function run() {
@@ -107,10 +184,11 @@ function run() {
             const channel = (0, core_1.getInput)('channel', { required: true });
             // context.payload.sender?.avatar_url
             const summary = (0, summary_1.getSummary)();
+            const contextBlock = (0, context_1.getContextBlock)();
             const ts = yield slack.postMessage({
                 channel,
                 text: summary.text,
-                blocks: [summary.block]
+                blocks: [summary.block, contextBlock]
             });
             (0, core_1.setOutput)('ts', ts);
         }
