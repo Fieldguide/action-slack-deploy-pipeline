@@ -4,10 +4,10 @@ import {SlackClient} from './slack/client'
 
 async function run(): Promise<void> {
   try {
-    const slackToken = process.env.SLACK_TOKEN
+    const slackToken = process.env.SLACK_BOT_TOKEN
 
     if (!slackToken) {
-      throw new Error('SLACK_TOKEN environment variable required')
+      throw new Error('SLACK_BOT_TOKEN environment variable required')
     }
 
     const slack = new SlackClient(slackToken)
