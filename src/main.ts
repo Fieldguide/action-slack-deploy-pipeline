@@ -1,18 +1,30 @@
-import * as core from '@actions/core'
-import {wait} from './wait'
+import {getInput, setFailed, setOutput} from '@actions/core'
+import {getSummary} from './github/summary'
+import {SlackClient} from './slack/client'
 
 async function run(): Promise<void> {
   try {
-    const ms: string = core.getInput('milliseconds')
-    core.debug(`Waiting ${ms} milliseconds ...`) // debug is only output if you set the secret `ACTIONS_STEP_DEBUG` to true
+    const slackToken = process.env.SLACK_TOKEN
 
-    core.debug(new Date().toTimeString())
-    await wait(parseInt(ms, 10))
-    core.debug(new Date().toTimeString())
+    if (!slackToken) {
+      throw new Error('SLACK_TOKEN environment variable required')
+    }
 
-    core.setOutput('time', new Date().toTimeString())
+    const slack = new SlackClient(slackToken)
+    const channel = getInput('channel', {required: true})
+
+    // context.payload.sender?.avatar_url
+
+    const summary = getSummary()
+    const ts = await slack.postMessage({
+      channel,
+      text: summary.text,
+      blocks: [summary.block]
+    })
+
+    setOutput('ts', ts)
   } catch (error) {
-    if (error instanceof Error) core.setFailed(error.message)
+    setFailed(error instanceof Error ? error.message : String(error))
   }
 }
 
