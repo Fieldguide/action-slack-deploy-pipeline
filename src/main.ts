@@ -29,7 +29,10 @@ async function run(): Promise<void> {
       unfurl_links: false
     })
 
-    setOutput('ts', ts)
+    if (!threadTs) {
+      // avoid exposing reply's `ts` value
+      setOutput('ts', ts)
+    }
   } catch (error) {
     setFailed(error instanceof Error ? error.message : String(error))
   }

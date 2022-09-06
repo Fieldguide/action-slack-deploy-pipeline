@@ -1,11 +1,13 @@
-name: 'Your name here'
+name: 'Slack Deploy Pipeline Notifications'
 description: 'Provide a description here'
-author: 'Your name or organization here'
+author: 'namoscato'
 inputs:
-  milliseconds: # change this
-    required: true
-    description: 'input description here'
-    default: 'default value if applicable'
+  thread_ts:
+    required: false
+    description: "Previous message's timestamp ID"
+  status:
+    required: false
+    description: 'Job status'
 runs:
   using: 'node16'
   main: 'dist/index.js'
