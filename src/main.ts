@@ -1,4 +1,4 @@
-import {getInput, setFailed, setOutput} from '@actions/core'
+import {getInput, info, setFailed, setOutput} from '@actions/core'
 import {getStageMessage} from './github/stage'
 import {getSummaryMessage} from './github/summary'
 import {Message} from './github/types'
@@ -22,6 +22,7 @@ async function run(): Promise<void> {
       message = getSummaryMessage()
     }
 
+    info(`Posting message${threadTs ? ` in thread: ${threadTs}` : ''}`)
     const ts = await slack.postMessage({
       ...message,
       channel,

@@ -274,15 +274,19 @@ function run() {
             const botToken = (0, input_1.getEnv)('SLACK_DEPLOY_BOT_TOKEN');
             const channel = (0, input_1.getEnv)('SLACK_DEPLOY_CHANNEL');
             const slack = new client_1.SlackClient(botToken);
-            const threadTs = (0, core_1.getInput)('thread_ts');
+            const threadTs = (0, core_1.getInput)('thread_ts') || undefined;
+            let message;
             if (threadTs) {
                 const status = (0, core_1.getInput)('status', { required: true });
-                const stage = (0, stage_1.getStageMessage)(status);
-                yield slack.postMessage(Object.assign(Object.assign({}, stage), { channel, unfurl_links: false }));
+                message = (0, stage_1.getStageMessage)(status);
             }
             else {
-                const summary = (0, summary_1.getSummaryMessage)();
-                const ts = yield slack.postMessage(Object.assign(Object.assign({}, summary), { channel, unfurl_links: false }));
+                message = (0, summary_1.getSummaryMessage)();
+            }
+            (0, core_1.info)(`Posting message${threadTs ? ` in thread: ${threadTs}` : ''}`);
+            const ts = yield slack.postMessage(Object.assign(Object.assign({}, message), { channel, thread_ts: threadTs, unfurl_links: false }));
+            if (!threadTs) {
+                // avoid exposing reply's `ts` value
                 (0, core_1.setOutput)('ts', ts);
             }
         }
