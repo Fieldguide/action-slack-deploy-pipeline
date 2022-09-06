@@ -2,11 +2,11 @@ import {context} from '@actions/github'
 import {bold} from '../slack/mrkdwn'
 import {getContextBlock} from './context'
 import {createMessage, emojiFromStatus, verbFromStatus} from './message'
-import {Message, Text} from './types'
+import {Message, MessageOptions, Text} from './types'
 
-export function getStageMessage(status: string): Message {
+export function getStageMessage({status, duration}: MessageOptions): Message {
   const text = getText(status)
-  const contextBlock = getContextBlock()
+  const contextBlock = getContextBlock(duration)
 
   return createMessage(text, contextBlock)
 }

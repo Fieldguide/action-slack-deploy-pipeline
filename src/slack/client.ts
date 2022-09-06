@@ -1,4 +1,8 @@
-import {ChatPostMessageArguments, WebClient} from '@slack/web-api'
+import {
+  ChatPostMessageArguments,
+  ChatUpdateArguments,
+  WebClient
+} from '@slack/web-api'
 
 export class SlackClient {
   private web: WebClient
@@ -18,5 +22,9 @@ export class SlackClient {
     }
 
     return ts
+  }
+
+  async updateMessage(options: ChatUpdateArguments): Promise<void> {
+    await this.web.chat.update(options)
   }
 }

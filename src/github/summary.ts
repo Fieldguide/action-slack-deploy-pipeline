@@ -2,31 +2,31 @@ import {context} from '@actions/github'
 import {bold, emoji, link} from '../slack/mrkdwn'
 import {Link} from '../slack/types'
 import {getContextBlock} from './context'
-import {createMessage} from './message'
-import {Message, Text} from './types'
+import {createMessage, emojiFromStatus, verbFromStatus} from './message'
+import {Message, MessageOptions, Text} from './types'
 import {isPullRequestEvent, isPushEvent} from './webhook'
 
-export function getSummaryMessage(): Message {
-  const text = getText()
-  const contextBlock = getContextBlock()
+export function getSummaryMessage(options?: MessageOptions): Message {
+  const text = getText(options?.status)
+  const contextBlock = getContextBlock(options?.duration)
 
   return createMessage(text, contextBlock)
 }
 
-function getText(): Text {
-  const gerund = 'Deploying'
+function getText(status?: string): Text {
+  const verb = status ? verbFromStatus(status, 'Deployed') : 'Deploying'
   const {repo} = context.repo
   const message = getTitle()
 
   const mrkdwn = [
-    emoji('black_square_button'),
-    gerund,
+    status ? emojiFromStatus(status) : emoji('black_square_button'),
+    verb,
     `${bold(repo)}:`,
     link(message)
   ].join(' ')
 
   return {
-    plain: `${gerund} ${repo}: ${message.text}`,
+    plain: `${verb} ${repo}: ${message.text}`,
     mrkdwn
   }
 }

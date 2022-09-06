@@ -1,9 +1,10 @@
 import {getInput, info, setFailed, setOutput} from '@actions/core'
+import {intervalToDuration} from 'date-fns'
 import {getStageMessage} from './github/stage'
 import {getSummaryMessage} from './github/summary'
-import {Message} from './github/types'
 import {getEnv} from './input'
 import {SlackClient} from './slack/client'
+import {dateFromTs} from './slack/utils'
 
 async function run(): Promise<void> {
   try {
@@ -11,27 +12,37 @@ async function run(): Promise<void> {
     const channel = getEnv('SLACK_DEPLOY_CHANNEL')
 
     const slack = new SlackClient(botToken)
-
-    const threadTs = getInput('thread_ts') || undefined
-    let message: Message
+    const threadTs = getInput('thread_ts')
 
     if (threadTs) {
+      const duration = intervalToDuration({
+        start: dateFromTs(threadTs),
+        end: new Date()
+      })
       const status = getInput('status', {required: true})
-      message = getStageMessage(status)
+
+      info(`Posting message in thread: ${threadTs}`)
+      await slack.postMessage({
+        ...getStageMessage({status, duration}),
+        channel,
+        thread_ts: threadTs,
+        unfurl_links: false
+      })
+
+      info(`Updating summary message: ${threadTs}`)
+      await slack.updateMessage({
+        ...getSummaryMessage({status, duration}),
+        channel,
+        ts: threadTs
+      })
     } else {
-      message = getSummaryMessage()
-    }
+      info('Posting message')
+      const ts = await slack.postMessage({
+        ...getSummaryMessage(),
+        channel,
+        unfurl_links: false
+      })
 
-    info(`Posting message${threadTs ? ` in thread: ${threadTs}` : ''}`)
-    const ts = await slack.postMessage({
-      ...message,
-      channel,
-      thread_ts: threadTs,
-      unfurl_links: false
-    })
-
-    if (!threadTs) {
-      // avoid exposing reply's `ts` value
       setOutput('ts', ts)
     }
   } catch (error) {
