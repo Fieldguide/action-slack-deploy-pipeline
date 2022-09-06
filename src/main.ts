@@ -1,6 +1,7 @@
 import {getInput, setFailed, setOutput} from '@actions/core'
 import {getStageMessage} from './github/stage'
 import {getSummaryMessage} from './github/summary'
+import {Message} from './github/types'
 import {getEnv} from './input'
 import {SlackClient} from './slack/client'
 
@@ -10,26 +11,25 @@ async function run(): Promise<void> {
     const channel = getEnv('SLACK_DEPLOY_CHANNEL')
 
     const slack = new SlackClient(botToken)
-    const threadTs = getInput('thread_ts')
+
+    const threadTs = getInput('thread_ts') || undefined
+    let message: Message
 
     if (threadTs) {
       const status = getInput('status', {required: true})
-      const stage = getStageMessage(status)
-      await slack.postMessage({
-        ...stage,
-        channel,
-        unfurl_links: false
-      })
+      message = getStageMessage(status)
     } else {
-      const summary = getSummaryMessage()
-      const ts = await slack.postMessage({
-        ...summary,
-        channel,
-        unfurl_links: false
-      })
-
-      setOutput('ts', ts)
+      message = getSummaryMessage()
     }
+
+    const ts = await slack.postMessage({
+      ...message,
+      channel,
+      thread_ts: threadTs,
+      unfurl_links: false
+    })
+
+    setOutput('ts', ts)
   } catch (error) {
     setFailed(error instanceof Error ? error.message : String(error))
   }
