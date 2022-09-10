@@ -321,8 +321,14 @@ function run() {
             const botToken = (0, input_1.getEnv)('SLACK_DEPLOY_BOT_TOKEN');
             const channel = (0, input_1.getEnv)('SLACK_DEPLOY_CHANNEL');
             const githubToken = (0, core_1.getInput)('github_token', { required: true });
-            const jobs = yield (0, github_1.getOctokit)(githubToken).rest.actions.listJobsForWorkflowRunAttempt(Object.assign(Object.assign({}, github_1.context.repo), { run_id: github_1.context.runId, attempt_number: github_1.context.runNumber }));
+            const githubClient = (0, github_1.getOctokit)(githubToken);
+            (0, core_1.debug)(JSON.stringify(github_1.context, null, 2));
+            (0, core_1.debug)('listJobsForWorkflowRun');
+            const jobs = yield githubClient.rest.actions.listJobsForWorkflowRun(Object.assign(Object.assign({}, github_1.context.repo), { run_id: github_1.context.runId }));
             (0, core_1.debug)(JSON.stringify(jobs, null, 2));
+            (0, core_1.debug)('listJobsForWorkflowRunAttempt');
+            const attemptJobs = yield githubClient.rest.actions.listJobsForWorkflowRunAttempt(Object.assign(Object.assign({}, github_1.context.repo), { run_id: github_1.context.runId, attempt_number: github_1.context.runNumber }));
+            (0, core_1.debug)(JSON.stringify(attemptJobs, null, 2));
             const slack = new client_1.SlackClient(botToken);
             const threadTs = (0, core_1.getInput)('thread_ts');
             if (threadTs) {
@@ -344,6 +350,9 @@ function run() {
         }
         catch (error) {
             (0, core_1.setFailed)(error instanceof Error ? error.message : String(error));
+            if (error instanceof Error && error.stack) {
+                (0, core_1.debug)(error.stack);
+            }
         }
     });
 }
