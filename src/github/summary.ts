@@ -2,8 +2,8 @@ import {context} from '@actions/github'
 import {bold, emoji, link} from '../slack/mrkdwn'
 import {Link} from '../slack/types'
 import {getContextBlock} from './context'
-import {createMessage, emojiFromStatus, verbFromStatus} from './message'
-import {Message, MessageOptions, Text} from './types'
+import {createMessage, emojiFromStatus} from './message'
+import {JobStatus, Message, MessageOptions, Text} from './types'
 import {isPullRequestEvent, isPushEvent} from './webhook'
 
 export function getSummaryMessage(options?: MessageOptions): Message {
@@ -14,24 +14,48 @@ export function getSummaryMessage(options?: MessageOptions): Message {
 }
 
 function getText(status?: string): Text {
-  const verb = status ? verbFromStatus(status, 'Deployed') : 'Deploying'
-  const {repo} = context.repo
-  const message = getTitle()
+  const summarySentence = getSummarySentence(status)
+  const eventTitle = getEventTitle()
 
   const mrkdwn = [
     status ? emojiFromStatus(status) : emoji('black_square_button'),
-    verb,
-    `${bold(repo)}:`,
-    link(message)
+    `${summarySentence.mrkdwn}:`,
+    link(eventTitle)
   ].join(' ')
 
   return {
-    plain: `${verb} ${repo}: ${message.text}`,
+    plain: `${summarySentence.plain}: ${eventTitle.text}`,
     mrkdwn
   }
 }
 
-function getTitle(): Link {
+function getSummarySentence(status?: string): Text {
+  const verb = status ? verbFromStatus(status) : 'Deploying'
+  const {repo} = context.repo
+
+  return {
+    plain: `${verb} ${repo}`,
+    mrkdwn: `${verb} ${bold(repo)}`
+  }
+}
+
+/**
+ * @see https://docs.github.com/en/actions/learn-github-actions/contexts#job-context
+ */
+function verbFromStatus(status: string): string {
+  switch (status) {
+    case JobStatus.Success:
+      return 'Deployed'
+    case JobStatus.Failure:
+      return 'Failed deploying'
+    case JobStatus.Cancelled:
+      return 'Cancelled deploying'
+    default:
+      throw new Error(`Unexpected status ${status}`)
+  }
+}
+
+function getEventTitle(): Link {
   if (isPullRequestEvent(context)) {
     const pullRequest = context.payload.pull_request
 

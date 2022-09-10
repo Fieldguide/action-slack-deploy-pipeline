@@ -1,7 +1,7 @@
 import {context} from '@actions/github'
 import {ContextBlock} from '@slack/web-api'
 import {emoji} from '../slack/mrkdwn'
-import {Message, JobStatus, Text} from './types'
+import {JobStatus, Message, Text} from './types'
 import {senderFromPayload} from './webhook'
 
 export function createMessage(text: Text, contextBlock: ContextBlock): Message {
@@ -22,27 +22,6 @@ export function createMessage(text: Text, contextBlock: ContextBlock): Message {
       },
       contextBlock
     ]
-  }
-}
-
-/**
- * Return past tense verb for the specified job `status`.
- *
- * @see https://docs.github.com/en/actions/learn-github-actions/contexts#job-context
- */
-export function verbFromStatus(
-  status: string,
-  successful = 'Finished'
-): string {
-  switch (status) {
-    case JobStatus.Success:
-      return successful
-    case JobStatus.Failure:
-      return 'Failed'
-    case JobStatus.Cancelled:
-      return 'Cancelled'
-    default:
-      throw new Error(`Unexpected status ${status}`)
   }
 }
 

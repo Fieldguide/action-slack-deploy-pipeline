@@ -64,7 +64,7 @@ function getCommitUrl() {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.emojiFromStatus = exports.verbFromStatus = exports.createMessage = void 0;
+exports.emojiFromStatus = exports.createMessage = void 0;
 const github_1 = __nccwpck_require__(2867);
 const mrkdwn_1 = __nccwpck_require__(8699);
 const types_1 = __nccwpck_require__(305);
@@ -89,24 +89,6 @@ function createMessage(text, contextBlock) {
     };
 }
 exports.createMessage = createMessage;
-/**
- * Return past tense verb for the specified job `status`.
- *
- * @see https://docs.github.com/en/actions/learn-github-actions/contexts#job-context
- */
-function verbFromStatus(status, successful = 'Finished') {
-    switch (status) {
-        case types_1.JobStatus.Success:
-            return successful;
-        case types_1.JobStatus.Failure:
-            return 'Failed';
-        case types_1.JobStatus.Cancelled:
-            return 'Cancelled';
-        default:
-            throw new Error(`Unexpected status ${status}`);
-    }
-}
-exports.verbFromStatus = verbFromStatus;
 function emojiFromStatus(status) {
     switch (status) {
         case types_1.JobStatus.Success:
@@ -143,13 +125,30 @@ function getStageMessage({ status, duration }) {
 }
 exports.getStageMessage = getStageMessage;
 function getText(status) {
-    const verb = (0, message_1.verbFromStatus)(status);
+    const verb = verbFromStatus(status);
     const predicate = github_1.context.job;
     const mrkdwn = [(0, message_1.emojiFromStatus)(status), verb, (0, mrkdwn_1.bold)(predicate)].join(' ');
     return {
         plain: `${verb} ${predicate}`,
         mrkdwn
     };
+}
+/**
+ * Return past tense verb for the specified job `status`.
+ *
+ * @see https://docs.github.com/en/actions/learn-github-actions/contexts#job-context
+ */
+function verbFromStatus(status) {
+    switch (status) {
+        case types_1.JobStatus.Success:
+            return 'Finished';
+        case types_1.JobStatus.Failure:
+            return 'Failed';
+        case types_1.JobStatus.Cancelled:
+            return 'Cancelled';
+        default:
+            throw new Error(`Unexpected status ${status}`);
+    }
 }
 
 
@@ -166,6 +165,7 @@ const github_1 = __nccwpck_require__(2867);
 const mrkdwn_1 = __nccwpck_require__(8699);
 const context_1 = __nccwpck_require__(8963);
 const message_1 = __nccwpck_require__(8700);
+const types_1 = __nccwpck_require__(305);
 const webhook_1 = __nccwpck_require__(4464);
 function getSummaryMessage(options) {
     const text = getText(options === null || options === void 0 ? void 0 : options.status);
@@ -174,21 +174,42 @@ function getSummaryMessage(options) {
 }
 exports.getSummaryMessage = getSummaryMessage;
 function getText(status) {
-    const verb = status ? (0, message_1.verbFromStatus)(status, 'Deployed') : 'Deploying';
-    const { repo } = github_1.context.repo;
-    const message = getTitle();
+    const summarySentence = getSummarySentence(status);
+    const eventTitle = getEventTitle();
     const mrkdwn = [
         status ? (0, message_1.emojiFromStatus)(status) : (0, mrkdwn_1.emoji)('black_square_button'),
-        verb,
-        `${(0, mrkdwn_1.bold)(repo)}:`,
-        (0, mrkdwn_1.link)(message)
+        `${summarySentence.mrkdwn}:`,
+        (0, mrkdwn_1.link)(eventTitle)
     ].join(' ');
     return {
-        plain: `${verb} ${repo}: ${message.text}`,
+        plain: `${summarySentence.plain}: ${eventTitle.text}`,
         mrkdwn
     };
 }
-function getTitle() {
+function getSummarySentence(status) {
+    const verb = status ? verbFromStatus(status) : 'Deploying';
+    const { repo } = github_1.context.repo;
+    return {
+        plain: `${verb} ${repo}`,
+        mrkdwn: `${verb} ${(0, mrkdwn_1.bold)(repo)}`
+    };
+}
+/**
+ * @see https://docs.github.com/en/actions/learn-github-actions/contexts#job-context
+ */
+function verbFromStatus(status) {
+    switch (status) {
+        case types_1.JobStatus.Success:
+            return 'Deployed';
+        case types_1.JobStatus.Failure:
+            return 'Failed deploying';
+        case types_1.JobStatus.Cancelled:
+            return 'Cancelled deploying';
+        default:
+            throw new Error(`Unexpected status ${status}`);
+    }
+}
+function getEventTitle() {
     if ((0, webhook_1.isPullRequestEvent)(github_1.context)) {
         const pullRequest = github_1.context.payload.pull_request;
         return {

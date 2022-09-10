@@ -1,8 +1,8 @@
 import {context} from '@actions/github'
 import {bold} from '../slack/mrkdwn'
 import {getContextBlock} from './context'
-import {createMessage, emojiFromStatus, verbFromStatus} from './message'
-import {Message, MessageOptions, JobStatus, Text} from './types'
+import {createMessage, emojiFromStatus} from './message'
+import {JobStatus, Message, MessageOptions, Text} from './types'
 
 export function getStageMessage({status, duration}: MessageOptions): Message {
   const text = getText(status)
@@ -23,5 +23,23 @@ function getText(status: string): Text {
   return {
     plain: `${verb} ${predicate}`,
     mrkdwn
+  }
+}
+
+/**
+ * Return past tense verb for the specified job `status`.
+ *
+ * @see https://docs.github.com/en/actions/learn-github-actions/contexts#job-context
+ */
+function verbFromStatus(status: string): string {
+  switch (status) {
+    case JobStatus.Success:
+      return 'Finished'
+    case JobStatus.Failure:
+      return 'Failed'
+    case JobStatus.Cancelled:
+      return 'Cancelled'
+    default:
+      throw new Error(`Unexpected status ${status}`)
   }
 }
