@@ -8,7 +8,7 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getContextBlock = void 0;
-const github_1 = __nccwpck_require__(2867);
+const github_1 = __nccwpck_require__(5438);
 const date_fns_1 = __nccwpck_require__(3314); // eslint-disable-line import/named
 const mrkdwn_1 = __nccwpck_require__(8699);
 const webhook_1 = __nccwpck_require__(4464);
@@ -65,7 +65,7 @@ function getCommitUrl() {
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.emojiFromStatus = exports.createMessage = void 0;
-const github_1 = __nccwpck_require__(2867);
+const github_1 = __nccwpck_require__(5438);
 const mrkdwn_1 = __nccwpck_require__(8699);
 const types_1 = __nccwpck_require__(305);
 const webhook_1 = __nccwpck_require__(4464);
@@ -113,7 +113,7 @@ exports.emojiFromStatus = emojiFromStatus;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getStageMessage = void 0;
-const github_1 = __nccwpck_require__(2867);
+const github_1 = __nccwpck_require__(5438);
 const mrkdwn_1 = __nccwpck_require__(8699);
 const context_1 = __nccwpck_require__(8963);
 const message_1 = __nccwpck_require__(8700);
@@ -161,7 +161,7 @@ function verbFromStatus(status) {
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getSummaryMessage = void 0;
-const github_1 = __nccwpck_require__(2867);
+const github_1 = __nccwpck_require__(5438);
 const mrkdwn_1 = __nccwpck_require__(8699);
 const context_1 = __nccwpck_require__(8963);
 const message_1 = __nccwpck_require__(8700);
@@ -308,6 +308,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core_1 = __nccwpck_require__(2186);
+const github_1 = __nccwpck_require__(5438);
 const date_fns_1 = __nccwpck_require__(3314);
 const stage_1 = __nccwpck_require__(6428);
 const summary_1 = __nccwpck_require__(9651);
@@ -319,6 +320,9 @@ function run() {
         try {
             const botToken = (0, input_1.getEnv)('SLACK_DEPLOY_BOT_TOKEN');
             const channel = (0, input_1.getEnv)('SLACK_DEPLOY_CHANNEL');
+            const githubToken = (0, core_1.getInput)('github_token', { required: true });
+            const jobs = yield (0, github_1.getOctokit)(githubToken).rest.actions.listJobsForWorkflowRunAttempt(Object.assign(Object.assign({}, github_1.context.repo), { run_id: github_1.context.runId, attempt_number: github_1.context.runNumber }));
+            (0, core_1.debug)(JSON.stringify(jobs, null, 2));
             const slack = new client_1.SlackClient(botToken);
             const threadTs = (0, core_1.getInput)('thread_ts');
             if (threadTs) {
@@ -1472,7 +1476,7 @@ exports.Context = Context;
 
 /***/ }),
 
-/***/ 2867:
+/***/ 5438:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -18656,7 +18660,7 @@ module.exports = exports.default;
 
 /***/ }),
 
-/***/ 5438:
+/***/ 3283:
 /***/ ((module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -21432,7 +21436,7 @@ var _index84 = _interopRequireDefault(__nccwpck_require__(9894));
 
 var _index85 = _interopRequireDefault(__nccwpck_require__(6991));
 
-var _index86 = _interopRequireDefault(__nccwpck_require__(5438));
+var _index86 = _interopRequireDefault(__nccwpck_require__(3283));
 
 var _index87 = _interopRequireDefault(__nccwpck_require__(7560));
 

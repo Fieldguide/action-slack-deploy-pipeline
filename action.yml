@@ -8,6 +8,13 @@ inputs:
   status:
     required: false
     description: 'Job status'
+  github_token:
+    description: TODO
+    required: false
+    default: ${{ github.token }}
+outputs:
+  ts:
+    description: 'Slack message timestamp ID'
 runs:
   using: 'node16'
   main: 'dist/index.js'

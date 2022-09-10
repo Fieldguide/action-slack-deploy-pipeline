@@ -1,4 +1,5 @@
-import {getInput, info, setFailed, setOutput} from '@actions/core'
+import {debug, getInput, info, setFailed, setOutput} from '@actions/core'
+import {context, getOctokit} from '@actions/github'
 import {intervalToDuration} from 'date-fns'
 import {getStageMessage} from './github/stage'
 import {getSummaryMessage} from './github/summary'
@@ -10,6 +11,16 @@ async function run(): Promise<void> {
   try {
     const botToken = getEnv('SLACK_DEPLOY_BOT_TOKEN')
     const channel = getEnv('SLACK_DEPLOY_CHANNEL')
+
+    const githubToken = getInput('github_token', {required: true})
+    const jobs = await getOctokit(
+      githubToken
+    ).rest.actions.listJobsForWorkflowRunAttempt({
+      ...context.repo,
+      run_id: context.runId,
+      attempt_number: context.runNumber
+    })
+    debug(JSON.stringify(jobs, null, 2))
 
     const slack = new SlackClient(botToken)
     const threadTs = getInput('thread_ts')
