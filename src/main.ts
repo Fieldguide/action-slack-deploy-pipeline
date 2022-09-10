@@ -24,15 +24,6 @@ async function run(): Promise<void> {
     })
     debug(JSON.stringify(jobs, null, 2))
 
-    debug('listJobsForWorkflowRunAttempt')
-    const attemptJobs =
-      await githubClient.rest.actions.listJobsForWorkflowRunAttempt({
-        ...context.repo,
-        run_id: context.runId,
-        attempt_number: context.runNumber
-      })
-    debug(JSON.stringify(attemptJobs, null, 2))
-
     const slack = new SlackClient(botToken)
     const threadTs = getInput('thread_ts')
 

@@ -326,9 +326,6 @@ function run() {
             (0, core_1.debug)('listJobsForWorkflowRun');
             const jobs = yield githubClient.rest.actions.listJobsForWorkflowRun(Object.assign(Object.assign({}, github_1.context.repo), { run_id: github_1.context.runId }));
             (0, core_1.debug)(JSON.stringify(jobs, null, 2));
-            (0, core_1.debug)('listJobsForWorkflowRunAttempt');
-            const attemptJobs = yield githubClient.rest.actions.listJobsForWorkflowRunAttempt(Object.assign(Object.assign({}, github_1.context.repo), { run_id: github_1.context.runId, attempt_number: github_1.context.runNumber }));
-            (0, core_1.debug)(JSON.stringify(attemptJobs, null, 2));
             const slack = new client_1.SlackClient(botToken);
             const threadTs = (0, core_1.getInput)('thread_ts');
             if (threadTs) {
