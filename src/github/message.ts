@@ -1,7 +1,7 @@
 import {context} from '@actions/github'
 import {ContextBlock} from '@slack/web-api'
 import {emoji} from '../slack/mrkdwn'
-import {Message, Text} from './types'
+import {Message, JobStatus, Text} from './types'
 import {senderFromPayload} from './webhook'
 
 export function createMessage(text: Text, contextBlock: ContextBlock): Message {
@@ -10,6 +10,7 @@ export function createMessage(text: Text, contextBlock: ContextBlock): Message {
   return {
     icon_url: sender?.avatar_url,
     username: sender ? `${sender.login} (via GitHub)` : undefined,
+    unfurl_links: false,
     text: text.plain,
     blocks: [
       {
@@ -34,11 +35,11 @@ export function verbFromStatus(
   successful = 'Finished'
 ): string {
   switch (status) {
-    case 'success':
+    case JobStatus.Success:
       return successful
-    case 'failure':
+    case JobStatus.Failure:
       return 'Failed'
-    case 'cancelled':
+    case JobStatus.Cancelled:
       return 'Cancelled'
     default:
       throw new Error(`Unexpected status ${status}`)
@@ -47,11 +48,11 @@ export function verbFromStatus(
 
 export function emojiFromStatus(status: string): string {
   switch (status) {
-    case 'success':
+    case JobStatus.Success:
       return emoji('white_check_mark')
-    case 'failure':
+    case JobStatus.Failure:
       return emoji('x')
-    case 'cancelled':
+    case JobStatus.Cancelled:
       return emoji('no_entry_sign')
     default:
       throw new Error(`Unexpected status ${status}`)

@@ -25,8 +25,7 @@ async function run(): Promise<void> {
       await slack.postMessage({
         ...getStageMessage({status, duration}),
         channel,
-        thread_ts: threadTs,
-        unfurl_links: false
+        thread_ts: threadTs
       })
 
       info(`Updating summary message: ${threadTs}`)
@@ -39,8 +38,7 @@ async function run(): Promise<void> {
       info('Posting message')
       const ts = await slack.postMessage({
         ...getSummaryMessage(),
-        channel,
-        unfurl_links: false
+        channel
       })
 
       setOutput('ts', ts)

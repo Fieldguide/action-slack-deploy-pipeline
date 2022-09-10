@@ -16,8 +16,13 @@ export interface MessageOptions {
   duration: Duration
 }
 
-export interface Message
-  extends Pick<ChatPostMessageArguments, 'username' | 'icon_url'> {
+export interface Message extends Omit<ChatPostMessageArguments, 'channel'> {
   text: string
   blocks: KnownBlock[]
+}
+
+export enum JobStatus {
+  Success = 'success',
+  Failure = 'failure',
+  Cancelled = 'cancelled'
 }

@@ -9,8 +9,7 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getContextBlock = void 0;
 const github_1 = __nccwpck_require__(2867);
-// eslint-disable-next-line import/named
-const date_fns_1 = __nccwpck_require__(3314);
+const date_fns_1 = __nccwpck_require__(3314); // eslint-disable-line import/named
 const mrkdwn_1 = __nccwpck_require__(8699);
 const webhook_1 = __nccwpck_require__(4464);
 function getContextBlock(duration) {
@@ -68,12 +67,14 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.emojiFromStatus = exports.verbFromStatus = exports.createMessage = void 0;
 const github_1 = __nccwpck_require__(2867);
 const mrkdwn_1 = __nccwpck_require__(8699);
+const types_1 = __nccwpck_require__(305);
 const webhook_1 = __nccwpck_require__(4464);
 function createMessage(text, contextBlock) {
     const sender = (0, webhook_1.senderFromPayload)(github_1.context.payload);
     return {
         icon_url: sender === null || sender === void 0 ? void 0 : sender.avatar_url,
         username: sender ? `${sender.login} (via GitHub)` : undefined,
+        unfurl_links: false,
         text: text.plain,
         blocks: [
             {
@@ -95,11 +96,11 @@ exports.createMessage = createMessage;
  */
 function verbFromStatus(status, successful = 'Finished') {
     switch (status) {
-        case 'success':
+        case types_1.JobStatus.Success:
             return successful;
-        case 'failure':
+        case types_1.JobStatus.Failure:
             return 'Failed';
-        case 'cancelled':
+        case types_1.JobStatus.Cancelled:
             return 'Cancelled';
         default:
             throw new Error(`Unexpected status ${status}`);
@@ -108,11 +109,11 @@ function verbFromStatus(status, successful = 'Finished') {
 exports.verbFromStatus = verbFromStatus;
 function emojiFromStatus(status) {
     switch (status) {
-        case 'success':
+        case types_1.JobStatus.Success:
             return (0, mrkdwn_1.emoji)('white_check_mark');
-        case 'failure':
+        case types_1.JobStatus.Failure:
             return (0, mrkdwn_1.emoji)('x');
-        case 'cancelled':
+        case types_1.JobStatus.Cancelled:
             return (0, mrkdwn_1.emoji)('no_entry_sign');
         default:
             throw new Error(`Unexpected status ${status}`);
@@ -134,10 +135,11 @@ const github_1 = __nccwpck_require__(2867);
 const mrkdwn_1 = __nccwpck_require__(8699);
 const context_1 = __nccwpck_require__(8963);
 const message_1 = __nccwpck_require__(8700);
+const types_1 = __nccwpck_require__(305);
 function getStageMessage({ status, duration }) {
     const text = getText(status);
     const contextBlock = (0, context_1.getContextBlock)(duration);
-    return (0, message_1.createMessage)(text, contextBlock);
+    return Object.assign(Object.assign({}, (0, message_1.createMessage)(text, contextBlock)), { reply_broadcast: types_1.JobStatus.Success !== status });
 }
 exports.getStageMessage = getStageMessage;
 function getText(status) {
@@ -203,6 +205,23 @@ function getTitle() {
     }
     throw new Error(`Unsupported event ${github_1.context.eventName} (currently supported events include: pull_request, push)`);
 }
+
+
+/***/ }),
+
+/***/ 305:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.JobStatus = void 0;
+var JobStatus;
+(function (JobStatus) {
+    JobStatus["Success"] = "success";
+    JobStatus["Failure"] = "failure";
+    JobStatus["Cancelled"] = "cancelled";
+})(JobStatus = exports.JobStatus || (exports.JobStatus = {}));
 
 
 /***/ }),
@@ -288,13 +307,13 @@ function run() {
                 });
                 const status = (0, core_1.getInput)('status', { required: true });
                 (0, core_1.info)(`Posting message in thread: ${threadTs}`);
-                yield slack.postMessage(Object.assign(Object.assign({}, (0, stage_1.getStageMessage)({ status, duration })), { channel, thread_ts: threadTs, unfurl_links: false }));
+                yield slack.postMessage(Object.assign(Object.assign({}, (0, stage_1.getStageMessage)({ status, duration })), { channel, thread_ts: threadTs }));
                 (0, core_1.info)(`Updating summary message: ${threadTs}`);
                 yield slack.updateMessage(Object.assign(Object.assign({}, (0, summary_1.getSummaryMessage)({ status, duration })), { channel, ts: threadTs }));
             }
             else {
                 (0, core_1.info)('Posting message');
-                const ts = yield slack.postMessage(Object.assign(Object.assign({}, (0, summary_1.getSummaryMessage)()), { channel, unfurl_links: false }));
+                const ts = yield slack.postMessage(Object.assign(Object.assign({}, (0, summary_1.getSummaryMessage)()), { channel }));
                 (0, core_1.setOutput)('ts', ts);
             }
         }
