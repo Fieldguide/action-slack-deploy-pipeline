@@ -2,7 +2,7 @@ import type {context} from '@actions/github'
 import type {GitHub} from '@actions/github/lib/utils'
 import type {Endpoints} from '@octokit/types'
 import type {KnownBlock} from '@slack/web-api'
-import {PostMessageArguments} from '../slack/types'
+import type {PostMessageArguments} from '../slack/types'
 
 export type GitHubClient = InstanceType<typeof GitHub>
 
@@ -20,6 +20,9 @@ export interface Message extends PostMessageArguments {
   blocks: KnownBlock[]
 }
 
+/**
+ * @see https://docs.github.com/en/actions/learn-github-actions/contexts#job-context
+ */
 export enum JobStatus {
   Success = 'success',
   Failure = 'failure',

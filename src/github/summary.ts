@@ -31,16 +31,16 @@ export function getSummaryMessage(options?: Options): Message {
 
 function getText(status?: string): Text {
   const summarySentence = getSummarySentence(status)
-  const eventTitle = getEventTitle()
+  const eventLink = getEventLink()
 
   const mrkdwn = [
     status ? emojiFromStatus(status) : emoji('black_square_button'),
     `${summarySentence.mrkdwn}:`,
-    link(eventTitle)
+    link(eventLink)
   ].join(' ')
 
   return {
-    plain: `${summarySentence.plain}: ${eventTitle.text}`,
+    plain: `${summarySentence.plain}: ${eventLink.text}`,
     mrkdwn
   }
 }
@@ -55,9 +55,6 @@ function getSummarySentence(status?: string): Text {
   }
 }
 
-/**
- * @see https://docs.github.com/en/actions/learn-github-actions/contexts#job-context
- */
 function verbFromStatus(status: string): string {
   switch (status) {
     case JobStatus.Success:
@@ -71,7 +68,7 @@ function verbFromStatus(status: string): string {
   }
 }
 
-function getEventTitle(): Link {
+function getEventLink(): Link {
   if (isPullRequestEvent(context)) {
     const pullRequest = context.payload.pull_request
 

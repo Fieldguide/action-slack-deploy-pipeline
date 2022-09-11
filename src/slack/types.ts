@@ -1,4 +1,7 @@
-import {ChatPostMessageArguments, ChatUpdateArguments} from '@slack/web-api'
+import type {
+  ChatPostMessageArguments,
+  ChatUpdateArguments
+} from '@slack/web-api'
 
 export interface Link {
   text: string

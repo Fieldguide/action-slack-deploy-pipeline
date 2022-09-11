@@ -26,7 +26,9 @@ describe('postMessage', () => {
     } as any
 
     jest.resetModules()
+
     process.env = {...OLD_ENV}
+    process.env.GITHUB_REPOSITORY = 'namoscato/action-testing'
 
     github.context.workflow = 'Deploy App'
     github.context.eventName = OLD_CONTEXT.eventName

@@ -49,8 +49,6 @@ function getText(status: string): Text {
 
 /**
  * Return past tense verb for the specified job `status`.
- *
- * @see https://docs.github.com/en/actions/learn-github-actions/contexts#job-context
  */
 function verbFromStatus(status: string): string {
   switch (status) {
