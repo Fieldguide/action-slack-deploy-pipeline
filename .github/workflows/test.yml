@@ -30,3 +30,4 @@ jobs:
       - uses: ./
         with:
           thread_ts: ${{ steps.slack.outputs.ts }}
+          conclusion: true

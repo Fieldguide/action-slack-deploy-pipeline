@@ -1,12 +1,12 @@
 import {getInput, info} from '@actions/core'
-import {intervalToDuration} from 'date-fns'
+import {computeStageDuration, durationFromTs} from './github/duration'
 import {getStageMessage} from './github/stage'
 import {getSummaryMessage} from './github/summary'
-import {isSuccessful} from './github/types'
+import {GitHubClient, isSuccessful} from './github/types'
 import {SlackClient} from './slack/client'
-import {dateFromTs} from './slack/utils'
 
 interface Dependencies {
+  github: GitHubClient
   slack: SlackClient
 }
 
@@ -14,6 +14,7 @@ interface Dependencies {
  * @returns message timestamp ID
  */
 export async function postMessage({
+  github,
   slack
 }: Dependencies): Promise<string | undefined> {
   const threadTs = getInput('thread_ts')
@@ -24,12 +25,10 @@ export async function postMessage({
     return slack.postMessage(getSummaryMessage())
   }
 
-  const duration = intervalToDuration({
-    start: dateFromTs(threadTs),
-    end: new Date()
-  })
   const status = getInput('status', {required: true})
-  const conclusion = 'true' === getInput('conclusion')
+
+  const now = new Date()
+  const duration = await computeStageDuration(github, now)
 
   info(`Posting stage message in thread: ${threadTs}`)
   await slack.postMessage({
@@ -37,10 +36,14 @@ export async function postMessage({
     thread_ts: threadTs
   })
 
+  const conclusion = 'true' === getInput('conclusion')
+
   if (conclusion || !isSuccessful(status)) {
+    const totalDuration = durationFromTs(threadTs, now)
+
     info(`Updating summary message: ${status}`)
     await slack.updateMessage({
-      ...getSummaryMessage({status, duration}),
+      ...getSummaryMessage({status, duration: totalDuration}),
       ts: threadTs
     })
   }

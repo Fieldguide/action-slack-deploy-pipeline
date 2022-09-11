@@ -1,10 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as github from '@actions/github'
 import {afterAll, beforeEach, describe, expect, it, jest} from '@jest/globals'
+import {GitHubClient} from '../github/types'
 import {postMessage} from '../message'
 import {SlackClient} from '../slack/client'
 
 describe('postMessage', () => {
+  let githubClient: GitHubClient
   let slack: SlackClient
   let ts: string | undefined
 
@@ -12,6 +14,12 @@ describe('postMessage', () => {
   const OLD_ENV = process.env
 
   beforeEach(() => {
+    githubClient = {
+      rest: {
+        actions: {}
+      }
+    } as any
+
     slack = {
       postMessage: jest.fn(async () => 'TS'),
       updateMessage: jest.fn(async () => undefined)
@@ -24,7 +32,7 @@ describe('postMessage', () => {
     github.context.eventName = OLD_CONTEXT.eventName
     github.context.payload = OLD_CONTEXT.payload
 
-    jest.useFakeTimers().setSystemTime(new Date('2022-09-10T00:00:00.000Z'))
+    jest.useFakeTimers().setSystemTime(new Date('2022-09-10T00:00:15.000Z'))
   })
 
   afterAll(() => {
@@ -53,7 +61,7 @@ describe('postMessage', () => {
         }
       }
 
-      ts = await postMessage({slack})
+      ts = await postMessage({github: githubClient, slack})
     })
 
     it('should post slack message', () => {
@@ -91,7 +99,7 @@ describe('postMessage', () => {
 
   describe('intermediate stage', () => {
     beforeEach(async () => {
-      process.env.INPUT_THREAD_TS = '1662768005' // 2022-09-10T00:00:05.000Z
+      process.env.INPUT_THREAD_TS = '1662768000' // 2022-09-10T00:00:00.000Z
 
       github.context.eventName = 'push'
       github.context.job = 'JOB'
@@ -107,13 +115,36 @@ describe('postMessage', () => {
           avatar_url: 'github.com/namoscato'
         }
       }
+
+      githubClient.rest.actions.listJobsForWorkflowRun = jest.fn(async () => ({
+        data: {
+          jobs: [
+            {
+              steps: [
+                {
+                  name: 'Post to Slack',
+                  completed_at: '2022-09-10T00:00:05.000Z'
+                }
+              ]
+            },
+            {
+              steps: [
+                {
+                  name: 'Run namoscato/action-slack-deploy-pipeline',
+                  completed_at: null
+                }
+              ]
+            }
+          ]
+        }
+      })) as any
     })
 
     describe('success', () => {
       beforeEach(async () => {
         process.env.INPUT_STATUS = 'success'
 
-        ts = await postMessage({slack})
+        ts = await postMessage({github: githubClient, slack})
       })
 
       it('should post slack message', () => {
@@ -136,13 +167,13 @@ describe('postMessage', () => {
               elements: [
                 {
                   type: 'mrkdwn',
-                  text: '<https://github.com/namoscato/action-testing/commit/05b16c3beb3a07dceaf6cf964d0be9eccbc026e8/checks|Deploy App>  ∙  05b16c3  ∙  5 seconds'
+                  text: '<https://github.com/namoscato/action-testing/commit/05b16c3beb3a07dceaf6cf964d0be9eccbc026e8/checks|Deploy App>  ∙  05b16c3  ∙  10 seconds'
                 }
               ]
             }
           ],
           reply_broadcast: false,
-          thread_ts: '1662768005' // 2022-09-10T00:00:05.000Z
+          thread_ts: '1662768000' // 2022-09-10T00:00:00.000Z
         })
       })
 
@@ -159,7 +190,7 @@ describe('postMessage', () => {
       beforeEach(async () => {
         process.env.INPUT_STATUS = 'cancelled'
 
-        ts = await postMessage({slack})
+        ts = await postMessage({github: githubClient, slack})
       })
 
       it('should post slack message', () => {
@@ -185,16 +216,25 @@ describe('postMessage', () => {
         expect(slack.updateMessage).toHaveBeenCalledWith(
           expect.objectContaining({
             text: 'Cancelled deploying action-testing: COMMIT-MESSAGE',
-            blocks: expect.arrayContaining([
+            blocks: [
               {
                 type: 'section',
                 text: {
                   type: 'mrkdwn',
                   text: ':no_entry_sign: Cancelled deploying *action-testing*: <github.com/commit|COMMIT-MESSAGE>'
                 }
+              },
+              {
+                type: 'context',
+                elements: [
+                  {
+                    type: 'mrkdwn',
+                    text: '<https://github.com/namoscato/action-testing/commit/05b16c3beb3a07dceaf6cf964d0be9eccbc026e8/checks|Deploy App>  ∙  05b16c3  ∙  15 seconds'
+                  }
+                ]
               }
-            ]),
-            ts: '1662768005' // 2022-09-10T00:00:05.000Z
+            ],
+            ts: '1662768000' // 2022-09-10T00:00:00.000Z
           })
         )
       })

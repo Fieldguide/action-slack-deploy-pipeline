@@ -58,6 +58,60 @@ function getCommitUrl() {
 
 /***/ }),
 
+/***/ 2791:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.durationFromTs = exports.computeStageDuration = void 0;
+const github_1 = __nccwpck_require__(5438);
+const date_fns_1 = __nccwpck_require__(3314); // eslint-disable-line import/named
+const utils_1 = __nccwpck_require__(4047);
+const types_1 = __nccwpck_require__(305);
+function computeStageDuration(github, now) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const { data } = yield github.rest.actions.listJobsForWorkflowRun(Object.assign(Object.assign({}, github_1.context.repo), { run_id: github_1.context.runId }));
+        const slackRegex = /[^A-Za-z]slack[^A-Za-z]/i;
+        const lastCompletedSlackStep = data.jobs
+            .flatMap(({ steps }) => {
+            if (!steps) {
+                return [];
+            }
+            return steps
+                .filter(types_1.isCompletedJobStep)
+                .filter(({ name }) => slackRegex.test(` ${name} `));
+        })
+            .pop();
+        if (lastCompletedSlackStep) {
+            return (0, date_fns_1.intervalToDuration)({
+                start: new Date(lastCompletedSlackStep.completed_at),
+                end: now
+            });
+        }
+    });
+}
+exports.computeStageDuration = computeStageDuration;
+function durationFromTs(threadTs, now) {
+    return (0, date_fns_1.intervalToDuration)({
+        start: (0, utils_1.dateFromTs)(threadTs),
+        end: now
+    });
+}
+exports.durationFromTs = durationFromTs;
+
+
+/***/ }),
+
 /***/ 8700:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
@@ -236,7 +290,7 @@ function getEventTitle() {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.isSuccessful = exports.JobStatus = void 0;
+exports.isCompletedJobStep = exports.isSuccessful = exports.JobStatus = void 0;
 var JobStatus;
 (function (JobStatus) {
     JobStatus["Success"] = "success";
@@ -247,6 +301,10 @@ function isSuccessful(status) {
     return JobStatus.Success === status;
 }
 exports.isSuccessful = isSuccessful;
+function isCompletedJobStep(step) {
+    return Boolean(step.completed_at);
+}
+exports.isCompletedJobStep = isCompletedJobStep;
 
 
 /***/ }),
@@ -320,11 +378,8 @@ function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const github = createGitHubClient();
-            (0, core_1.debug)('listJobsForWorkflowRun');
-            const jobs = yield github.rest.actions.listJobsForWorkflowRun(Object.assign(Object.assign({}, github_1.context.repo), { run_id: github_1.context.runId }));
-            (0, core_1.debug)(JSON.stringify(jobs, null, 2));
             const slack = createSlackClient();
-            const ts = yield (0, message_1.postMessage)({ slack });
+            const ts = yield (0, message_1.postMessage)({ github, slack });
             if (ts) {
                 (0, core_1.setOutput)('ts', ts);
             }
@@ -368,32 +423,30 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.postMessage = void 0;
 const core_1 = __nccwpck_require__(2186);
-const date_fns_1 = __nccwpck_require__(3314);
+const duration_1 = __nccwpck_require__(2791);
 const stage_1 = __nccwpck_require__(6428);
 const summary_1 = __nccwpck_require__(9651);
 const types_1 = __nccwpck_require__(305);
-const utils_1 = __nccwpck_require__(4047);
 /**
  * @returns message timestamp ID
  */
-function postMessage({ slack }) {
+function postMessage({ github, slack }) {
     return __awaiter(this, void 0, void 0, function* () {
         const threadTs = (0, core_1.getInput)('thread_ts');
         if (!threadTs) {
             (0, core_1.info)('Posting summary message');
             return slack.postMessage((0, summary_1.getSummaryMessage)());
         }
-        const duration = (0, date_fns_1.intervalToDuration)({
-            start: (0, utils_1.dateFromTs)(threadTs),
-            end: new Date()
-        });
         const status = (0, core_1.getInput)('status', { required: true });
-        const conclusion = 'true' === (0, core_1.getInput)('conclusion');
+        const now = new Date();
+        const duration = yield (0, duration_1.computeStageDuration)(github, now);
         (0, core_1.info)(`Posting stage message in thread: ${threadTs}`);
         yield slack.postMessage(Object.assign(Object.assign({}, (0, stage_1.getStageMessage)({ status, duration })), { thread_ts: threadTs }));
+        const conclusion = 'true' === (0, core_1.getInput)('conclusion');
         if (conclusion || !(0, types_1.isSuccessful)(status)) {
+            const totalDuration = (0, duration_1.durationFromTs)(threadTs, now);
             (0, core_1.info)(`Updating summary message: ${status}`);
-            yield slack.updateMessage(Object.assign(Object.assign({}, (0, summary_1.getSummaryMessage)({ status, duration })), { ts: threadTs }));
+            yield slack.updateMessage(Object.assign(Object.assign({}, (0, summary_1.getSummaryMessage)({ status, duration: totalDuration })), { ts: threadTs }));
         }
     });
 }

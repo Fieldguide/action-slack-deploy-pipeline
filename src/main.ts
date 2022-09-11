@@ -1,13 +1,6 @@
-import {
-  debug,
-  error,
-  getInput,
-  isDebug,
-  setFailed,
-  setOutput
-} from '@actions/core'
-import {context, getOctokit} from '@actions/github'
-import {GitHub} from '@actions/github/lib/utils'
+import {error, getInput, isDebug, setFailed, setOutput} from '@actions/core'
+import {getOctokit} from '@actions/github'
+import {GitHubClient} from './github/types'
 import {getEnv} from './input'
 import {postMessage} from './message'
 import {SlackClient} from './slack/client'
@@ -15,16 +8,9 @@ import {SlackClient} from './slack/client'
 async function run(): Promise<void> {
   try {
     const github = createGitHubClient()
-
-    debug('listJobsForWorkflowRun')
-    const jobs = await github.rest.actions.listJobsForWorkflowRun({
-      ...context.repo,
-      run_id: context.runId
-    })
-    debug(JSON.stringify(jobs, null, 2))
-
     const slack = createSlackClient()
-    const ts = await postMessage({slack})
+
+    const ts = await postMessage({github, slack})
 
     if (ts) {
       setOutput('ts', ts)
@@ -45,7 +31,7 @@ function createSlackClient(): SlackClient {
   return new SlackClient({token, channel})
 }
 
-function createGitHubClient(): InstanceType<typeof GitHub> {
+function createGitHubClient(): GitHubClient {
   const token = getInput('github_token', {required: true})
 
   return getOctokit(token)
