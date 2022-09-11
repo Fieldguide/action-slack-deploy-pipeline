@@ -14,6 +14,9 @@ interface Options {
   now: Date
 }
 
+/**
+ * Return the initial summary message.
+ */
 export function getSummaryMessage(options?: Options): Message {
   const text = getText(options?.status)
 

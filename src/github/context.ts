@@ -23,6 +23,9 @@ export function getContextBlock(duration?: Duration): ContextBlock {
   }
 }
 
+/**
+ * Return a link to the current workflow name.
+ */
 function getWorkflow(): Link {
   const text = context.workflow
 

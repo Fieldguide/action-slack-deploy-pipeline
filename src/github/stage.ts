@@ -19,6 +19,9 @@ interface Options {
   now: Date
 }
 
+/**
+ * Return a progressed stage message, posted via threaded reply.
+ */
 export async function getStageMessage({
   github,
   status,

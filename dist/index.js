@@ -28,6 +28,9 @@ function getContextBlock(duration) {
     };
 }
 exports.getContextBlock = getContextBlock;
+/**
+ * Return a link to the current workflow name.
+ */
 function getWorkflow() {
     const text = github_1.context.workflow;
     if ((0, webhook_1.isPullRequestEvent)(github_1.context)) {
@@ -128,6 +131,9 @@ const mrkdwn_1 = __nccwpck_require__(8699);
 const context_1 = __nccwpck_require__(8963);
 const message_1 = __nccwpck_require__(8700);
 const types_1 = __nccwpck_require__(305);
+/**
+ * Return a progressed stage message, posted via threaded reply.
+ */
 function getStageMessage({ github, status, now }) {
     return __awaiter(this, void 0, void 0, function* () {
         const text = getText(status);
@@ -202,6 +208,9 @@ const context_1 = __nccwpck_require__(8963);
 const message_1 = __nccwpck_require__(8700);
 const types_1 = __nccwpck_require__(305);
 const webhook_1 = __nccwpck_require__(4464);
+/**
+ * Return the initial summary message.
+ */
 function getSummaryMessage(options) {
     const text = getText(options === null || options === void 0 ? void 0 : options.status);
     const duration = options
@@ -419,6 +428,10 @@ const stage_1 = __nccwpck_require__(6428);
 const summary_1 = __nccwpck_require__(9651);
 const types_1 = __nccwpck_require__(305);
 /**
+ * Post an initial summary message or progress reply when `thread_ts` input is set.
+ *
+ * Conditionally updates initial message when `conclusion` is set or stage is unsuccessful.
+ *
  * @returns message timestamp ID
  */
 function postMessage(github, slack) {

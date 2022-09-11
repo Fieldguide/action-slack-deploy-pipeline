@@ -5,6 +5,10 @@ import {GitHubClient, isSuccessful} from './github/types'
 import {SlackClient} from './slack/client'
 
 /**
+ * Post an initial summary message or progress reply when `thread_ts` input is set.
+ *
+ * Conditionally updates initial message when `conclusion` is set or stage is unsuccessful.
+ *
  * @returns message timestamp ID
  */
 export async function postMessage(
