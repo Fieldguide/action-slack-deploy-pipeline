@@ -2,7 +2,6 @@ import type {context} from '@actions/github'
 import type {GitHub} from '@actions/github/lib/utils'
 import type {Endpoints} from '@octokit/types'
 import type {KnownBlock} from '@slack/web-api'
-import type {Duration} from 'date-fns'
 import {PostMessageArguments} from '../slack/types'
 
 export type GitHubClient = InstanceType<typeof GitHub>
@@ -14,11 +13,6 @@ export interface Context<T = unknown> extends Omit<typeof context, 'payload'> {
 export interface Text {
   plain: string
   mrkdwn: string
-}
-
-export interface MessageOptions {
-  status: string
-  duration?: Duration
 }
 
 export interface Message extends PostMessageArguments {

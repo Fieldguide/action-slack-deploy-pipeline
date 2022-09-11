@@ -61,7 +61,7 @@ describe('postMessage', () => {
         }
       }
 
-      ts = await postMessage({github: githubClient, slack})
+      ts = await postMessage(githubClient, slack)
     })
 
     it('should post slack message', () => {
@@ -97,7 +97,7 @@ describe('postMessage', () => {
     })
   })
 
-  describe('intermediate stage', () => {
+  describe('stage', () => {
     beforeEach(async () => {
       process.env.INPUT_THREAD_TS = '1662768000' // 2022-09-10T00:00:00.000Z
 
@@ -140,11 +140,11 @@ describe('postMessage', () => {
       })) as any
     })
 
-    describe('success', () => {
+    describe('intermediate success', () => {
       beforeEach(async () => {
         process.env.INPUT_STATUS = 'success'
 
-        ts = await postMessage({github: githubClient, slack})
+        ts = await postMessage(githubClient, slack)
       })
 
       it('should post slack message', () => {
@@ -186,11 +186,11 @@ describe('postMessage', () => {
       })
     })
 
-    describe('cancelled', () => {
+    describe('intermediate cancelled', () => {
       beforeEach(async () => {
         process.env.INPUT_STATUS = 'cancelled'
 
-        ts = await postMessage({github: githubClient, slack})
+        ts = await postMessage(githubClient, slack)
       })
 
       it('should post slack message', () => {
@@ -235,6 +235,70 @@ describe('postMessage', () => {
               }
             ],
             ts: '1662768000' // 2022-09-10T00:00:00.000Z
+          })
+        )
+      })
+    })
+
+    describe('conclusion success', () => {
+      beforeEach(async () => {
+        process.env.INPUT_STATUS = 'success'
+        process.env.INPUT_CONCLUSION = 'true'
+
+        ts = await postMessage(githubClient, slack)
+      })
+
+      it('should post slack message', () => {
+        expect(slack.postMessage).toHaveBeenCalledWith(
+          expect.objectContaining({
+            text: 'Finished JOB',
+            reply_broadcast: false
+          })
+        )
+      })
+
+      it('should update summary message', () => {
+        expect(slack.updateMessage).toHaveBeenCalledWith(
+          expect.objectContaining({
+            text: 'Deployed action-testing: COMMIT-MESSAGE',
+            blocks: expect.arrayContaining([
+              {
+                type: 'context',
+                elements: [
+                  {
+                    type: 'mrkdwn',
+                    text: '<https://github.com/namoscato/action-testing/commit/05b16c3beb3a07dceaf6cf964d0be9eccbc026e8/checks|Deploy App>  ∙  05b16c3  ∙  15 seconds'
+                  }
+                ]
+              }
+            ]),
+            ts: '1662768000' // 2022-09-10T00:00:00.000Z
+          })
+        )
+      })
+    })
+
+    describe('conclusion failed', () => {
+      beforeEach(async () => {
+        process.env.INPUT_STATUS = 'failure'
+        process.env.INPUT_CONCLUSION = 'true'
+
+        ts = await postMessage(githubClient, slack)
+      })
+
+      it('should post slack message', () => {
+        expect(slack.postMessage).toHaveBeenCalledWith(
+          expect.objectContaining({
+            text: 'Failed JOB',
+            reply_broadcast: true
+          })
+        )
+      })
+
+      it('should update summary message', () => {
+        expect(slack.updateMessage).toHaveBeenCalledWith(
+          expect.objectContaining({
+            text: 'Failed deploying action-testing: COMMIT-MESSAGE'
           })
         )
       })

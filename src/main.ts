@@ -10,7 +10,7 @@ async function run(): Promise<void> {
     const github = createGitHubClient()
     const slack = createSlackClient()
 
-    const ts = await postMessage({github, slack})
+    const ts = await postMessage(github, slack)
 
     if (ts) {
       setOutput('ts', ts)

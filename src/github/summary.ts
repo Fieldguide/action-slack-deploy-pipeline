@@ -1,14 +1,30 @@
 import {context} from '@actions/github'
+import {intervalToDuration} from 'date-fns'
 import {bold, emoji, link} from '../slack/mrkdwn'
 import {Link} from '../slack/types'
+import {dateFromTs} from '../slack/utils'
 import {getContextBlock} from './context'
 import {createMessage, emojiFromStatus} from './message'
-import {JobStatus, Message, MessageOptions, Text} from './types'
+import {JobStatus, Message, Text} from './types'
 import {isPullRequestEvent, isPushEvent} from './webhook'
 
-export function getSummaryMessage(options?: MessageOptions): Message {
+interface Options {
+  status: string
+  threadTs: string
+  now: Date
+}
+
+export function getSummaryMessage(options?: Options): Message {
   const text = getText(options?.status)
-  const contextBlock = getContextBlock(options?.duration)
+
+  const duration = options
+    ? intervalToDuration({
+        start: dateFromTs(options.threadTs),
+        end: options.now
+      })
+    : undefined
+
+  const contextBlock = getContextBlock(duration)
 
   return createMessage(text, contextBlock)
 }

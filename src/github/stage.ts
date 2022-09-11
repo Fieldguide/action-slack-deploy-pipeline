@@ -1,11 +1,32 @@
 import {context} from '@actions/github'
+import {intervalToDuration} from 'date-fns'
 import {bold} from '../slack/mrkdwn'
 import {getContextBlock} from './context'
 import {createMessage, emojiFromStatus} from './message'
-import {isSuccessful, JobStatus, Message, MessageOptions, Text} from './types'
+import {
+  CompletedJobStep,
+  GitHubClient,
+  isCompletedJobStep,
+  isSuccessful,
+  JobStatus,
+  Message,
+  Text
+} from './types'
 
-export function getStageMessage({status, duration}: MessageOptions): Message {
+interface Options {
+  github: GitHubClient
+  status: string
+  now: Date
+}
+
+export async function getStageMessage({
+  github,
+  status,
+  now
+}: Options): Promise<Message> {
   const text = getText(status)
+
+  const duration = await computeDuration(github, now)
   const contextBlock = getContextBlock(duration)
 
   return {
@@ -41,5 +62,35 @@ function verbFromStatus(status: string): string {
       return 'Cancelled'
     default:
       throw new Error(`Unexpected status ${status}`)
+  }
+}
+
+async function computeDuration(
+  github: GitHubClient,
+  now: Date
+): Promise<Duration | undefined> {
+  const {data} = await github.rest.actions.listJobsForWorkflowRun({
+    ...context.repo,
+    run_id: context.runId
+  })
+
+  const slackRegex = /[^A-Za-z]slack[^A-Za-z]/i
+  const lastCompletedSlackStep = data.jobs
+    .flatMap<CompletedJobStep>(({steps}) => {
+      if (!steps) {
+        return []
+      }
+
+      return steps
+        .filter(isCompletedJobStep)
+        .filter(({name}) => slackRegex.test(` ${name} `))
+    })
+    .pop()
+
+  if (lastCompletedSlackStep) {
+    return intervalToDuration({
+      start: new Date(lastCompletedSlackStep.completed_at),
+      end: now
+    })
   }
 }
