@@ -1,3 +1,5 @@
+[![ci](https://github.com/namoscato/action-slack-deploy-pipeline/actions/workflows/ci.yml/badge.svg)](https://github.com/namoscato/action-slack-deploy-pipeline/actions/workflows/ci.yml)
+
 # Slack Deploy Pipeline Notifications
 
 Post [GitHub Action](https://github.com/features/actions) deploy workflow progress notifications to [Slack](https://slack.com/).

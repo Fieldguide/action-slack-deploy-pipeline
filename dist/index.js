@@ -148,8 +148,6 @@ function getText(status) {
 }
 /**
  * Return past tense verb for the specified job `status`.
- *
- * @see https://docs.github.com/en/actions/learn-github-actions/contexts#job-context
  */
 function verbFromStatus(status) {
     switch (status) {
@@ -218,14 +216,14 @@ function getSummaryMessage(options) {
 exports.getSummaryMessage = getSummaryMessage;
 function getText(status) {
     const summarySentence = getSummarySentence(status);
-    const eventTitle = getEventTitle();
+    const eventLink = getEventLink();
     const mrkdwn = [
         status ? (0, message_1.emojiFromStatus)(status) : (0, mrkdwn_1.emoji)('black_square_button'),
         `${summarySentence.mrkdwn}:`,
-        (0, mrkdwn_1.link)(eventTitle)
+        (0, mrkdwn_1.link)(eventLink)
     ].join(' ');
     return {
-        plain: `${summarySentence.plain}: ${eventTitle.text}`,
+        plain: `${summarySentence.plain}: ${eventLink.text}`,
         mrkdwn
     };
 }
@@ -237,9 +235,6 @@ function getSummarySentence(status) {
         mrkdwn: `${verb} ${(0, mrkdwn_1.bold)(repo)}`
     };
 }
-/**
- * @see https://docs.github.com/en/actions/learn-github-actions/contexts#job-context
- */
 function verbFromStatus(status) {
     switch (status) {
         case types_1.JobStatus.Success:
@@ -252,7 +247,7 @@ function verbFromStatus(status) {
             throw new Error(`Unexpected status ${status}`);
     }
 }
-function getEventTitle() {
+function getEventLink() {
     if ((0, webhook_1.isPullRequestEvent)(github_1.context)) {
         const pullRequest = github_1.context.payload.pull_request;
         return {
@@ -280,6 +275,9 @@ function getEventTitle() {
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.isCompletedJobStep = exports.isSuccessful = exports.JobStatus = void 0;
+/**
+ * @see https://docs.github.com/en/actions/learn-github-actions/contexts#job-context
+ */
 var JobStatus;
 (function (JobStatus) {
     JobStatus["Success"] = "success";
@@ -330,6 +328,11 @@ exports.senderFromPayload = senderFromPayload;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getEnv = void 0;
+/**
+ * Get the value of a required environment variable.
+ *
+ * The value is trimmed of whitespace.
+ */
 function getEnv(name) {
     var _a;
     const env = String((_a = process.env[name]) !== null && _a !== void 0 ? _a : '').trim();
@@ -520,6 +523,9 @@ exports.link = link;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.dateFromTs = void 0;
+/**
+ * Convert the Slack message timestamp ID to a Date object.
+ */
 function dateFromTs(ts) {
     return new Date(1000 * Number(ts));
 }

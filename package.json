@@ -1,8 +1,8 @@
 {
-  "name": "typescript-action",
-  "version": "0.0.0",
+  "name": "action-slack-deploy-pipeline",
+  "version": "0.1.0",
   "private": true,
-  "description": "TypeScript template action",
+  "description": "Post GitHub Action deploy workflow progress notifications to Slack",
   "main": "lib/main.js",
   "scripts": {
     "build": "tsc",
@@ -16,14 +16,18 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/actions/typescript-action.git"
+    "url": "git+https://github.com/namoscato/action-slack-deploy-pipeline.git"
   },
   "keywords": [
     "actions",
-    "node",
-    "setup"
+    "slack",
+    "deployment",
+    "pipeline",
+    "workflow",
+    "notifications",
+    "progress"
   ],
-  "author": "",
+  "author": "Nick Amoscato <nick@amoscato.com>",
   "license": "MIT",
   "dependencies": {
     "@actions/core": "^1.9.1",
