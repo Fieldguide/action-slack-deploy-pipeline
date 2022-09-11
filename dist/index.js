@@ -121,7 +121,7 @@ const types_1 = __nccwpck_require__(305);
 function getStageMessage({ status, duration }) {
     const text = getText(status);
     const contextBlock = (0, context_1.getContextBlock)(duration);
-    return Object.assign(Object.assign({}, (0, message_1.createMessage)(text, contextBlock)), { reply_broadcast: types_1.JobStatus.Success !== status });
+    return Object.assign(Object.assign({}, (0, message_1.createMessage)(text, contextBlock)), { reply_broadcast: !(0, types_1.isSuccessful)(status) });
 }
 exports.getStageMessage = getStageMessage;
 function getText(status) {
@@ -236,13 +236,17 @@ function getEventTitle() {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.JobStatus = void 0;
+exports.isSuccessful = exports.JobStatus = void 0;
 var JobStatus;
 (function (JobStatus) {
     JobStatus["Success"] = "success";
     JobStatus["Failure"] = "failure";
     JobStatus["Cancelled"] = "cancelled";
 })(JobStatus = exports.JobStatus || (exports.JobStatus = {}));
+function isSuccessful(status) {
+    return JobStatus.Success === status;
+}
+exports.isSuccessful = isSuccessful;
 
 
 /***/ }),
@@ -309,51 +313,91 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core_1 = __nccwpck_require__(2186);
 const github_1 = __nccwpck_require__(5438);
-const date_fns_1 = __nccwpck_require__(3314);
-const stage_1 = __nccwpck_require__(6428);
-const summary_1 = __nccwpck_require__(9651);
 const input_1 = __nccwpck_require__(8657);
+const message_1 = __nccwpck_require__(3307);
 const client_1 = __nccwpck_require__(6593);
-const utils_1 = __nccwpck_require__(4047);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const botToken = (0, input_1.getEnv)('SLACK_DEPLOY_BOT_TOKEN');
-            const channel = (0, input_1.getEnv)('SLACK_DEPLOY_CHANNEL');
-            const githubToken = (0, core_1.getInput)('github_token', { required: true });
-            const githubClient = (0, github_1.getOctokit)(githubToken);
-            (0, core_1.debug)(JSON.stringify(github_1.context, null, 2));
+            const github = createGitHubClient();
             (0, core_1.debug)('listJobsForWorkflowRun');
-            const jobs = yield githubClient.rest.actions.listJobsForWorkflowRun(Object.assign(Object.assign({}, github_1.context.repo), { run_id: github_1.context.runId }));
+            const jobs = yield github.rest.actions.listJobsForWorkflowRun(Object.assign(Object.assign({}, github_1.context.repo), { run_id: github_1.context.runId }));
             (0, core_1.debug)(JSON.stringify(jobs, null, 2));
-            const slack = new client_1.SlackClient(botToken);
-            const threadTs = (0, core_1.getInput)('thread_ts');
-            if (threadTs) {
-                const duration = (0, date_fns_1.intervalToDuration)({
-                    start: (0, utils_1.dateFromTs)(threadTs),
-                    end: new Date()
-                });
-                const status = (0, core_1.getInput)('status', { required: true });
-                (0, core_1.info)(`Posting message in thread: ${threadTs}`);
-                yield slack.postMessage(Object.assign(Object.assign({}, (0, stage_1.getStageMessage)({ status, duration })), { channel, thread_ts: threadTs }));
-                (0, core_1.info)(`Updating summary message: ${threadTs}`);
-                yield slack.updateMessage(Object.assign(Object.assign({}, (0, summary_1.getSummaryMessage)({ status, duration })), { channel, ts: threadTs }));
-            }
-            else {
-                (0, core_1.info)('Posting message');
-                const ts = yield slack.postMessage(Object.assign(Object.assign({}, (0, summary_1.getSummaryMessage)()), { channel }));
+            const slack = createSlackClient();
+            const ts = yield (0, message_1.postMessage)({ slack });
+            if (ts) {
                 (0, core_1.setOutput)('ts', ts);
             }
         }
-        catch (error) {
-            (0, core_1.setFailed)(error instanceof Error ? error.message : String(error));
-            if (error instanceof Error && error.stack) {
-                (0, core_1.debug)(error.stack);
+        catch (err) {
+            (0, core_1.setFailed)(err instanceof Error ? err : String(err));
+            if ((0, core_1.isDebug)() && err instanceof Error && err.stack) {
+                (0, core_1.error)(err.stack);
             }
         }
     });
 }
+function createSlackClient() {
+    const token = (0, input_1.getEnv)('SLACK_DEPLOY_BOT_TOKEN');
+    const channel = (0, input_1.getEnv)('SLACK_DEPLOY_CHANNEL');
+    return new client_1.SlackClient({ token, channel });
+}
+function createGitHubClient() {
+    const token = (0, core_1.getInput)('github_token', { required: true });
+    return (0, github_1.getOctokit)(token);
+}
 run();
+
+
+/***/ }),
+
+/***/ 3307:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.postMessage = void 0;
+const core_1 = __nccwpck_require__(2186);
+const date_fns_1 = __nccwpck_require__(3314);
+const stage_1 = __nccwpck_require__(6428);
+const summary_1 = __nccwpck_require__(9651);
+const types_1 = __nccwpck_require__(305);
+const utils_1 = __nccwpck_require__(4047);
+/**
+ * @returns message timestamp ID
+ */
+function postMessage({ slack }) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const threadTs = (0, core_1.getInput)('thread_ts');
+        if (!threadTs) {
+            (0, core_1.info)('Posting summary message');
+            return slack.postMessage((0, summary_1.getSummaryMessage)());
+        }
+        const duration = (0, date_fns_1.intervalToDuration)({
+            start: (0, utils_1.dateFromTs)(threadTs),
+            end: new Date()
+        });
+        const status = (0, core_1.getInput)('status', { required: true });
+        const conclusion = 'true' === (0, core_1.getInput)('conclusion');
+        (0, core_1.info)(`Posting stage message in thread: ${threadTs}`);
+        yield slack.postMessage(Object.assign(Object.assign({}, (0, stage_1.getStageMessage)({ status, duration })), { thread_ts: threadTs }));
+        if (conclusion || !(0, types_1.isSuccessful)(status)) {
+            (0, core_1.info)(`Updating summary message: ${status}`);
+            yield slack.updateMessage(Object.assign(Object.assign({}, (0, summary_1.getSummaryMessage)({ status, duration })), { ts: threadTs }));
+        }
+    });
+}
+exports.postMessage = postMessage;
 
 
 /***/ }),
@@ -376,15 +420,16 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.SlackClient = void 0;
 const web_api_1 = __nccwpck_require__(431);
 class SlackClient {
-    constructor(token) {
+    constructor({ token, channel }) {
         this.web = new web_api_1.WebClient(token);
+        this.channel = channel;
     }
     /**
      * @returns message timestamp ID
      */
     postMessage(options) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { ts } = yield this.web.chat.postMessage(options);
+            const { ts } = yield this.web.chat.postMessage(Object.assign(Object.assign({}, options), { channel: this.channel }));
             if (!ts) {
                 throw new Error('Response timestamp ID undefined');
             }
@@ -393,7 +438,7 @@ class SlackClient {
     }
     updateMessage(options) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.web.chat.update(options);
+            yield this.web.chat.update(Object.assign(Object.assign({}, options), { channel: this.channel }));
         });
     }
 }

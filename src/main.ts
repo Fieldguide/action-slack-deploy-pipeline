@@ -1,68 +1,54 @@
-import {debug, getInput, info, setFailed, setOutput} from '@actions/core'
+import {
+  debug,
+  error,
+  getInput,
+  isDebug,
+  setFailed,
+  setOutput
+} from '@actions/core'
 import {context, getOctokit} from '@actions/github'
-import {intervalToDuration} from 'date-fns'
-import {getStageMessage} from './github/stage'
-import {getSummaryMessage} from './github/summary'
+import {GitHub} from '@actions/github/lib/utils'
 import {getEnv} from './input'
+import {postMessage} from './message'
 import {SlackClient} from './slack/client'
-import {dateFromTs} from './slack/utils'
 
 async function run(): Promise<void> {
   try {
-    const botToken = getEnv('SLACK_DEPLOY_BOT_TOKEN')
-    const channel = getEnv('SLACK_DEPLOY_CHANNEL')
-
-    const githubToken = getInput('github_token', {required: true})
-    const githubClient = getOctokit(githubToken)
-
-    debug(JSON.stringify(context, null, 2))
+    const github = createGitHubClient()
 
     debug('listJobsForWorkflowRun')
-    const jobs = await githubClient.rest.actions.listJobsForWorkflowRun({
+    const jobs = await github.rest.actions.listJobsForWorkflowRun({
       ...context.repo,
       run_id: context.runId
     })
     debug(JSON.stringify(jobs, null, 2))
 
-    const slack = new SlackClient(botToken)
-    const threadTs = getInput('thread_ts')
+    const slack = createSlackClient()
+    const ts = await postMessage({slack})
 
-    if (threadTs) {
-      const duration = intervalToDuration({
-        start: dateFromTs(threadTs),
-        end: new Date()
-      })
-      const status = getInput('status', {required: true})
-
-      info(`Posting message in thread: ${threadTs}`)
-      await slack.postMessage({
-        ...getStageMessage({status, duration}),
-        channel,
-        thread_ts: threadTs
-      })
-
-      info(`Updating summary message: ${threadTs}`)
-      await slack.updateMessage({
-        ...getSummaryMessage({status, duration}),
-        channel,
-        ts: threadTs
-      })
-    } else {
-      info('Posting message')
-      const ts = await slack.postMessage({
-        ...getSummaryMessage(),
-        channel
-      })
-
+    if (ts) {
       setOutput('ts', ts)
     }
-  } catch (error) {
-    setFailed(error instanceof Error ? error.message : String(error))
+  } catch (err) {
+    setFailed(err instanceof Error ? err : String(err))
 
-    if (error instanceof Error && error.stack) {
-      debug(error.stack)
+    if (isDebug() && err instanceof Error && err.stack) {
+      error(err.stack)
     }
   }
+}
+
+function createSlackClient(): SlackClient {
+  const token = getEnv('SLACK_DEPLOY_BOT_TOKEN')
+  const channel = getEnv('SLACK_DEPLOY_CHANNEL')
+
+  return new SlackClient({token, channel})
+}
+
+function createGitHubClient(): InstanceType<typeof GitHub> {
+  const token = getInput('github_token', {required: true})
+
+  return getOctokit(token)
 }
 
 run()

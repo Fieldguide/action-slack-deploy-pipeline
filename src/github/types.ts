@@ -26,3 +26,7 @@ export enum JobStatus {
   Failure = 'failure',
   Cancelled = 'cancelled'
 }
+
+export function isSuccessful(status: string): status is JobStatus.Success {
+  return JobStatus.Success === status
+}

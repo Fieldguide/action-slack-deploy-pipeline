@@ -2,16 +2,20 @@ name: 'Slack Deploy Pipeline Notifications'
 description: 'Provide a description here'
 author: 'namoscato'
 inputs:
-  thread_ts:
+  conclusion:
+    description: "'true' denotes last stage"
     required: false
-    description: "Previous message's timestamp ID"
-  status:
-    required: false
-    description: 'Job status'
   github_token:
-    description: TODO
+    description: 'repository GITHUB_TOKEN or personal access token secret'
     required: false
     default: ${{ github.token }}
+  status:
+    required: false
+    description: 'job status'
+    default: ${{ job.status }}
+  thread_ts:
+    required: false
+    description: "first Slack message's timestamp ID"
 outputs:
   ts:
     description: 'Slack message timestamp ID'

@@ -1,5 +1,5 @@
 name: ci
-on: # rebuild any PRs and main branch changes
+on:
   pull_request:
   push:
     branches:
@@ -7,18 +7,26 @@ on: # rebuild any PRs and main branch changes
       - 'releases/*'
 
 jobs:
-  build: # make sure build/ci work properly
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: |
-          npm install
-      - run: |
-          npm run all
-  test: # make sure the action works on a clean machine without building
+      - uses: actions/setup-node@v3
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+      - run: npm install
+      - run: npm run all
+
+  test:
     runs-on: ubuntu-latest
+    env:
+      SLACK_DEPLOY_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN_FOR_TESTING }}
+      SLACK_DEPLOY_CHANNEL: 'C040YVCUDRR' #github_action_testing
     steps:
       - uses: actions/checkout@v3
       - uses: ./
+        id: slack
+      - uses: ./
         with:
-          milliseconds: 1000
+          thread_ts: ${{ steps.slack.outputs.ts }}

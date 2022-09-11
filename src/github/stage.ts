@@ -2,7 +2,7 @@ import {context} from '@actions/github'
 import {bold} from '../slack/mrkdwn'
 import {getContextBlock} from './context'
 import {createMessage, emojiFromStatus} from './message'
-import {JobStatus, Message, MessageOptions, Text} from './types'
+import {isSuccessful, JobStatus, Message, MessageOptions, Text} from './types'
 
 export function getStageMessage({status, duration}: MessageOptions): Message {
   const text = getText(status)
@@ -10,7 +10,7 @@ export function getStageMessage({status, duration}: MessageOptions): Message {
 
   return {
     ...createMessage(text, contextBlock),
-    reply_broadcast: JobStatus.Success !== status
+    reply_broadcast: !isSuccessful(status)
   }
 }
 
