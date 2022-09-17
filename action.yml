@@ -1,11 +1,27 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'Slack Deploy Pipeline Notifications'
+description: 'Post deploy workflow progress notifications to Slack'
+author: 'namoscato'
 inputs:
-  milliseconds: # change this
-    required: true
-    description: 'input description here'
-    default: 'default value if applicable'
+  thread_ts:
+    description: 'Initial Slack message timestamp ID'
+    required: false
+  conclusion:
+    description: "'true' denotes last stage"
+    required: false
+  github_token:
+    description: 'Repository GITHUB_TOKEN or personal access token secret'
+    required: false
+    default: ${{ github.token }}
+  status:
+    description: 'The current status of the job'
+    required: false
+    default: ${{ job.status }}
+outputs:
+  ts:
+    description: 'Slack message timestamp ID'
 runs:
   using: 'node16'
   main: 'dist/index.js'
+branding:
+  icon: bell
+  color: purple

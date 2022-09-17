@@ -1,109 +1,101 @@
-<p align="center">
-  <a href="https://github.com/actions/typescript-action/actions"><img alt="typescript-action status" src="https://github.com/actions/typescript-action/workflows/build-test/badge.svg"></a>
-</p>
+[![ci](https://github.com/namoscato/action-slack-deploy-pipeline/actions/workflows/ci.yml/badge.svg)](https://github.com/namoscato/action-slack-deploy-pipeline/actions/workflows/ci.yml)
 
-# Create a JavaScript Action using TypeScript
+# Slack Deploy Pipeline Notifications
 
-Use this template to bootstrap the creation of a TypeScript action.:rocket:
+Post [GitHub Action](https://github.com/features/actions) deploy workflow progress notifications to [Slack](https://slack.com/).
 
-This template includes compilation support, tests, a validation workflow, publishing, and versioning guidance.
+<img width="487" alt="Slack Deploy Pipeline Notifications example thread" src="https://user-images.githubusercontent.com/847532/189536394-f5b231ce-27ee-4d4d-8c87-3a59743c8f38.png">
 
-If you are new, there's also a simpler introduction. See the [Hello World JavaScript Action](https://github.com/actions/hello-world-javascript-action)
+## Setup
 
-## Create an action from this template
+1. [Create a Slack App](https://api.slack.com/apps) for your workspace
+1. Under **OAuth & Permissions**, add two Bot Token Scopes:
+   1. [`chat:write`](https://api.slack.com/scopes/chat:write) to post messages
+   1. [`chat:write.customize`](https://api.slack.com/scopes/chat:write.customize) to customize messages with GitHub username and avatar
+1. Install the app to your workspace
+1. Copy the app's **Bot User OAuth Token** from the **OAuth & Permissions** page
+1. [Create a GitHub repository secret](https://docs.github.com/en/actions/security-guides/encrypted-secrets#creating-encrypted-secrets-for-a-repository) with this token, named `SLACK_DEPLOY_BOT_TOKEN`
+1. Invite the bot user into the Slack channel you will post messages to (`/invite @bot_user_name`)
+1. Click the Slack channel name in the header, and copy its **Channel ID** from the bottom of the dialog
 
-Click the `Use this Template` and provide the new repo details for your action
-
-## Code in Main
-
-> First, you'll need to have a reasonably modern version of `node` handy. This won't work with versions older than 9, for instance.
-
-Install the dependencies
-
-```bash
-$ npm install
-```
-
-Build the typescript and package it for distribution
-
-```bash
-$ npm run build && npm run package
-```
-
-Run the tests :heavy_check_mark:
-
-```bash
-$ npm test
-
- PASS  ./index.test.js
-  ✓ throws invalid number (3ms)
-  ✓ wait 500 ms (504ms)
-  ✓ test runs (95ms)
-
-...
-```
-
-## Change action.yml
-
-The action.yml defines the inputs and output for your action.
-
-Update the action.yml with your name, description, inputs and outputs for your action.
-
-See the [documentation](https://help.github.com/en/articles/metadata-syntax-for-github-actions)
-
-## Change the Code
-
-Most toolkit and CI/CD operations involve async operations so the action is run in an async function.
-
-```javascript
-import * as core from '@actions/core';
-...
-
-async function run() {
-  try {
-      ...
-  }
-  catch (error) {
-    core.setFailed(error.message);
-  }
-}
-
-run()
-```
-
-See the [toolkit documentation](https://github.com/actions/toolkit/blob/master/README.md#packages) for the various packages.
-
-## Publish to a distribution branch
-
-Actions are run from GitHub repos so we will checkin the packed dist folder.
-
-Then run [ncc](https://github.com/zeit/ncc) and push the results:
-
-```bash
-$ npm run package
-$ git add dist
-$ git commit -a -m "prod dependencies"
-$ git push origin releases/v1
-```
-
-Note: We recommend using the `--license` option for ncc, which will create a license file for all of the production node modules used in your project.
-
-Your action is now published! :rocket:
-
-See the [versioning documentation](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
-
-## Validate
-
-You can now validate the action by referencing `./` in a workflow in your repo (see [test.yml](.github/workflows/test.yml))
+## Usage
 
 ```yaml
-uses: ./
-with:
-  milliseconds: 1000
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+# 1. Configure required environment variables
+env:
+  SLACK_DEPLOY_BOT_TOKEN: ${{ secrets.SLACK_DEPLOY_BOT_TOKEN }}
+  SLACK_DEPLOY_CHANNEL: 'C040YVCUDRR' # replace with your Slack Channel ID
+
+jobs:
+  staging:
+    runs-on: ubuntu-latest
+    outputs:
+      slack_ts: ${{ steps.slack.outputs.ts }}
+    steps:
+      # 2. Post summary message at the beginning of your workflow
+      - name: Post to Slack
+        uses: namoscato/action-slack-deploy-pipeline@v1
+        id: slack
+
+      - name: Deploy to staging
+        run: sleep 10 # replace with your deploy steps
+
+      # 3. Post threaded stage updates throughout
+      - name: Post to Slack
+        uses: namoscato/action-slack-deploy-pipeline@v1
+        if: always()
+        with:
+          thread_ts: ${{ steps.slack.outputs.ts }}
+
+  production:
+    needs:
+      - staging
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to production
+        run: sleep 5 # replace with your deploy steps
+
+      # 4. Post last "conclusion" stage
+      - name: Post to Slack
+        uses: namoscato/action-slack-deploy-pipeline@v1
+        if: always()
+        with:
+          thread_ts: ${{ needs.staging.outputs.slack_ts }}
+          conclusion: true
 ```
 
-See the [actions tab](https://github.com/actions/typescript-action/actions) for runs of this action! :rocket:
+1. Configure required `SLACK_DEPLOY_BOT_TOKEN` and `SLACK_DEPLOY_CHANNEL` [environment variables](https://docs.github.com/en/actions/learn-github-actions/environment-variables).
+1. Use this action at the beginning of your workflow to post a "Deploying" message in your configured channel.
+1. As your workflow progresses, use this action with the `thread_ts` input to post threaded replies.
+1. Denote the last step with the `conclusion` input to update the initial message's status.
 
-## Usage:
+## Environment Variables
 
-After testing you can [create a v1 tag](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md) to reference the stable and latest V1 action
+Both environment variables are _required_.
+
+| variable                 | description                |
+| ------------------------ | -------------------------- |
+| `SLACK_DEPLOY_BOT_TOKEN` | Slack Bot User OAuth Token |
+| `SLACK_DEPLOY_CHANNEL`   | Slack Channel ID           |
+
+## Inputs
+
+| input          | description                                                                                                                                                              |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `thread_ts`    | Initial Slack message timestamp ID                                                                                                                                       |
+| `conclusion`   | `true` denotes last stage                                                                                                                                                |
+| `github_token` | Repository `GITHUB_TOKEN` or personal access token secret; defaults to [`github.token`](https://docs.github.com/en/actions/learn-github-actions/contexts#github-context) |
+| `status`       | The current status of the job; defaults to [`job.status`](https://docs.github.com/en/actions/learn-github-actions/contexts#job-context)                                  |
+
+## Outputs
+
+| output | description                |
+| ------ | -------------------------- |
+| `ts`   | Slack message timestamp ID |

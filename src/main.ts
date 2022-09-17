@@ -1,19 +1,40 @@
-import * as core from '@actions/core'
-import {wait} from './wait'
+import {error, getInput, isDebug, setFailed, setOutput} from '@actions/core'
+import {getOctokit} from '@actions/github'
+import {GitHubClient} from './github/types'
+import {getEnv} from './input'
+import {postMessage} from './message'
+import {SlackClient} from './slack/client'
 
 async function run(): Promise<void> {
   try {
-    const ms: string = core.getInput('milliseconds')
-    core.debug(`Waiting ${ms} milliseconds ...`) // debug is only output if you set the secret `ACTIONS_STEP_DEBUG` to true
+    const github = createGitHubClient()
+    const slack = createSlackClient()
 
-    core.debug(new Date().toTimeString())
-    await wait(parseInt(ms, 10))
-    core.debug(new Date().toTimeString())
+    const ts = await postMessage(github, slack)
 
-    core.setOutput('time', new Date().toTimeString())
-  } catch (error) {
-    if (error instanceof Error) core.setFailed(error.message)
+    if (ts) {
+      setOutput('ts', ts)
+    }
+  } catch (err) {
+    setFailed(err instanceof Error ? err : String(err))
+
+    if (isDebug() && err instanceof Error && err.stack) {
+      error(err.stack)
+    }
   }
+}
+
+function createSlackClient(): SlackClient {
+  const token = getEnv('SLACK_DEPLOY_BOT_TOKEN')
+  const channel = getEnv('SLACK_DEPLOY_CHANNEL')
+
+  return new SlackClient({token, channel})
+}
+
+function createGitHubClient(): GitHubClient {
+  const token = getInput('github_token', {required: true})
+
+  return getOctokit(token)
 }
 
 run()

@@ -1,0 +1,7 @@
+{
+  "cSpell.words": ["mrkdwn", "namoscato"],
+  "files.exclude": {
+    "dist": true,
+    "lib": true
+  }
+}
