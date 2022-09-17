@@ -40,14 +40,16 @@ jobs:
       slack_ts: ${{ steps.slack.outputs.ts }}
     steps:
       # 2. Post summary message at the beginning of your workflow
-      - uses: namoscato/action-slack-deploy-pipeline@dev
+      - name: Post to Slack
+        uses: namoscato/action-slack-deploy-pipeline@v1
         id: slack
 
       - name: Deploy to staging
         run: sleep 10 # replace with your deploy steps
 
       # 3. Post threaded stage updates throughout
-      - uses: namoscato/action-slack-deploy-pipeline@dev
+      - name: Post to Slack
+        uses: namoscato/action-slack-deploy-pipeline@v1
         if: always()
         with:
           thread_ts: ${{ steps.slack.outputs.ts }}
@@ -61,7 +63,8 @@ jobs:
         run: sleep 5 # replace with your deploy steps
 
       # 4. Post last "conclusion" stage
-      - uses: namoscato/action-slack-deploy-pipeline@dev
+      - name: Post to Slack
+        uses: namoscato/action-slack-deploy-pipeline@v1
         if: always()
         with:
           thread_ts: ${{ needs.staging.outputs.slack_ts }}

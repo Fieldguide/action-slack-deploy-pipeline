@@ -25,7 +25,8 @@ jobs:
       SLACK_DEPLOY_CHANNEL: 'C040YVCUDRR' #github_action_testing
     steps:
       - uses: actions/checkout@v3
-      - uses: ./
+      - name: Post to Slack
+        uses: ./
         id: slack
       - uses: ./
         with:

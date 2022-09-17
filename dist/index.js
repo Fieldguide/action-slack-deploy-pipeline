@@ -213,6 +213,8 @@ function getSummaryMessage(options) {
             end: options.now
         })
         : undefined;
+    // eslint-disable-next-line no-console
+    console.log(JSON.stringify({ options, duration }, null, 2));
     const contextBlock = (0, context_1.getContextBlock)(duration);
     return (0, message_1.createMessage)(text, contextBlock);
 }
