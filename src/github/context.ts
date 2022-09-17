@@ -9,7 +9,7 @@ export function getContextBlock(duration?: Duration): ContextBlock {
   const textParts = [link(getWorkflow()), getRef()]
 
   if (duration) {
-    textParts.push(formatDuration(duration))
+    textParts.push(formatDuration(duration) || '0 seconds')
   }
 
   return {

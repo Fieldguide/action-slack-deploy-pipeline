@@ -359,5 +359,34 @@ describe('postMessage', () => {
         )
       })
     })
+
+    describe('0 second duration', () => {
+      beforeEach(async () => {
+        jest.useFakeTimers().setSystemTime(new Date('2022-09-10T00:00:06.000Z')) // same as job.started_at = 00:06
+
+        process.env.INPUT_STATUS = 'success'
+
+        ts = await postMessage(githubClient, slack)
+      })
+
+      it('should post slack message', () => {
+        expect(slack.postMessage).toHaveBeenCalledWith(
+          expect.objectContaining({
+            text: 'Finished JOB 2',
+            blocks: expect.arrayContaining([
+              {
+                type: 'context',
+                elements: [
+                  {
+                    type: 'mrkdwn',
+                    text: '<https://github.com/namoscato/action-testing/commit/05b16c3beb3a07dceaf6cf964d0be9eccbc026e8/checks|Deploy App>  ∙  05b16c3  ∙  0 seconds'
+                  }
+                ]
+              }
+            ])
+          })
+        )
+      })
+    })
   })
 })

@@ -27,9 +27,6 @@ export function getSummaryMessage(options?: Options): Message {
       })
     : undefined
 
-  // eslint-disable-next-line no-console
-  console.log(JSON.stringify({options, duration}, null, 2))
-
   const contextBlock = getContextBlock(duration)
 
   return createMessage(text, contextBlock)

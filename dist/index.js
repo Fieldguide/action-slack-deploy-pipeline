@@ -15,7 +15,7 @@ const webhook_1 = __nccwpck_require__(4464);
 function getContextBlock(duration) {
     const textParts = [(0, mrkdwn_1.link)(getWorkflow()), getRef()];
     if (duration) {
-        textParts.push((0, date_fns_1.formatDuration)(duration));
+        textParts.push((0, date_fns_1.formatDuration)(duration) || '0 seconds');
     }
     return {
         type: 'context',
@@ -213,8 +213,6 @@ function getSummaryMessage(options) {
             end: options.now
         })
         : undefined;
-    // eslint-disable-next-line no-console
-    console.log(JSON.stringify({ options, duration }, null, 2));
     const contextBlock = (0, context_1.getContextBlock)(duration);
     return (0, message_1.createMessage)(text, contextBlock);
 }
