@@ -1,6 +1,6 @@
 name: 'Slack Deploy Pipeline Notifications'
 description: 'Post deploy workflow progress notifications to Slack'
-author: 'namoscato'
+author: 'Fieldguide'
 inputs:
   thread_ts:
     description: 'Initial Slack message timestamp ID'

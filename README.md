@@ -1,4 +1,4 @@
-[![ci](https://github.com/namoscato/action-slack-deploy-pipeline/actions/workflows/ci.yml/badge.svg)](https://github.com/namoscato/action-slack-deploy-pipeline/actions/workflows/ci.yml)
+[![ci](https://github.com/Fieldguide/action-slack-deploy-pipeline/actions/workflows/ci.yml/badge.svg)](https://github.com/Fieldguide/action-slack-deploy-pipeline/actions/workflows/ci.yml)
 
 # Slack Deploy Pipeline Notifications
 
@@ -41,7 +41,7 @@ jobs:
     steps:
       # 2. Post summary message at the beginning of your workflow
       - name: Post to Slack
-        uses: namoscato/action-slack-deploy-pipeline@v1
+        uses: Fieldguide/action-slack-deploy-pipeline@v1
         id: slack
 
       - name: Deploy to staging
@@ -49,7 +49,7 @@ jobs:
 
       # 3. Post threaded stage updates throughout
       - name: Post to Slack
-        uses: namoscato/action-slack-deploy-pipeline@v1
+        uses: Fieldguide/action-slack-deploy-pipeline@v1
         if: always()
         with:
           thread_ts: ${{ steps.slack.outputs.ts }}
@@ -64,7 +64,7 @@ jobs:
 
       # 4. Post last "conclusion" stage
       - name: Post to Slack
-        uses: namoscato/action-slack-deploy-pipeline@v1
+        uses: Fieldguide/action-slack-deploy-pipeline@v1
         if: always()
         with:
           thread_ts: ${{ needs.staging.outputs.slack_ts }}
