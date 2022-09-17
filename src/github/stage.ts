@@ -4,7 +4,6 @@ import {bold} from '../slack/mrkdwn'
 import {getContextBlock} from './context'
 import {createMessage, emojiFromStatus} from './message'
 import {
-  CompletedJobStep,
   GitHubClient,
   isCompletedJobStep,
   isSuccessful,
@@ -75,22 +74,19 @@ async function computeDuration(
     run_id: context.runId
   })
 
-  const slackRegex = /[^A-Za-z]slack[^A-Za-z]/i
-  const lastCompletedSlackStep = data.jobs
-    .flatMap<CompletedJobStep>(({steps}) => {
-      if (!steps) {
-        return []
-      }
+  const currentJob = data.jobs.find(({name}) => name === context.job)
 
-      return steps
-        .filter(isCompletedJobStep)
-        .filter(({name}) => slackRegex.test(` ${name} `))
-    })
+  const slackRegex = /[^A-Za-z]slack[^A-Za-z]/i
+  const lastCompletedSlackStep = currentJob?.steps
+    ?.filter(isCompletedJobStep)
+    .filter(({name}) => slackRegex.test(` ${name} `))
     .pop()
 
-  if (lastCompletedSlackStep) {
+  const start = lastCompletedSlackStep?.completed_at ?? currentJob?.started_at
+
+  if (start) {
     return intervalToDuration({
-      start: new Date(lastCompletedSlackStep.completed_at),
+      start: new Date(start),
       end: now
     })
   }

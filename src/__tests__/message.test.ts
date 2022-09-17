@@ -104,7 +104,7 @@ describe('postMessage', () => {
       process.env.INPUT_THREAD_TS = '1662768000' // 2022-09-10T00:00:00.000Z
 
       github.context.eventName = 'push'
-      github.context.job = 'JOB'
+      github.context.job = 'JOB 2'
       github.context.sha = '05b16c3beb3a07dceaf6cf964d0be9eccbc026e8'
       github.context.payload = {
         head_commit: {
@@ -122,6 +122,8 @@ describe('postMessage', () => {
         data: {
           jobs: [
             {
+              name: 'JOB 1',
+              started_at: '2022-09-10T00:00:04.000Z',
               steps: [
                 {
                   name: 'Post to Slack',
@@ -130,6 +132,8 @@ describe('postMessage', () => {
               ]
             },
             {
+              name: 'JOB 2',
+              started_at: '2022-09-10T00:00:06.000Z',
               steps: [
                 {
                   name: 'Run namoscato/action-slack-deploy-pipeline',
@@ -155,13 +159,13 @@ describe('postMessage', () => {
           icon_url: 'github.com/namoscato',
           username: 'namoscato (via GitHub)',
           unfurl_links: false,
-          text: 'Finished JOB',
+          text: 'Finished JOB 2',
           blocks: [
             {
               type: 'section',
               text: {
                 type: 'mrkdwn',
-                text: ':white_check_mark: Finished *JOB*'
+                text: ':white_check_mark: Finished *JOB 2*'
               }
             },
             {
@@ -169,7 +173,7 @@ describe('postMessage', () => {
               elements: [
                 {
                   type: 'mrkdwn',
-                  text: '<https://github.com/namoscato/action-testing/commit/05b16c3beb3a07dceaf6cf964d0be9eccbc026e8/checks|Deploy App>  ∙  05b16c3  ∙  10 seconds'
+                  text: '<https://github.com/namoscato/action-testing/commit/05b16c3beb3a07dceaf6cf964d0be9eccbc026e8/checks|Deploy App>  ∙  05b16c3  ∙  9 seconds' // from job.started_at = 00:06
                 }
               ]
             }
@@ -198,13 +202,13 @@ describe('postMessage', () => {
       it('should post slack message', () => {
         expect(slack.postMessage).toHaveBeenCalledWith(
           expect.objectContaining({
-            text: 'Cancelled JOB',
+            text: 'Cancelled JOB 2',
             blocks: expect.arrayContaining([
               {
                 type: 'section',
                 text: {
                   type: 'mrkdwn',
-                  text: ':no_entry_sign: Cancelled *JOB*'
+                  text: ':no_entry_sign: Cancelled *JOB 2*'
                 }
               }
             ]),
@@ -253,7 +257,7 @@ describe('postMessage', () => {
       it('should post slack message', () => {
         expect(slack.postMessage).toHaveBeenCalledWith(
           expect.objectContaining({
-            text: 'Finished JOB',
+            text: 'Finished JOB 2',
             reply_broadcast: false
           })
         )
@@ -291,7 +295,7 @@ describe('postMessage', () => {
       it('should post slack message', () => {
         expect(slack.postMessage).toHaveBeenCalledWith(
           expect.objectContaining({
-            text: 'Failed JOB',
+            text: 'Failed JOB 2',
             reply_broadcast: true
           })
         )
@@ -301,6 +305,56 @@ describe('postMessage', () => {
         expect(slack.updateMessage).toHaveBeenCalledWith(
           expect.objectContaining({
             text: 'Failed deploying action-testing: COMMIT-MESSAGE'
+          })
+        )
+      })
+    })
+
+    describe('multiple slack steps in job', () => {
+      beforeEach(async () => {
+        githubClient.rest.actions.listJobsForWorkflowRun = jest.fn(
+          async () => ({
+            data: {
+              jobs: [
+                {
+                  name: 'JOB 2',
+                  started_at: '2022-09-10T00:00:04.000Z',
+                  steps: [
+                    {
+                      name: 'Post to Slack',
+                      completed_at: '2022-09-10T00:00:05.000Z'
+                    },
+                    {
+                      name: 'Run namoscato/action-slack-deploy-pipeline',
+                      completed_at: null
+                    }
+                  ]
+                }
+              ]
+            }
+          })
+        ) as any
+
+        process.env.INPUT_STATUS = 'success'
+
+        ts = await postMessage(githubClient, slack)
+      })
+
+      it('should post slack message', () => {
+        expect(slack.postMessage).toHaveBeenCalledWith(
+          expect.objectContaining({
+            text: 'Finished JOB 2',
+            blocks: expect.arrayContaining([
+              {
+                type: 'context',
+                elements: [
+                  {
+                    text: '<https://github.com/namoscato/action-testing/commit/05b16c3beb3a07dceaf6cf964d0be9eccbc026e8/checks|Deploy App>  ∙  05b16c3  ∙  10 seconds', // from step.completed_at = 00:05
+                    type: 'mrkdwn'
+                  }
+                ]
+              }
+            ])
           })
         )
       })
