@@ -254,18 +254,24 @@ function getEventLink() {
     if ((0, webhook_1.isPullRequestEvent)(github_1.context)) {
         const pullRequest = github_1.context.payload.pull_request;
         return {
-            text: `${pullRequest.title} (#${pullRequest.number})`,
+            text: getEventLinkText(`${pullRequest.title} (#${pullRequest.number})`),
             url: pullRequest.html_url
         };
     }
     if ((0, webhook_1.isPushEvent)(github_1.context) && github_1.context.payload.head_commit) {
         const commit = github_1.context.payload.head_commit;
         return {
-            text: commit.message,
+            text: getEventLinkText(commit.message),
             url: commit.url
         };
     }
     throw new Error(`Unsupported event ${github_1.context.eventName} (currently supported events include: pull_request, push)`);
+}
+/**
+ * Return the first `message` line, i.e. omitting the commit description.
+ */
+function getEventLinkText(message) {
+    return message.split('\n', 1)[0];
 }
 
 

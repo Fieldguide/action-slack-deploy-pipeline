@@ -108,7 +108,8 @@ describe('postMessage', () => {
       github.context.sha = '05b16c3beb3a07dceaf6cf964d0be9eccbc026e8'
       github.context.payload = {
         head_commit: {
-          message: 'COMMIT-MESSAGE',
+          message:
+            'COMMIT-MESSAGE\n\nCo-authored-by: Nick <namoscato@users.noreply.github.com>',
           url: 'github.com/commit'
         },
         sender: {
