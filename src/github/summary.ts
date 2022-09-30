@@ -76,7 +76,7 @@ function getEventLink(): Link {
     const pullRequest = context.payload.pull_request
 
     return {
-      text: `${pullRequest.title} (#${pullRequest.number})`,
+      text: getEventLinkText(`${pullRequest.title} (#${pullRequest.number})`),
       url: pullRequest.html_url
     }
   }
@@ -85,7 +85,7 @@ function getEventLink(): Link {
     const commit = context.payload.head_commit
 
     return {
-      text: commit.message,
+      text: getEventLinkText(commit.message),
       url: commit.url
     }
   }
@@ -93,4 +93,11 @@ function getEventLink(): Link {
   throw new Error(
     `Unsupported event ${context.eventName} (currently supported events include: pull_request, push)`
   )
+}
+
+/**
+ * Return the first `message` line, i.e. omitting the commit description.
+ */
+function getEventLinkText(message: string): string {
+  return message.split('\n', 1)[0]
 }
