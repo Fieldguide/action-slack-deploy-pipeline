@@ -76,6 +76,8 @@ async function computeDuration(
 
   const currentJob = data.jobs.find(({name}) => name === context.job)
 
+  console.log(JSON.stringify(currentJob, null, 2))
+
   const slackRegex = /[^A-Za-z]slack[^A-Za-z]/i
   const lastCompletedSlackStep = currentJob?.steps
     ?.filter(isCompletedJobStep)
