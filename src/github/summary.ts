@@ -6,7 +6,7 @@ import {dateFromTs} from '../slack/utils'
 import {getContextBlock} from './context'
 import {createMessage, emojiFromStatus} from './message'
 import {JobStatus, Message, Text} from './types'
-import {isPullRequestEvent, isPushEvent} from './webhook'
+import {isPullRequestEvent, isPushEvent, isScheduleEvent} from './webhook'
 
 interface Options {
   status: string
@@ -88,6 +88,10 @@ function getEventLink(): Link {
       text: getEventLinkText(commit.message),
       url: commit.url
     }
+  }
+
+  if (isScheduleEvent(context)) {
+    console.log(JSON.stringify(context, null, 2))
   }
 
   throw new Error(

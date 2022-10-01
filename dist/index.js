@@ -265,6 +265,9 @@ function getEventLink() {
             url: commit.url
         };
     }
+    if ((0, webhook_1.isScheduleEvent)(github_1.context)) {
+        console.log(JSON.stringify(github_1.context, null, 2));
+    }
     throw new Error(`Unsupported event ${github_1.context.eventName} (currently supported events include: pull_request, push)`);
 }
 /**
@@ -311,15 +314,28 @@ exports.isCompletedJobStep = isCompletedJobStep;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.senderFromPayload = exports.isPushEvent = exports.isPullRequestEvent = void 0;
+exports.senderFromPayload = exports.isScheduleEvent = exports.isPushEvent = exports.isPullRequestEvent = void 0;
+/**
+ * @see https://docs.github.com/en/developers/webhooks-and-events/webhooks/webhook-events-and-payloads#pull_request
+ */
 function isPullRequestEvent(context) {
     return 'pull_request' === context.eventName;
 }
 exports.isPullRequestEvent = isPullRequestEvent;
+/**
+ * @see https://docs.github.com/en/developers/webhooks-and-events/webhooks/webhook-events-and-payloads#push
+ */
 function isPushEvent(context) {
     return 'push' === context.eventName;
 }
 exports.isPushEvent = isPushEvent;
+/**
+ * @see https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule
+ */
+function isScheduleEvent(context) {
+    return 'schedule' === context.eventName;
+}
+exports.isScheduleEvent = isScheduleEvent;
 function senderFromPayload({ sender }) {
     if ((sender === null || sender === void 0 ? void 0 : sender.login) && sender.avatar_url) {
         return sender;
