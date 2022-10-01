@@ -172,7 +172,6 @@ function computeDuration(github, now) {
     return __awaiter(this, void 0, void 0, function* () {
         const { data } = yield github.rest.actions.listJobsForWorkflowRun(Object.assign(Object.assign({}, github_1.context.repo), { run_id: github_1.context.runId }));
         const currentJob = data.jobs.find(({ name }) => name === github_1.context.job);
-        console.log(JSON.stringify(currentJob, null, 2));
         const slackRegex = /[^A-Za-z]slack[^A-Za-z]/i;
         const lastCompletedSlackStep = (_a = currentJob === null || currentJob === void 0 ? void 0 : currentJob.steps) === null || _a === void 0 ? void 0 : _a.filter(types_1.isCompletedJobStep).filter(({ name }) => slackRegex.test(` ${name} `)).pop();
         const start = (_b = lastCompletedSlackStep === null || lastCompletedSlackStep === void 0 ? void 0 : lastCompletedSlackStep.completed_at) !== null && _b !== void 0 ? _b : currentJob === null || currentJob === void 0 ? void 0 : currentJob.started_at;
@@ -299,7 +298,7 @@ function isSuccessful(status) {
 }
 exports.isSuccessful = isSuccessful;
 function isCompletedJobStep(step) {
-    return Boolean(step.completed_at);
+    return Boolean(step.completed_at) && 'skipped' !== step.conclusion;
 }
 exports.isCompletedJobStep = isCompletedJobStep;
 
