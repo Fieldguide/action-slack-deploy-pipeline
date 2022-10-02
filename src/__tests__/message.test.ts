@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as github from '@actions/github'
 import {afterAll, beforeEach, describe, expect, it, jest} from '@jest/globals'
-import {GitHubClient} from '../github/types'
+import {OctokitClient} from '../github/types'
 import {postMessage} from '../message'
 import {SlackClient} from '../slack/client'
 
 describe('postMessage', () => {
-  let githubClient: GitHubClient
+  let octokit: OctokitClient
   let slack: SlackClient
   let ts: string | undefined
 
@@ -14,7 +14,7 @@ describe('postMessage', () => {
   const OLD_ENV = process.env
 
   beforeEach(() => {
-    githubClient = {
+    octokit = {
       rest: {
         actions: {}
       }
@@ -63,7 +63,7 @@ describe('postMessage', () => {
         }
       }
 
-      ts = await postMessage(githubClient, slack)
+      ts = await postMessage(octokit, slack)
     })
 
     it('should post slack message', () => {
@@ -119,7 +119,7 @@ describe('postMessage', () => {
         }
       }
 
-      githubClient.rest.actions.listJobsForWorkflowRun = jest.fn(async () => ({
+      octokit.rest.actions.listJobsForWorkflowRun = jest.fn(async () => ({
         data: {
           jobs: [
             {
@@ -151,7 +151,7 @@ describe('postMessage', () => {
       beforeEach(async () => {
         process.env.INPUT_STATUS = 'success'
 
-        ts = await postMessage(githubClient, slack)
+        ts = await postMessage(octokit, slack)
       })
 
       it('should post slack message', () => {
@@ -197,7 +197,7 @@ describe('postMessage', () => {
       beforeEach(async () => {
         process.env.INPUT_STATUS = 'cancelled'
 
-        ts = await postMessage(githubClient, slack)
+        ts = await postMessage(octokit, slack)
       })
 
       it('should post slack message', () => {
@@ -252,7 +252,7 @@ describe('postMessage', () => {
         process.env.INPUT_STATUS = 'success'
         process.env.INPUT_CONCLUSION = 'true'
 
-        ts = await postMessage(githubClient, slack)
+        ts = await postMessage(octokit, slack)
       })
 
       it('should post slack message', () => {
@@ -290,7 +290,7 @@ describe('postMessage', () => {
         process.env.INPUT_STATUS = 'failure'
         process.env.INPUT_CONCLUSION = 'true'
 
-        ts = await postMessage(githubClient, slack)
+        ts = await postMessage(octokit, slack)
       })
 
       it('should post slack message', () => {
@@ -313,32 +313,30 @@ describe('postMessage', () => {
 
     describe('multiple slack steps in job', () => {
       beforeEach(async () => {
-        githubClient.rest.actions.listJobsForWorkflowRun = jest.fn(
-          async () => ({
-            data: {
-              jobs: [
-                {
-                  name: 'JOB 2',
-                  started_at: '2022-09-10T00:00:04.000Z',
-                  steps: [
-                    {
-                      name: 'Post to Slack',
-                      completed_at: '2022-09-10T00:00:05.000Z'
-                    },
-                    {
-                      name: 'Run namoscato/action-slack-deploy-pipeline',
-                      completed_at: null
-                    }
-                  ]
-                }
-              ]
-            }
-          })
-        ) as any
+        octokit.rest.actions.listJobsForWorkflowRun = jest.fn(async () => ({
+          data: {
+            jobs: [
+              {
+                name: 'JOB 2',
+                started_at: '2022-09-10T00:00:04.000Z',
+                steps: [
+                  {
+                    name: 'Post to Slack',
+                    completed_at: '2022-09-10T00:00:05.000Z'
+                  },
+                  {
+                    name: 'Run namoscato/action-slack-deploy-pipeline',
+                    completed_at: null
+                  }
+                ]
+              }
+            ]
+          }
+        })) as any
 
         process.env.INPUT_STATUS = 'success'
 
-        ts = await postMessage(githubClient, slack)
+        ts = await postMessage(octokit, slack)
       })
 
       it('should post slack message', () => {
@@ -367,7 +365,7 @@ describe('postMessage', () => {
 
         process.env.INPUT_STATUS = 'success'
 
-        ts = await postMessage(githubClient, slack)
+        ts = await postMessage(octokit, slack)
       })
 
       it('should post slack message', () => {

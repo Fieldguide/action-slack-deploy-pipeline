@@ -1,6 +1,6 @@
 import type {WebhookPayload} from '@actions/github/lib/interfaces'
 import type {PullRequestEvent, PushEvent, User} from '@octokit/webhooks-types'
-import type {Context} from './types'
+import type {Context, ScheduleEvent} from './types'
 
 /**
  * @see https://docs.github.com/en/developers/webhooks-and-events/webhooks/webhook-events-and-payloads#pull_request
@@ -23,7 +23,7 @@ export function isPushEvent(context: Context): context is Context<PushEvent> {
  */
 export function isScheduleEvent(
   context: Context
-): context is Context<PushEvent> {
+): context is Context<ScheduleEvent> {
   return 'schedule' === context.eventName
 }
 
