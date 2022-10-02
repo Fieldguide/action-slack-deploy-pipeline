@@ -6,6 +6,13 @@ Post [GitHub Action](https://github.com/features/actions) deploy workflow progre
 
 <img width="487" alt="Slack Deploy Pipeline Notifications example thread" src="https://user-images.githubusercontent.com/847532/189536394-f5b231ce-27ee-4d4d-8c87-3a59743c8f38.png">
 
+## Features
+
+- Posts summary message at beginning of the deploy workflow, surfacing commit message and author
+- Threads intermediate step completions, sending unexpected failures back to the channel
+- Updates summary message duration at conclusion of the workflow
+- Supports `pull_request`, `push`, and `schedule` [event types](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows)
+
 ## Setup
 
 1. [Create a Slack App](https://api.slack.com/apps) for your workspace
