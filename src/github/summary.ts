@@ -5,15 +5,14 @@ import {Link} from '../slack/types'
 import {dateFromTs} from '../slack/utils'
 import {getContextBlock} from './context'
 import {createMessage, emojiFromStatus} from './message'
+import {JobStatus, Message, OctokitClient, Text} from './types'
 import {
-  Context,
-  JobStatus,
-  Message,
-  OctokitClient,
-  SupportedContext,
-  Text
-} from './types'
-import {isPullRequestEvent, isPushEvent, isScheduleEvent} from './webhook'
+  assertUnsupportedEvent,
+  isPullRequestEvent,
+  isPushEvent,
+  isScheduleEvent,
+  SupportedContext
+} from './webhook'
 
 interface Options {
   status: string
@@ -120,7 +119,7 @@ async function getEventLink(octokit: OctokitClient): Promise<Link> {
     }
   }
 
-  assertUnsupportedContext(context)
+  assertUnsupportedEvent(context)
 }
 
 /**
@@ -128,12 +127,4 @@ async function getEventLink(octokit: OctokitClient): Promise<Link> {
  */
 function getEventLinkText(message: string): string {
   return message.split('\n', 1)[0]
-}
-
-function assertUnsupportedContext(context: never): never {
-  const eventName = (context as Context).eventName
-
-  throw new Error(
-    `Unsupported "${eventName}" event (currently supported events include: pull_request, push, schedule)`
-  )
 }

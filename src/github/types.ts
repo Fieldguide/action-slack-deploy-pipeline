@@ -1,26 +1,9 @@
-import type {context} from '@actions/github'
 import type {GitHub} from '@actions/github/lib/utils'
 import type {Endpoints} from '@octokit/types'
-import type {PullRequestEvent, PushEvent} from '@octokit/webhooks-types'
 import type {KnownBlock} from '@slack/web-api'
 import type {PostMessageArguments} from '../slack/types'
 
 export type OctokitClient = InstanceType<typeof GitHub>
-
-/* #region context */
-export interface Context<T = unknown> extends Omit<typeof context, 'payload'> {
-  payload: T
-}
-
-export interface ScheduleEvent {
-  schedule: string
-}
-
-export type SupportedContext =
-  | Context<PullRequestEvent>
-  | Context<PushEvent>
-  | Context<ScheduleEvent>
-/* #endregion */
 
 export interface Text {
   plain: string

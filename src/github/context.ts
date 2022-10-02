@@ -2,8 +2,21 @@ import {context} from '@actions/github'
 import {ContextBlock} from '@slack/web-api'
 import {Duration, formatDuration} from 'date-fns' // eslint-disable-line import/named
 import {link} from '../slack/mrkdwn'
-import {Link} from '../slack/types'
-import {isPullRequestEvent} from './webhook'
+import {Image, Link} from '../slack/types'
+import {
+  isPullRequestEvent,
+  isSupportedEvent,
+  SupportedEventName,
+  UnsupportedEventError
+} from './webhook'
+
+export const EVENT_NAME_IMAGE_MAP: Record<SupportedEventName, string> = {
+  pull_request:
+    'https://user-images.githubusercontent.com/847532/193414326-5aaf5449-0c81-4a66-9b19-4e5e6baeee9e.png',
+  push: 'https://user-images.githubusercontent.com/847532/193413878-d5fcd559-401d-4954-a44c-36de5d6a7adf.png',
+  schedule:
+    'https://user-images.githubusercontent.com/847532/193414289-3b185a3b-aee8-40f9-99fe-0615d255c8dd.png'
+} as const
 
 export function getContextBlock(duration?: Duration): ContextBlock {
   const textParts = [link(getWorkflow()), getRef()]
@@ -16,10 +29,25 @@ export function getContextBlock(duration?: Duration): ContextBlock {
     type: 'context',
     elements: [
       {
+        type: 'image',
+        ...getImage()
+      },
+      {
         type: 'mrkdwn',
         text: textParts.join('  ∙  ')
       }
     ]
+  }
+}
+
+function getImage(): Image {
+  if (!isSupportedEvent(context)) {
+    throw new UnsupportedEventError(context)
+  }
+
+  return {
+    alt_text: `${context.eventName} event`,
+    image_url: EVENT_NAME_IMAGE_MAP[context.eventName]
   }
 }
 

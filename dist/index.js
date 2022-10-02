@@ -7,11 +7,16 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getContextBlock = void 0;
+exports.getContextBlock = exports.EVENT_NAME_IMAGE_MAP = void 0;
 const github_1 = __nccwpck_require__(5438);
 const date_fns_1 = __nccwpck_require__(3314); // eslint-disable-line import/named
 const mrkdwn_1 = __nccwpck_require__(8699);
 const webhook_1 = __nccwpck_require__(4464);
+exports.EVENT_NAME_IMAGE_MAP = {
+    pull_request: 'https://user-images.githubusercontent.com/847532/193414326-5aaf5449-0c81-4a66-9b19-4e5e6baeee9e.png',
+    push: 'https://user-images.githubusercontent.com/847532/193413878-d5fcd559-401d-4954-a44c-36de5d6a7adf.png',
+    schedule: 'https://user-images.githubusercontent.com/847532/193414289-3b185a3b-aee8-40f9-99fe-0615d255c8dd.png'
+};
 function getContextBlock(duration) {
     const textParts = [(0, mrkdwn_1.link)(getWorkflow()), getRef()];
     if (duration) {
@@ -20,6 +25,7 @@ function getContextBlock(duration) {
     return {
         type: 'context',
         elements: [
+            Object.assign({ type: 'image' }, getImage()),
             {
                 type: 'mrkdwn',
                 text: textParts.join('  ∙  ')
@@ -28,6 +34,15 @@ function getContextBlock(duration) {
     };
 }
 exports.getContextBlock = getContextBlock;
+function getImage() {
+    if (!(0, webhook_1.isSupportedEvent)(github_1.context)) {
+        throw new webhook_1.UnsupportedEventError(github_1.context);
+    }
+    return {
+        alt_text: `${github_1.context.eventName} event`,
+        image_url: exports.EVENT_NAME_IMAGE_MAP[github_1.context.eventName]
+    };
+}
 /**
  * Return a link to the current workflow name.
  */
@@ -313,7 +328,7 @@ function getEventLink(octokit) {
                 url: commit.url
             };
         }
-        assertUnsupportedContext(context);
+        (0, webhook_1.assertUnsupportedEvent)(context);
     });
 }
 /**
@@ -321,10 +336,6 @@ function getEventLink(octokit) {
  */
 function getEventLinkText(message) {
     return message.split('\n', 1)[0];
-}
-function assertUnsupportedContext(context) {
-    const eventName = context.eventName;
-    throw new Error(`Unsupported "${eventName}" event (currently supported events include: pull_request, push, schedule)`);
 }
 
 
@@ -364,7 +375,12 @@ exports.isCompletedJobStep = isCompletedJobStep;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.senderFromPayload = exports.isScheduleEvent = exports.isPushEvent = exports.isPullRequestEvent = void 0;
+exports.senderFromPayload = exports.assertUnsupportedEvent = exports.UnsupportedEventError = exports.isSupportedEvent = exports.isScheduleEvent = exports.isPushEvent = exports.isPullRequestEvent = exports.SUPPORTED_EVENT_NAMES = void 0;
+exports.SUPPORTED_EVENT_NAMES = [
+    'pull_request',
+    'push',
+    'schedule'
+];
 /**
  * @see https://docs.github.com/en/developers/webhooks-and-events/webhooks/webhook-events-and-payloads#pull_request
  */
@@ -386,6 +402,21 @@ function isScheduleEvent(context) {
     return 'schedule' === context.eventName;
 }
 exports.isScheduleEvent = isScheduleEvent;
+function isSupportedEvent(context) {
+    return exports.SUPPORTED_EVENT_NAMES.includes(context.eventName);
+}
+exports.isSupportedEvent = isSupportedEvent;
+class UnsupportedEventError extends Error {
+    constructor(context) {
+        const supportedEvents = exports.SUPPORTED_EVENT_NAMES.join(', ');
+        super(`Unsupported "${context.eventName}" event (currently supported events include: ${supportedEvents})`);
+    }
+}
+exports.UnsupportedEventError = UnsupportedEventError;
+function assertUnsupportedEvent(context) {
+    throw new UnsupportedEventError(context);
+}
+exports.assertUnsupportedEvent = assertUnsupportedEvent;
 function senderFromPayload({ sender }) {
     if ((sender === null || sender === void 0 ? void 0 : sender.login) && sender.avatar_url) {
         return sender;

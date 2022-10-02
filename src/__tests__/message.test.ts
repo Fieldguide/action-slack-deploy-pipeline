@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as github from '@actions/github'
 import {afterAll, beforeEach, describe, expect, it, jest} from '@jest/globals'
+import {EVENT_NAME_IMAGE_MAP} from '../github/context'
 import {OctokitClient} from '../github/types'
 import {postMessage} from '../message'
 import {SlackClient} from '../slack/client'
@@ -87,6 +88,11 @@ describe('postMessage', () => {
             type: 'context',
             elements: [
               {
+                type: 'image',
+                alt_text: 'pull_request event',
+                image_url: EVENT_NAME_IMAGE_MAP['pull_request']
+              },
+              {
                 type: 'mrkdwn',
                 text: '<github.com/PR-1/checks|Deploy App>  ∙  my-pr'
               }
@@ -105,21 +111,6 @@ describe('postMessage', () => {
     beforeEach(async () => {
       github.context.eventName = 'schedule'
       github.context.sha = '05b16c3beb3a07dceaf6cf964d0be9eccbc026e8'
-      github.context.payload = {
-        pull_request: {
-          title: 'PR-TITLE',
-          number: 1,
-          html_url: 'github.com/PR-1',
-          head: {
-            ref: 'my-pr'
-          }
-        },
-        sender: {
-          type: 'user',
-          login: 'namoscato',
-          avatar_url: 'github.com/namoscato'
-        }
-      }
 
       octokit.rest.repos.getCommit = jest.fn(async () => ({
         data: {
@@ -160,6 +151,11 @@ describe('postMessage', () => {
           {
             type: 'context',
             elements: [
+              {
+                type: 'image',
+                alt_text: 'schedule event',
+                image_url: EVENT_NAME_IMAGE_MAP['schedule']
+              },
               {
                 type: 'mrkdwn',
                 text: '<https://github.com/namoscato/action-testing/commit/05b16c3beb3a07dceaf6cf964d0be9eccbc026e8/checks|Deploy App>  ∙  05b16c3'
@@ -255,6 +251,11 @@ describe('postMessage', () => {
               type: 'context',
               elements: [
                 {
+                  type: 'image',
+                  alt_text: 'push event',
+                  image_url: EVENT_NAME_IMAGE_MAP['push']
+                },
+                {
                   type: 'mrkdwn',
                   text: '<https://github.com/namoscato/action-testing/commit/05b16c3beb3a07dceaf6cf964d0be9eccbc026e8/checks|Deploy App>  ∙  05b16c3  ∙  9 seconds' // from job.started_at = 00:06
                 }
@@ -317,6 +318,11 @@ describe('postMessage', () => {
                 type: 'context',
                 elements: [
                   {
+                    type: 'image',
+                    alt_text: 'push event',
+                    image_url: EVENT_NAME_IMAGE_MAP['push']
+                  },
+                  {
                     type: 'mrkdwn',
                     text: '<https://github.com/namoscato/action-testing/commit/05b16c3beb3a07dceaf6cf964d0be9eccbc026e8/checks|Deploy App>  ∙  05b16c3  ∙  15 seconds'
                   }
@@ -354,6 +360,11 @@ describe('postMessage', () => {
               {
                 type: 'context',
                 elements: [
+                  {
+                    type: 'image',
+                    alt_text: 'push event',
+                    image_url: EVENT_NAME_IMAGE_MAP['push']
+                  },
                   {
                     type: 'mrkdwn',
                     text: '<https://github.com/namoscato/action-testing/commit/05b16c3beb3a07dceaf6cf964d0be9eccbc026e8/checks|Deploy App>  ∙  05b16c3  ∙  15 seconds'
@@ -430,6 +441,11 @@ describe('postMessage', () => {
                 type: 'context',
                 elements: [
                   {
+                    type: 'image',
+                    alt_text: 'push event',
+                    image_url: EVENT_NAME_IMAGE_MAP['push']
+                  },
+                  {
                     text: '<https://github.com/namoscato/action-testing/commit/05b16c3beb3a07dceaf6cf964d0be9eccbc026e8/checks|Deploy App>  ∙  05b16c3  ∙  10 seconds', // from step.completed_at = 00:05
                     type: 'mrkdwn'
                   }
@@ -459,6 +475,11 @@ describe('postMessage', () => {
                 type: 'context',
                 elements: [
                   {
+                    type: 'image',
+                    alt_text: 'push event',
+                    image_url: EVENT_NAME_IMAGE_MAP['push']
+                  },
+                  {
                     type: 'mrkdwn',
                     text: '<https://github.com/namoscato/action-testing/commit/05b16c3beb3a07dceaf6cf964d0be9eccbc026e8/checks|Deploy App>  ∙  05b16c3  ∙  0 seconds'
                   }
@@ -468,6 +489,26 @@ describe('postMessage', () => {
           })
         )
       })
+    })
+  })
+
+  describe('unsupported event', () => {
+    let error: Error
+
+    beforeEach(async () => {
+      github.context.eventName = 'issues'
+
+      try {
+        await postMessage(octokit, slack)
+      } catch (err) {
+        error = err as Error
+      }
+    })
+
+    it('should throw error', () => {
+      expect(error.message).toBe(
+        'Unsupported "issues" event (currently supported events include: pull_request, push, schedule)'
+      )
     })
   })
 })
