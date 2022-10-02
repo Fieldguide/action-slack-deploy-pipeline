@@ -16,7 +16,8 @@ describe('postMessage', () => {
   beforeEach(() => {
     octokit = {
       rest: {
-        actions: {}
+        actions: {},
+        repos: {}
       }
     } as any
 
@@ -31,6 +32,7 @@ describe('postMessage', () => {
     process.env.GITHUB_REPOSITORY = 'namoscato/action-testing'
 
     github.context.workflow = 'Deploy App'
+    github.context.runId = 123
     github.context.eventName = OLD_CONTEXT.eventName
     github.context.payload = OLD_CONTEXT.payload
 
@@ -44,7 +46,7 @@ describe('postMessage', () => {
     github.context.payload = OLD_CONTEXT.payload
   })
 
-  describe('first summary', () => {
+  describe('first summary pull_request event', () => {
     beforeEach(async () => {
       github.context.eventName = 'pull_request'
       github.context.payload = {
@@ -99,7 +101,77 @@ describe('postMessage', () => {
     })
   })
 
-  describe('stage', () => {
+  describe('first summary schedule event', () => {
+    beforeEach(async () => {
+      github.context.eventName = 'schedule'
+      github.context.sha = '05b16c3beb3a07dceaf6cf964d0be9eccbc026e8'
+      github.context.payload = {
+        pull_request: {
+          title: 'PR-TITLE',
+          number: 1,
+          html_url: 'github.com/PR-1',
+          head: {
+            ref: 'my-pr'
+          }
+        },
+        sender: {
+          type: 'user',
+          login: 'namoscato',
+          avatar_url: 'github.com/namoscato'
+        }
+      }
+
+      octokit.rest.repos.getCommit = jest.fn(async () => ({
+        data: {
+          commit: {
+            message:
+              'COMMIT-MESSAGE\n\nCo-authored-by: Nick <namoscato@users.noreply.github.com>',
+            url: 'github.com/commit'
+          }
+        }
+      })) as any
+
+      ts = await postMessage(octokit, slack)
+    })
+
+    it('should fetch commit', () => {
+      expect(octokit.rest.repos.getCommit).toHaveBeenCalledWith({
+        owner: 'namoscato',
+        repo: 'action-testing',
+        ref: '05b16c3beb3a07dceaf6cf964d0be9eccbc026e8'
+      })
+    })
+
+    it('should post slack message', () => {
+      expect(slack.postMessage).toHaveBeenCalledTimes(1)
+      expect(slack.postMessage).toHaveBeenCalledWith({
+        icon_url: 'github.com/namoscato',
+        username: 'namoscato (via GitHub)',
+        unfurl_links: false,
+        text: 'Deploying action-testing: COMMIT-MESSAGE',
+        blocks: [
+          {
+            type: 'section',
+            text: {
+              type: 'mrkdwn',
+              text: ':black_square_button: Deploying *action-testing*: <github.com/commit|COMMIT-MESSAGE>'
+            }
+          },
+          {
+            type: 'context',
+            elements: [
+              {
+                type: 'mrkdwn',
+                text: '<https://github.com/namoscato/action-testing/commit/05b16c3beb3a07dceaf6cf964d0be9eccbc026e8/checks|Deploy App>  ∙  05b16c3'
+              }
+            ]
+          }
+        ]
+      })
+    })
+  })
+
+  describe('stage push', () => {
     beforeEach(async () => {
       process.env.INPUT_THREAD_TS = '1662768000' // 2022-09-10T00:00:00.000Z
 
@@ -152,6 +224,16 @@ describe('postMessage', () => {
         process.env.INPUT_STATUS = 'success'
 
         ts = await postMessage(octokit, slack)
+      })
+
+      it('should fetch workflow run jobs', () => {
+        expect(
+          octokit.rest.actions.listJobsForWorkflowRun
+        ).toHaveBeenCalledWith({
+          owner: 'namoscato',
+          repo: 'action-testing',
+          run_id: 123
+        })
       })
 
       it('should post slack message', () => {
