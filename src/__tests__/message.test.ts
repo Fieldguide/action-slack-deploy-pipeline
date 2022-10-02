@@ -415,7 +415,13 @@ describe('postMessage', () => {
                 steps: [
                   {
                     name: 'Post to Slack',
-                    completed_at: '2022-09-10T00:00:05.000Z'
+                    completed_at: '2022-09-10T00:00:05.000Z',
+                    conclusion: 'success'
+                  },
+                  {
+                    name: 'Post to Slack (skipped)',
+                    completed_at: '2022-09-10T00:00:06.000Z',
+                    conclusion: 'skipped'
                   },
                   {
                     name: 'Run namoscato/action-slack-deploy-pipeline',
