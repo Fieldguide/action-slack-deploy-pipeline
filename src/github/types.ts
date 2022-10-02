@@ -42,5 +42,5 @@ export interface CompletedJobStep extends JobStep {
 }
 
 export function isCompletedJobStep(step: JobStep): step is CompletedJobStep {
-  return Boolean(step.completed_at)
+  return Boolean(step.completed_at) && 'skipped' !== step.conclusion
 }

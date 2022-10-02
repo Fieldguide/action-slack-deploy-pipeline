@@ -298,7 +298,7 @@ function isSuccessful(status) {
 }
 exports.isSuccessful = isSuccessful;
 function isCompletedJobStep(step) {
-    return Boolean(step.completed_at);
+    return Boolean(step.completed_at) && 'skipped' !== step.conclusion;
 }
 exports.isCompletedJobStep = isCompletedJobStep;
 
