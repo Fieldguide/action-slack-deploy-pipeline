@@ -8,8 +8,6 @@ Post [GitHub Action](https://github.com/features/actions) deploy workflow progre
 
 <img width="482" alt="Slack Deploy Pipeline Notifications example thread" src="https://user-images.githubusercontent.com/847532/196043237-bf16fcf7-ff45-443b-a3b2-ec3d51f17ee5.jpg">
 
-<br />
-
 ## Features
 
 - Posts summary message at beginning of the deploy workflow, surfacing commit message and author
