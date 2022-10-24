@@ -15,7 +15,8 @@ const webhook_1 = __nccwpck_require__(4464);
 exports.EVENT_NAME_IMAGE_MAP = {
     pull_request: 'https://user-images.githubusercontent.com/847532/193414326-5aaf5449-0c81-4a66-9b19-4e5e6baeee9e.png',
     push: 'https://user-images.githubusercontent.com/847532/193413878-d5fcd559-401d-4954-a44c-36de5d6a7adf.png',
-    schedule: 'https://user-images.githubusercontent.com/847532/193414289-3b185a3b-aee8-40f9-99fe-0615d255c8dd.png'
+    schedule: 'https://user-images.githubusercontent.com/847532/193414289-3b185a3b-aee8-40f9-99fe-0615d255c8dd.png',
+    workflow_dispatch: 'https://user-images.githubusercontent.com/847532/197601879-3bc8bf73-87c0-4216-8de7-c55d34993ef1.png'
 };
 function getContextBlock(duration) {
     const textParts = [(0, mrkdwn_1.link)(getWorkflow()), getRef()];
@@ -321,7 +322,7 @@ function getEventLink(octokit) {
                 url: commit.url
             };
         }
-        if ((0, webhook_1.isScheduleEvent)(context)) {
+        if ((0, webhook_1.isScheduleEvent)(context) || (0, webhook_1.isWorkflowDispatchEvent)(context)) {
             const commit = (yield octokit.rest.repos.getCommit(Object.assign(Object.assign({}, context.repo), { ref: context.sha }))).data.commit;
             return {
                 text: getEventLinkText(commit.message),
@@ -375,11 +376,12 @@ exports.isCompletedJobStep = isCompletedJobStep;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.senderFromPayload = exports.assertUnsupportedEvent = exports.UnsupportedEventError = exports.isSupportedEvent = exports.isScheduleEvent = exports.isPushEvent = exports.isPullRequestEvent = exports.SUPPORTED_EVENT_NAMES = void 0;
+exports.senderFromPayload = exports.assertUnsupportedEvent = exports.UnsupportedEventError = exports.isSupportedEvent = exports.isWorkflowDispatchEvent = exports.isScheduleEvent = exports.isPushEvent = exports.isPullRequestEvent = exports.SUPPORTED_EVENT_NAMES = void 0;
 exports.SUPPORTED_EVENT_NAMES = [
     'pull_request',
     'push',
-    'schedule'
+    'schedule',
+    'workflow_dispatch'
 ];
 /**
  * @see https://docs.github.com/en/developers/webhooks-and-events/webhooks/webhook-events-and-payloads#pull_request
@@ -402,6 +404,13 @@ function isScheduleEvent(context) {
     return 'schedule' === context.eventName;
 }
 exports.isScheduleEvent = isScheduleEvent;
+/**
+ * @see https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch
+ */
+function isWorkflowDispatchEvent(context) {
+    return 'workflow_dispatch' === context.eventName;
+}
+exports.isWorkflowDispatchEvent = isWorkflowDispatchEvent;
 function isSupportedEvent(context) {
     return exports.SUPPORTED_EVENT_NAMES.includes(context.eventName);
 }

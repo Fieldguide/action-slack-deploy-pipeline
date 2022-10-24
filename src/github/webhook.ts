@@ -5,7 +5,8 @@ import type {PullRequestEvent, PushEvent, User} from '@octokit/webhooks-types'
 export const SUPPORTED_EVENT_NAMES = [
   'pull_request',
   'push',
-  'schedule'
+  'schedule',
+  'workflow_dispatch'
 ] as const
 
 export type SupportedEventName = typeof SUPPORTED_EVENT_NAMES[number]
@@ -22,16 +23,26 @@ export interface ScheduleEvent {
   schedule: string
 }
 
+export interface WorkflowDispatchEvent {
+  workflow: string
+}
+
 export type PullRequestContext = Context<'pull_request', PullRequestEvent>
 
 export type PushContext = Context<'push', PushEvent>
 
 export type ScheduleContext = Context<'schedule', ScheduleEvent>
 
+export type WorkflowDispatchContext = Context<
+  'workflow_dispatch',
+  WorkflowDispatchEvent
+>
+
 export type SupportedContext =
   | PullRequestContext
   | PushContext
   | ScheduleContext
+  | WorkflowDispatchContext
 
 /**
  * @see https://docs.github.com/en/developers/webhooks-and-events/webhooks/webhook-events-and-payloads#pull_request
@@ -56,6 +67,15 @@ export function isScheduleEvent(
   context: GitHubContext
 ): context is ScheduleContext {
   return 'schedule' === context.eventName
+}
+
+/**
+ * @see https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch
+ */
+export function isWorkflowDispatchEvent(
+  context: GitHubContext
+): context is WorkflowDispatchContext {
+  return 'workflow_dispatch' === context.eventName
 }
 
 export function isSupportedEvent(

@@ -167,6 +167,52 @@ describe('postMessage', () => {
     })
   })
 
+  describe('first summary workflow_dispatch event', () => {
+    beforeEach(async () => {
+      github.context.eventName = 'workflow_dispatch'
+      github.context.sha = '05b16c3beb3a07dceaf6cf964d0be9eccbc026e8'
+
+      octokit.rest.repos.getCommit = jest.fn(async () => ({
+        data: {
+          commit: {
+            message: 'COMMIT-MESSAGE',
+            url: 'github.com/commit'
+          }
+        }
+      })) as any
+
+      ts = await postMessage(octokit, slack)
+    })
+
+    it('should fetch commit', () => {
+      expect(octokit.rest.repos.getCommit).toHaveBeenCalledWith({
+        owner: 'namoscato',
+        repo: 'action-testing',
+        ref: '05b16c3beb3a07dceaf6cf964d0be9eccbc026e8'
+      })
+    })
+
+    it('should post slack message', () => {
+      expect(slack.postMessage).toHaveBeenCalledWith(
+        expect.objectContaining({
+          text: 'Deploying action-testing: COMMIT-MESSAGE',
+          blocks: expect.arrayContaining([
+            {
+              type: 'context',
+              elements: expect.arrayContaining([
+                {
+                  type: 'image',
+                  alt_text: 'workflow_dispatch event',
+                  image_url: EVENT_NAME_IMAGE_MAP['workflow_dispatch']
+                }
+              ])
+            }
+          ])
+        })
+      )
+    })
+  })
+
   describe('stage push', () => {
     beforeEach(async () => {
       process.env.INPUT_THREAD_TS = '1662768000' // 2022-09-10T00:00:00.000Z
@@ -513,7 +559,7 @@ describe('postMessage', () => {
 
     it('should throw error', () => {
       expect(error.message).toBe(
-        'Unsupported "issues" event (currently supported events include: pull_request, push, schedule)'
+        'Unsupported "issues" event (currently supported events include: pull_request, push, schedule, workflow_dispatch)'
       )
     })
   })

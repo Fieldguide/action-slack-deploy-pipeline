@@ -11,6 +11,7 @@ import {
   isPullRequestEvent,
   isPushEvent,
   isScheduleEvent,
+  isWorkflowDispatchEvent,
   SupportedContext
 } from './webhook'
 
@@ -105,7 +106,7 @@ async function getEventLink(octokit: OctokitClient): Promise<Link> {
     }
   }
 
-  if (isScheduleEvent(context)) {
+  if (isScheduleEvent(context) || isWorkflowDispatchEvent(context)) {
     const commit = (
       await octokit.rest.repos.getCommit({
         ...context.repo,
