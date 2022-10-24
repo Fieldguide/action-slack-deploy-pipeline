@@ -8,6 +8,11 @@ export interface Link {
   url: string
 }
 
+export interface Image {
+  alt_text: string
+  image_url: string
+}
+
 export type PostMessageArguments = Omit<
   RemoveIndex<ChatPostMessageArguments>,
   'channel'

@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as github from '@actions/github'
 import {afterAll, beforeEach, describe, expect, it, jest} from '@jest/globals'
-import {GitHubClient} from '../github/types'
+import {EVENT_NAME_IMAGE_MAP} from '../github/context'
+import {OctokitClient} from '../github/types'
 import {postMessage} from '../message'
 import {SlackClient} from '../slack/client'
 
 describe('postMessage', () => {
-  let githubClient: GitHubClient
+  let octokit: OctokitClient
   let slack: SlackClient
   let ts: string | undefined
 
@@ -14,9 +15,10 @@ describe('postMessage', () => {
   const OLD_ENV = process.env
 
   beforeEach(() => {
-    githubClient = {
+    octokit = {
       rest: {
-        actions: {}
+        actions: {},
+        repos: {}
       }
     } as any
 
@@ -31,6 +33,7 @@ describe('postMessage', () => {
     process.env.GITHUB_REPOSITORY = 'namoscato/action-testing'
 
     github.context.workflow = 'Deploy App'
+    github.context.runId = 123
     github.context.eventName = OLD_CONTEXT.eventName
     github.context.payload = OLD_CONTEXT.payload
 
@@ -44,7 +47,7 @@ describe('postMessage', () => {
     github.context.payload = OLD_CONTEXT.payload
   })
 
-  describe('first summary', () => {
+  describe('first summary pull_request event', () => {
     beforeEach(async () => {
       github.context.eventName = 'pull_request'
       github.context.payload = {
@@ -63,7 +66,7 @@ describe('postMessage', () => {
         }
       }
 
-      ts = await postMessage(githubClient, slack)
+      ts = await postMessage(octokit, slack)
     })
 
     it('should post slack message', () => {
@@ -85,6 +88,11 @@ describe('postMessage', () => {
             type: 'context',
             elements: [
               {
+                type: 'image',
+                alt_text: 'pull_request event',
+                image_url: EVENT_NAME_IMAGE_MAP['pull_request']
+              },
+              {
                 type: 'mrkdwn',
                 text: '<github.com/PR-1/checks|Deploy App>  ∙  my-pr'
               }
@@ -99,7 +107,67 @@ describe('postMessage', () => {
     })
   })
 
-  describe('stage', () => {
+  describe('first summary schedule event', () => {
+    beforeEach(async () => {
+      github.context.eventName = 'schedule'
+      github.context.sha = '05b16c3beb3a07dceaf6cf964d0be9eccbc026e8'
+
+      octokit.rest.repos.getCommit = jest.fn(async () => ({
+        data: {
+          commit: {
+            message:
+              'COMMIT-MESSAGE\n\nCo-authored-by: Nick <namoscato@users.noreply.github.com>',
+            url: 'github.com/commit'
+          }
+        }
+      })) as any
+
+      ts = await postMessage(octokit, slack)
+    })
+
+    it('should fetch commit', () => {
+      expect(octokit.rest.repos.getCommit).toHaveBeenCalledWith({
+        owner: 'namoscato',
+        repo: 'action-testing',
+        ref: '05b16c3beb3a07dceaf6cf964d0be9eccbc026e8'
+      })
+    })
+
+    it('should post slack message', () => {
+      expect(slack.postMessage).toHaveBeenCalledTimes(1)
+      expect(slack.postMessage).toHaveBeenCalledWith({
+        icon_url: 'github.com/namoscato',
+        username: 'namoscato (via GitHub)',
+        unfurl_links: false,
+        text: 'Deploying action-testing: COMMIT-MESSAGE',
+        blocks: [
+          {
+            type: 'section',
+            text: {
+              type: 'mrkdwn',
+              text: ':black_square_button: Deploying *action-testing*: <github.com/commit|COMMIT-MESSAGE>'
+            }
+          },
+          {
+            type: 'context',
+            elements: [
+              {
+                type: 'image',
+                alt_text: 'schedule event',
+                image_url: EVENT_NAME_IMAGE_MAP['schedule']
+              },
+              {
+                type: 'mrkdwn',
+                text: '<https://github.com/namoscato/action-testing/commit/05b16c3beb3a07dceaf6cf964d0be9eccbc026e8/checks|Deploy App>  ∙  05b16c3'
+              }
+            ]
+          }
+        ]
+      })
+    })
+  })
+
+  describe('stage push', () => {
     beforeEach(async () => {
       process.env.INPUT_THREAD_TS = '1662768000' // 2022-09-10T00:00:00.000Z
 
@@ -108,7 +176,8 @@ describe('postMessage', () => {
       github.context.sha = '05b16c3beb3a07dceaf6cf964d0be9eccbc026e8'
       github.context.payload = {
         head_commit: {
-          message: 'COMMIT-MESSAGE',
+          message:
+            'COMMIT-MESSAGE\n\nCo-authored-by: Nick <namoscato@users.noreply.github.com>',
           url: 'github.com/commit'
         },
         sender: {
@@ -118,7 +187,7 @@ describe('postMessage', () => {
         }
       }
 
-      githubClient.rest.actions.listJobsForWorkflowRun = jest.fn(async () => ({
+      octokit.rest.actions.listJobsForWorkflowRun = jest.fn(async () => ({
         data: {
           jobs: [
             {
@@ -150,7 +219,17 @@ describe('postMessage', () => {
       beforeEach(async () => {
         process.env.INPUT_STATUS = 'success'
 
-        ts = await postMessage(githubClient, slack)
+        ts = await postMessage(octokit, slack)
+      })
+
+      it('should fetch workflow run jobs', () => {
+        expect(
+          octokit.rest.actions.listJobsForWorkflowRun
+        ).toHaveBeenCalledWith({
+          owner: 'namoscato',
+          repo: 'action-testing',
+          run_id: 123
+        })
       })
 
       it('should post slack message', () => {
@@ -171,6 +250,11 @@ describe('postMessage', () => {
             {
               type: 'context',
               elements: [
+                {
+                  type: 'image',
+                  alt_text: 'push event',
+                  image_url: EVENT_NAME_IMAGE_MAP['push']
+                },
                 {
                   type: 'mrkdwn',
                   text: '<https://github.com/namoscato/action-testing/commit/05b16c3beb3a07dceaf6cf964d0be9eccbc026e8/checks|Deploy App>  ∙  05b16c3  ∙  9 seconds' // from job.started_at = 00:06
@@ -196,7 +280,7 @@ describe('postMessage', () => {
       beforeEach(async () => {
         process.env.INPUT_STATUS = 'cancelled'
 
-        ts = await postMessage(githubClient, slack)
+        ts = await postMessage(octokit, slack)
       })
 
       it('should post slack message', () => {
@@ -234,6 +318,11 @@ describe('postMessage', () => {
                 type: 'context',
                 elements: [
                   {
+                    type: 'image',
+                    alt_text: 'push event',
+                    image_url: EVENT_NAME_IMAGE_MAP['push']
+                  },
+                  {
                     type: 'mrkdwn',
                     text: '<https://github.com/namoscato/action-testing/commit/05b16c3beb3a07dceaf6cf964d0be9eccbc026e8/checks|Deploy App>  ∙  05b16c3  ∙  15 seconds'
                   }
@@ -251,7 +340,7 @@ describe('postMessage', () => {
         process.env.INPUT_STATUS = 'success'
         process.env.INPUT_CONCLUSION = 'true'
 
-        ts = await postMessage(githubClient, slack)
+        ts = await postMessage(octokit, slack)
       })
 
       it('should post slack message', () => {
@@ -272,6 +361,11 @@ describe('postMessage', () => {
                 type: 'context',
                 elements: [
                   {
+                    type: 'image',
+                    alt_text: 'push event',
+                    image_url: EVENT_NAME_IMAGE_MAP['push']
+                  },
+                  {
                     type: 'mrkdwn',
                     text: '<https://github.com/namoscato/action-testing/commit/05b16c3beb3a07dceaf6cf964d0be9eccbc026e8/checks|Deploy App>  ∙  05b16c3  ∙  15 seconds'
                   }
@@ -289,7 +383,7 @@ describe('postMessage', () => {
         process.env.INPUT_STATUS = 'failure'
         process.env.INPUT_CONCLUSION = 'true'
 
-        ts = await postMessage(githubClient, slack)
+        ts = await postMessage(octokit, slack)
       })
 
       it('should post slack message', () => {
@@ -312,32 +406,36 @@ describe('postMessage', () => {
 
     describe('multiple slack steps in job', () => {
       beforeEach(async () => {
-        githubClient.rest.actions.listJobsForWorkflowRun = jest.fn(
-          async () => ({
-            data: {
-              jobs: [
-                {
-                  name: 'JOB 2',
-                  started_at: '2022-09-10T00:00:04.000Z',
-                  steps: [
-                    {
-                      name: 'Post to Slack',
-                      completed_at: '2022-09-10T00:00:05.000Z'
-                    },
-                    {
-                      name: 'Run namoscato/action-slack-deploy-pipeline',
-                      completed_at: null
-                    }
-                  ]
-                }
-              ]
-            }
-          })
-        ) as any
+        octokit.rest.actions.listJobsForWorkflowRun = jest.fn(async () => ({
+          data: {
+            jobs: [
+              {
+                name: 'JOB 2',
+                started_at: '2022-09-10T00:00:04.000Z',
+                steps: [
+                  {
+                    name: 'Post to Slack',
+                    completed_at: '2022-09-10T00:00:05.000Z',
+                    conclusion: 'success'
+                  },
+                  {
+                    name: 'Post to Slack (skipped)',
+                    completed_at: '2022-09-10T00:00:06.000Z',
+                    conclusion: 'skipped'
+                  },
+                  {
+                    name: 'Run namoscato/action-slack-deploy-pipeline',
+                    completed_at: null
+                  }
+                ]
+              }
+            ]
+          }
+        })) as any
 
         process.env.INPUT_STATUS = 'success'
 
-        ts = await postMessage(githubClient, slack)
+        ts = await postMessage(octokit, slack)
       })
 
       it('should post slack message', () => {
@@ -348,6 +446,11 @@ describe('postMessage', () => {
               {
                 type: 'context',
                 elements: [
+                  {
+                    type: 'image',
+                    alt_text: 'push event',
+                    image_url: EVENT_NAME_IMAGE_MAP['push']
+                  },
                   {
                     text: '<https://github.com/namoscato/action-testing/commit/05b16c3beb3a07dceaf6cf964d0be9eccbc026e8/checks|Deploy App>  ∙  05b16c3  ∙  10 seconds', // from step.completed_at = 00:05
                     type: 'mrkdwn'
@@ -366,7 +469,7 @@ describe('postMessage', () => {
 
         process.env.INPUT_STATUS = 'success'
 
-        ts = await postMessage(githubClient, slack)
+        ts = await postMessage(octokit, slack)
       })
 
       it('should post slack message', () => {
@@ -378,6 +481,11 @@ describe('postMessage', () => {
                 type: 'context',
                 elements: [
                   {
+                    type: 'image',
+                    alt_text: 'push event',
+                    image_url: EVENT_NAME_IMAGE_MAP['push']
+                  },
+                  {
                     type: 'mrkdwn',
                     text: '<https://github.com/namoscato/action-testing/commit/05b16c3beb3a07dceaf6cf964d0be9eccbc026e8/checks|Deploy App>  ∙  05b16c3  ∙  0 seconds'
                   }
@@ -387,6 +495,26 @@ describe('postMessage', () => {
           })
         )
       })
+    })
+  })
+
+  describe('unsupported event', () => {
+    let error: Error
+
+    beforeEach(async () => {
+      github.context.eventName = 'issues'
+
+      try {
+        await postMessage(octokit, slack)
+      } catch (err) {
+        error = err as Error
+      }
+    })
+
+    it('should throw error', () => {
+      expect(error.message).toBe(
+        'Unsupported "issues" event (currently supported events include: pull_request, push, schedule)'
+      )
     })
   })
 })

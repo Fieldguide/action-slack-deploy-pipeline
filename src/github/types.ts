@@ -1,14 +1,9 @@
-import type {context} from '@actions/github'
 import type {GitHub} from '@actions/github/lib/utils'
 import type {Endpoints} from '@octokit/types'
 import type {KnownBlock} from '@slack/web-api'
 import type {PostMessageArguments} from '../slack/types'
 
-export type GitHubClient = InstanceType<typeof GitHub>
-
-export interface Context<T = unknown> extends Omit<typeof context, 'payload'> {
-  payload: T
-}
+export type OctokitClient = InstanceType<typeof GitHub>
 
 export interface Text {
   plain: string
@@ -42,5 +37,5 @@ export interface CompletedJobStep extends JobStep {
 }
 
 export function isCompletedJobStep(step: JobStep): step is CompletedJobStep {
-  return Boolean(step.completed_at)
+  return Boolean(step.completed_at) && 'skipped' !== step.conclusion
 }

@@ -16,7 +16,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/namoscato/action-slack-deploy-pipeline.git"
+    "url": "git+https://github.com/Fieldguide/action-slack-deploy-pipeline.git"
   },
   "keywords": [
     "actions",
