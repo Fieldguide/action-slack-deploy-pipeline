@@ -4,7 +4,16 @@
 
 Post [GitHub Action](https://github.com/features/actions) deploy workflow progress notifications to [Slack](https://slack.com/).
 
-<img width="487" alt="Slack Deploy Pipeline Notifications example thread" src="https://user-images.githubusercontent.com/847532/189536394-f5b231ce-27ee-4d4d-8c87-3a59743c8f38.png">
+<br />
+
+<img width="482" alt="Slack Deploy Pipeline Notifications example thread" src="https://user-images.githubusercontent.com/847532/196043237-bf16fcf7-ff45-443b-a3b2-ec3d51f17ee5.jpg">
+
+## Features
+
+- Posts summary message at beginning of the deploy workflow, surfacing commit message and author
+- Threads intermediate stage completions, sending unexpected failures back to the channel
+- Updates summary message duration at conclusion of the workflow
+- Supports `pull_request`, `push`, and `schedule` [event types](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows)
 
 ## Setup
 

@@ -7,11 +7,16 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getContextBlock = void 0;
+exports.getContextBlock = exports.EVENT_NAME_IMAGE_MAP = void 0;
 const github_1 = __nccwpck_require__(5438);
 const date_fns_1 = __nccwpck_require__(3314); // eslint-disable-line import/named
 const mrkdwn_1 = __nccwpck_require__(8699);
 const webhook_1 = __nccwpck_require__(4464);
+exports.EVENT_NAME_IMAGE_MAP = {
+    pull_request: 'https://user-images.githubusercontent.com/847532/193414326-5aaf5449-0c81-4a66-9b19-4e5e6baeee9e.png',
+    push: 'https://user-images.githubusercontent.com/847532/193413878-d5fcd559-401d-4954-a44c-36de5d6a7adf.png',
+    schedule: 'https://user-images.githubusercontent.com/847532/193414289-3b185a3b-aee8-40f9-99fe-0615d255c8dd.png'
+};
 function getContextBlock(duration) {
     const textParts = [(0, mrkdwn_1.link)(getWorkflow()), getRef()];
     if (duration) {
@@ -20,6 +25,7 @@ function getContextBlock(duration) {
     return {
         type: 'context',
         elements: [
+            Object.assign({ type: 'image' }, getImage()),
             {
                 type: 'mrkdwn',
                 text: textParts.join('  ∙  ')
@@ -28,6 +34,15 @@ function getContextBlock(duration) {
     };
 }
 exports.getContextBlock = getContextBlock;
+function getImage() {
+    if (!(0, webhook_1.isSupportedEvent)(github_1.context)) {
+        throw new webhook_1.UnsupportedEventError(github_1.context);
+    }
+    return {
+        alt_text: `${github_1.context.eventName} event`,
+        image_url: exports.EVENT_NAME_IMAGE_MAP[github_1.context.eventName]
+    };
+}
 /**
  * Return a link to the current workflow name.
  */
@@ -134,10 +149,10 @@ const types_1 = __nccwpck_require__(305);
 /**
  * Return a progressed stage message, posted via threaded reply.
  */
-function getStageMessage({ github, status, now }) {
+function getStageMessage({ octokit, status, now }) {
     return __awaiter(this, void 0, void 0, function* () {
         const text = getText(status);
-        const duration = yield computeDuration(github, now);
+        const duration = yield computeDuration(octokit, now);
         const contextBlock = (0, context_1.getContextBlock)(duration);
         return Object.assign(Object.assign({}, (0, message_1.createMessage)(text, contextBlock)), { reply_broadcast: !(0, types_1.isSuccessful)(status) });
     });
@@ -167,10 +182,10 @@ function verbFromStatus(status) {
             throw new Error(`Unexpected status ${status}`);
     }
 }
-function computeDuration(github, now) {
+function computeDuration(octokit, now) {
     var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
-        const { data } = yield github.rest.actions.listJobsForWorkflowRun(Object.assign(Object.assign({}, github_1.context.repo), { run_id: github_1.context.runId }));
+        const { data } = yield octokit.rest.actions.listJobsForWorkflowRun(Object.assign(Object.assign({}, github_1.context.repo), { run_id: github_1.context.runId }));
         const currentJob = data.jobs.find(({ name }) => name === github_1.context.job);
         const slackRegex = /[^A-Za-z]slack[^A-Za-z]/i;
         const lastCompletedSlackStep = (_a = currentJob === null || currentJob === void 0 ? void 0 : currentJob.steps) === null || _a === void 0 ? void 0 : _a.filter(types_1.isCompletedJobStep).filter(({ name }) => slackRegex.test(` ${name} `)).pop();
@@ -188,13 +203,45 @@ function computeDuration(github, now) {
 /***/ }),
 
 /***/ 9651:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getSummaryMessage = void 0;
-const github_1 = __nccwpck_require__(5438);
+const github = __importStar(__nccwpck_require__(5438));
 const date_fns_1 = __nccwpck_require__(3314);
 const mrkdwn_1 = __nccwpck_require__(8699);
 const utils_1 = __nccwpck_require__(4047);
@@ -205,34 +252,38 @@ const webhook_1 = __nccwpck_require__(4464);
 /**
  * Return the initial summary message.
  */
-function getSummaryMessage(options) {
-    const text = getText(options === null || options === void 0 ? void 0 : options.status);
-    const duration = options
-        ? (0, date_fns_1.intervalToDuration)({
-            start: (0, utils_1.dateFromTs)(options.threadTs),
-            end: options.now
-        })
-        : undefined;
-    const contextBlock = (0, context_1.getContextBlock)(duration);
-    return (0, message_1.createMessage)(text, contextBlock);
+function getSummaryMessage(octokit, options) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const text = yield getText(octokit, options === null || options === void 0 ? void 0 : options.status);
+        const duration = options
+            ? (0, date_fns_1.intervalToDuration)({
+                start: (0, utils_1.dateFromTs)(options.threadTs),
+                end: options.now
+            })
+            : undefined;
+        const contextBlock = (0, context_1.getContextBlock)(duration);
+        return (0, message_1.createMessage)(text, contextBlock);
+    });
 }
 exports.getSummaryMessage = getSummaryMessage;
-function getText(status) {
-    const summarySentence = getSummarySentence(status);
-    const eventLink = getEventLink();
-    const mrkdwn = [
-        status ? (0, message_1.emojiFromStatus)(status) : (0, mrkdwn_1.emoji)('black_square_button'),
-        `${summarySentence.mrkdwn}:`,
-        (0, mrkdwn_1.link)(eventLink)
-    ].join(' ');
-    return {
-        plain: `${summarySentence.plain}: ${eventLink.text}`,
-        mrkdwn
-    };
+function getText(octokit, status) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const summarySentence = getSummarySentence(status);
+        const eventLink = yield getEventLink(octokit);
+        const mrkdwn = [
+            status ? (0, message_1.emojiFromStatus)(status) : (0, mrkdwn_1.emoji)('black_square_button'),
+            `${summarySentence.mrkdwn}:`,
+            (0, mrkdwn_1.link)(eventLink)
+        ].join(' ');
+        return {
+            plain: `${summarySentence.plain}: ${eventLink.text}`,
+            mrkdwn
+        };
+    });
 }
 function getSummarySentence(status) {
     const verb = status ? verbFromStatus(status) : 'Deploying';
-    const { repo } = github_1.context.repo;
+    const { repo } = github.context.repo;
     return {
         plain: `${verb} ${repo}`,
         mrkdwn: `${verb} ${(0, mrkdwn_1.bold)(repo)}`
@@ -250,22 +301,35 @@ function verbFromStatus(status) {
             throw new Error(`Unexpected status ${status}`);
     }
 }
-function getEventLink() {
-    if ((0, webhook_1.isPullRequestEvent)(github_1.context)) {
-        const pullRequest = github_1.context.payload.pull_request;
-        return {
-            text: getEventLinkText(`${pullRequest.title} (#${pullRequest.number})`),
-            url: pullRequest.html_url
-        };
-    }
-    if ((0, webhook_1.isPushEvent)(github_1.context) && github_1.context.payload.head_commit) {
-        const commit = github_1.context.payload.head_commit;
-        return {
-            text: getEventLinkText(commit.message),
-            url: commit.url
-        };
-    }
-    throw new Error(`Unsupported event ${github_1.context.eventName} (currently supported events include: pull_request, push)`);
+function getEventLink(octokit) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const context = github.context;
+        if ((0, webhook_1.isPullRequestEvent)(context)) {
+            const pullRequest = context.payload.pull_request;
+            return {
+                text: getEventLinkText(`${pullRequest.title} (#${pullRequest.number})`),
+                url: pullRequest.html_url
+            };
+        }
+        if ((0, webhook_1.isPushEvent)(context)) {
+            const commit = context.payload.head_commit;
+            if (!commit) {
+                throw new Error('Unexpected push event payload (undefined head_commit)');
+            }
+            return {
+                text: getEventLinkText(commit.message),
+                url: commit.url
+            };
+        }
+        if ((0, webhook_1.isScheduleEvent)(context)) {
+            const commit = (yield octokit.rest.repos.getCommit(Object.assign(Object.assign({}, context.repo), { ref: context.sha }))).data.commit;
+            return {
+                text: getEventLinkText(commit.message),
+                url: commit.url
+            };
+        }
+        (0, webhook_1.assertUnsupportedEvent)(context);
+    });
 }
 /**
  * Return the first `message` line, i.e. omitting the commit description.
@@ -298,7 +362,7 @@ function isSuccessful(status) {
 }
 exports.isSuccessful = isSuccessful;
 function isCompletedJobStep(step) {
-    return Boolean(step.completed_at);
+    return Boolean(step.completed_at) && 'skipped' !== step.conclusion;
 }
 exports.isCompletedJobStep = isCompletedJobStep;
 
@@ -311,15 +375,48 @@ exports.isCompletedJobStep = isCompletedJobStep;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.senderFromPayload = exports.isPushEvent = exports.isPullRequestEvent = void 0;
+exports.senderFromPayload = exports.assertUnsupportedEvent = exports.UnsupportedEventError = exports.isSupportedEvent = exports.isScheduleEvent = exports.isPushEvent = exports.isPullRequestEvent = exports.SUPPORTED_EVENT_NAMES = void 0;
+exports.SUPPORTED_EVENT_NAMES = [
+    'pull_request',
+    'push',
+    'schedule'
+];
+/**
+ * @see https://docs.github.com/en/developers/webhooks-and-events/webhooks/webhook-events-and-payloads#pull_request
+ */
 function isPullRequestEvent(context) {
     return 'pull_request' === context.eventName;
 }
 exports.isPullRequestEvent = isPullRequestEvent;
+/**
+ * @see https://docs.github.com/en/developers/webhooks-and-events/webhooks/webhook-events-and-payloads#push
+ */
 function isPushEvent(context) {
     return 'push' === context.eventName;
 }
 exports.isPushEvent = isPushEvent;
+/**
+ * @see https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule
+ */
+function isScheduleEvent(context) {
+    return 'schedule' === context.eventName;
+}
+exports.isScheduleEvent = isScheduleEvent;
+function isSupportedEvent(context) {
+    return exports.SUPPORTED_EVENT_NAMES.includes(context.eventName);
+}
+exports.isSupportedEvent = isSupportedEvent;
+class UnsupportedEventError extends Error {
+    constructor(context) {
+        const supportedEvents = exports.SUPPORTED_EVENT_NAMES.join(', ');
+        super(`Unsupported "${context.eventName}" event (currently supported events include: ${supportedEvents})`);
+    }
+}
+exports.UnsupportedEventError = UnsupportedEventError;
+function assertUnsupportedEvent(context) {
+    throw new UnsupportedEventError(context);
+}
+exports.assertUnsupportedEvent = assertUnsupportedEvent;
 function senderFromPayload({ sender }) {
     if ((sender === null || sender === void 0 ? void 0 : sender.login) && sender.avatar_url) {
         return sender;
@@ -378,9 +475,9 @@ const client_1 = __nccwpck_require__(6593);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const github = createGitHubClient();
+            const octokit = createOctokitClient();
             const slack = createSlackClient();
-            const ts = yield (0, message_1.postMessage)(github, slack);
+            const ts = yield (0, message_1.postMessage)(octokit, slack);
             if (ts) {
                 (0, core_1.setOutput)('ts', ts);
             }
@@ -398,7 +495,7 @@ function createSlackClient() {
     const channel = (0, input_1.getEnv)('SLACK_DEPLOY_CHANNEL');
     return new client_1.SlackClient({ token, channel });
 }
-function createGitHubClient() {
+function createOctokitClient() {
     const token = (0, core_1.getInput)('github_token', { required: true });
     return (0, github_1.getOctokit)(token);
 }
@@ -434,22 +531,24 @@ const types_1 = __nccwpck_require__(305);
  *
  * @returns message timestamp ID
  */
-function postMessage(github, slack) {
+function postMessage(octokit, slack) {
     return __awaiter(this, void 0, void 0, function* () {
         const threadTs = (0, core_1.getInput)('thread_ts');
         if (!threadTs) {
             (0, core_1.info)('Posting summary message');
-            return slack.postMessage((0, summary_1.getSummaryMessage)());
+            const message = yield (0, summary_1.getSummaryMessage)(octokit);
+            return slack.postMessage(message);
         }
         const status = (0, core_1.getInput)('status', { required: true });
         const now = new Date();
-        const stageMessage = yield (0, stage_1.getStageMessage)({ github, status, now });
+        const stageMessage = yield (0, stage_1.getStageMessage)({ octokit, status, now });
         (0, core_1.info)(`Posting stage message in thread: ${threadTs}`);
         yield slack.postMessage(Object.assign(Object.assign({}, stageMessage), { thread_ts: threadTs }));
         const conclusion = 'true' === (0, core_1.getInput)('conclusion');
         if (conclusion || !(0, types_1.isSuccessful)(status)) {
             (0, core_1.info)(`Updating summary message: ${status}`);
-            yield slack.updateMessage(Object.assign(Object.assign({}, (0, summary_1.getSummaryMessage)({ status, threadTs, now })), { ts: threadTs }));
+            const message = yield (0, summary_1.getSummaryMessage)(octokit, { status, threadTs, now });
+            yield slack.updateMessage(Object.assign(Object.assign({}, message), { ts: threadTs }));
         }
     });
 }
@@ -686,7 +785,6 @@ const file_command_1 = __nccwpck_require__(717);
 const utils_1 = __nccwpck_require__(5278);
 const os = __importStar(__nccwpck_require__(2037));
 const path = __importStar(__nccwpck_require__(1017));
-const uuid_1 = __nccwpck_require__(5840);
 const oidc_utils_1 = __nccwpck_require__(8041);
 /**
  * The code to exit an action
@@ -716,20 +814,9 @@ function exportVariable(name, val) {
     process.env[name] = convertedVal;
     const filePath = process.env['GITHUB_ENV'] || '';
     if (filePath) {
-        const delimiter = `ghadelimiter_${uuid_1.v4()}`;
-        // These should realistically never happen, but just in case someone finds a way to exploit uuid generation let's not allow keys or values that contain the delimiter.
-        if (name.includes(delimiter)) {
-            throw new Error(`Unexpected input: name should not contain the delimiter "${delimiter}"`);
-        }
-        if (convertedVal.includes(delimiter)) {
-            throw new Error(`Unexpected input: value should not contain the delimiter "${delimiter}"`);
-        }
-        const commandValue = `${name}<<${delimiter}${os.EOL}${convertedVal}${os.EOL}${delimiter}`;
-        file_command_1.issueCommand('ENV', commandValue);
+        return file_command_1.issueFileCommand('ENV', file_command_1.prepareKeyValueMessage(name, val));
     }
-    else {
-        command_1.issueCommand('set-env', { name }, convertedVal);
-    }
+    command_1.issueCommand('set-env', { name }, convertedVal);
 }
 exports.exportVariable = exportVariable;
 /**
@@ -747,7 +834,7 @@ exports.setSecret = setSecret;
 function addPath(inputPath) {
     const filePath = process.env['GITHUB_PATH'] || '';
     if (filePath) {
-        file_command_1.issueCommand('PATH', inputPath);
+        file_command_1.issueFileCommand('PATH', inputPath);
     }
     else {
         command_1.issueCommand('add-path', {}, inputPath);
@@ -787,7 +874,10 @@ function getMultilineInput(name, options) {
     const inputs = getInput(name, options)
         .split('\n')
         .filter(x => x !== '');
-    return inputs;
+    if (options && options.trimWhitespace === false) {
+        return inputs;
+    }
+    return inputs.map(input => input.trim());
 }
 exports.getMultilineInput = getMultilineInput;
 /**
@@ -820,8 +910,12 @@ exports.getBooleanInput = getBooleanInput;
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function setOutput(name, value) {
+    const filePath = process.env['GITHUB_OUTPUT'] || '';
+    if (filePath) {
+        return file_command_1.issueFileCommand('OUTPUT', file_command_1.prepareKeyValueMessage(name, value));
+    }
     process.stdout.write(os.EOL);
-    command_1.issueCommand('set-output', { name }, value);
+    command_1.issueCommand('set-output', { name }, utils_1.toCommandValue(value));
 }
 exports.setOutput = setOutput;
 /**
@@ -950,7 +1044,11 @@ exports.group = group;
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function saveState(name, value) {
-    command_1.issueCommand('save-state', { name }, value);
+    const filePath = process.env['GITHUB_STATE'] || '';
+    if (filePath) {
+        return file_command_1.issueFileCommand('STATE', file_command_1.prepareKeyValueMessage(name, value));
+    }
+    command_1.issueCommand('save-state', { name }, utils_1.toCommandValue(value));
 }
 exports.saveState = saveState;
 /**
@@ -1016,13 +1114,14 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.issueCommand = void 0;
+exports.prepareKeyValueMessage = exports.issueFileCommand = void 0;
 // We use any as a valid input type
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const fs = __importStar(__nccwpck_require__(7147));
 const os = __importStar(__nccwpck_require__(2037));
+const uuid_1 = __nccwpck_require__(5840);
 const utils_1 = __nccwpck_require__(5278);
-function issueCommand(command, message) {
+function issueFileCommand(command, message) {
     const filePath = process.env[`GITHUB_${command}`];
     if (!filePath) {
         throw new Error(`Unable to find environment variable for file command ${command}`);
@@ -1034,7 +1133,22 @@ function issueCommand(command, message) {
         encoding: 'utf8'
     });
 }
-exports.issueCommand = issueCommand;
+exports.issueFileCommand = issueFileCommand;
+function prepareKeyValueMessage(key, value) {
+    const delimiter = `ghadelimiter_${uuid_1.v4()}`;
+    const convertedValue = utils_1.toCommandValue(value);
+    // These should realistically never happen, but just in case someone finds a
+    // way to exploit uuid generation let's not allow keys or values that contain
+    // the delimiter.
+    if (key.includes(delimiter)) {
+        throw new Error(`Unexpected input: name should not contain the delimiter "${delimiter}"`);
+    }
+    if (convertedValue.includes(delimiter)) {
+        throw new Error(`Unexpected input: value should not contain the delimiter "${delimiter}"`);
+    }
+    return `${key}<<${delimiter}${os.EOL}${convertedValue}${os.EOL}${delimiter}`;
+}
+exports.prepareKeyValueMessage = prepareKeyValueMessage;
 //# sourceMappingURL=file-command.js.map
 
 /***/ }),
@@ -10682,7 +10796,7 @@ var dayPeriodEnum = {
  */
 var formatters = {
   // Era
-  G: function (date, token, localize) {
+  G: function G(date, token, localize) {
     var era = date.getUTCFullYear() > 0 ? 1 : 0;
 
     switch (token) {
@@ -10709,7 +10823,7 @@ var formatters = {
     }
   },
   // Year
-  y: function (date, token, localize) {
+  y: function y(date, token, localize) {
     // Ordinal number
     if (token === 'yo') {
       var signedYear = date.getUTCFullYear(); // Returns 1 for 1 BC (which is year 0 in JavaScript)
@@ -10723,7 +10837,7 @@ var formatters = {
     return _index7.default.y(date, token);
   },
   // Local week-numbering year
-  Y: function (date, token, localize, options) {
+  Y: function Y(date, token, localize, options) {
     var signedWeekYear = (0, _index5.default)(date, options); // Returns 1 for 1 BC (which is year 0 in JavaScript)
 
     var weekYear = signedWeekYear > 0 ? signedWeekYear : 1 - signedWeekYear; // Two digit year
@@ -10744,7 +10858,7 @@ var formatters = {
     return (0, _index6.default)(weekYear, token.length);
   },
   // ISO week-numbering year
-  R: function (date, token) {
+  R: function R(date, token) {
     var isoWeekYear = (0, _index3.default)(date); // Padding
 
     return (0, _index6.default)(isoWeekYear, token.length);
@@ -10758,12 +10872,12 @@ var formatters = {
   // | BC 2 |   2 |  -1 |
   // Also `yy` always returns the last two digits of a year,
   // while `uu` pads single digit years to 2 characters and returns other years unchanged.
-  u: function (date, token) {
+  u: function u(date, token) {
     var year = date.getUTCFullYear();
     return (0, _index6.default)(year, token.length);
   },
   // Quarter
-  Q: function (date, token, localize) {
+  Q: function Q(date, token, localize) {
     var quarter = Math.ceil((date.getUTCMonth() + 1) / 3);
 
     switch (token) {
@@ -10805,7 +10919,7 @@ var formatters = {
     }
   },
   // Stand-alone quarter
-  q: function (date, token, localize) {
+  q: function q(date, token, localize) {
     var quarter = Math.ceil((date.getUTCMonth() + 1) / 3);
 
     switch (token) {
@@ -10847,7 +10961,7 @@ var formatters = {
     }
   },
   // Month
-  M: function (date, token, localize) {
+  M: function M(date, token, localize) {
     var month = date.getUTCMonth();
 
     switch (token) {
@@ -10885,7 +10999,7 @@ var formatters = {
     }
   },
   // Stand-alone month
-  L: function (date, token, localize) {
+  L: function L(date, token, localize) {
     var month = date.getUTCMonth();
 
     switch (token) {
@@ -10927,7 +11041,7 @@ var formatters = {
     }
   },
   // Local week of year
-  w: function (date, token, localize, options) {
+  w: function w(date, token, localize, options) {
     var week = (0, _index4.default)(date, options);
 
     if (token === 'wo') {
@@ -10939,7 +11053,7 @@ var formatters = {
     return (0, _index6.default)(week, token.length);
   },
   // ISO week of year
-  I: function (date, token, localize) {
+  I: function I(date, token, localize) {
     var isoWeek = (0, _index2.default)(date);
 
     if (token === 'Io') {
@@ -10951,7 +11065,7 @@ var formatters = {
     return (0, _index6.default)(isoWeek, token.length);
   },
   // Day of the month
-  d: function (date, token, localize) {
+  d: function d(date, token, localize) {
     if (token === 'do') {
       return localize.ordinalNumber(date.getUTCDate(), {
         unit: 'date'
@@ -10961,7 +11075,7 @@ var formatters = {
     return _index7.default.d(date, token);
   },
   // Day of year
-  D: function (date, token, localize) {
+  D: function D(date, token, localize) {
     var dayOfYear = (0, _index.default)(date);
 
     if (token === 'Do') {
@@ -10973,7 +11087,7 @@ var formatters = {
     return (0, _index6.default)(dayOfYear, token.length);
   },
   // Day of week
-  E: function (date, token, localize) {
+  E: function E(date, token, localize) {
     var dayOfWeek = date.getUTCDay();
 
     switch (token) {
@@ -11010,7 +11124,7 @@ var formatters = {
     }
   },
   // Local day of week
-  e: function (date, token, localize, options) {
+  e: function e(date, token, localize, options) {
     var dayOfWeek = date.getUTCDay();
     var localDayOfWeek = (dayOfWeek - options.weekStartsOn + 8) % 7 || 7;
 
@@ -11059,7 +11173,7 @@ var formatters = {
     }
   },
   // Stand-alone local day of week
-  c: function (date, token, localize, options) {
+  c: function c(date, token, localize, options) {
     var dayOfWeek = date.getUTCDay();
     var localDayOfWeek = (dayOfWeek - options.weekStartsOn + 8) % 7 || 7;
 
@@ -11108,7 +11222,7 @@ var formatters = {
     }
   },
   // ISO day of week
-  i: function (date, token, localize) {
+  i: function i(date, token, localize) {
     var dayOfWeek = date.getUTCDay();
     var isoDayOfWeek = dayOfWeek === 0 ? 7 : dayOfWeek;
 
@@ -11158,7 +11272,7 @@ var formatters = {
     }
   },
   // AM or PM
-  a: function (date, token, localize) {
+  a: function a(date, token, localize) {
     var hours = date.getUTCHours();
     var dayPeriodEnumValue = hours / 12 >= 1 ? 'pm' : 'am';
 
@@ -11191,7 +11305,7 @@ var formatters = {
     }
   },
   // AM, PM, midnight, noon
-  b: function (date, token, localize) {
+  b: function b(date, token, localize) {
     var hours = date.getUTCHours();
     var dayPeriodEnumValue;
 
@@ -11232,7 +11346,7 @@ var formatters = {
     }
   },
   // in the morning, in the afternoon, in the evening, at night
-  B: function (date, token, localize) {
+  B: function B(date, token, localize) {
     var hours = date.getUTCHours();
     var dayPeriodEnumValue;
 
@@ -11270,7 +11384,7 @@ var formatters = {
     }
   },
   // Hour [1-12]
-  h: function (date, token, localize) {
+  h: function h(date, token, localize) {
     if (token === 'ho') {
       var hours = date.getUTCHours() % 12;
       if (hours === 0) hours = 12;
@@ -11282,7 +11396,7 @@ var formatters = {
     return _index7.default.h(date, token);
   },
   // Hour [0-23]
-  H: function (date, token, localize) {
+  H: function H(date, token, localize) {
     if (token === 'Ho') {
       return localize.ordinalNumber(date.getUTCHours(), {
         unit: 'hour'
@@ -11292,7 +11406,7 @@ var formatters = {
     return _index7.default.H(date, token);
   },
   // Hour [0-11]
-  K: function (date, token, localize) {
+  K: function K(date, token, localize) {
     var hours = date.getUTCHours() % 12;
 
     if (token === 'Ko') {
@@ -11304,7 +11418,7 @@ var formatters = {
     return (0, _index6.default)(hours, token.length);
   },
   // Hour [1-24]
-  k: function (date, token, localize) {
+  k: function k(date, token, localize) {
     var hours = date.getUTCHours();
     if (hours === 0) hours = 24;
 
@@ -11317,7 +11431,7 @@ var formatters = {
     return (0, _index6.default)(hours, token.length);
   },
   // Minute
-  m: function (date, token, localize) {
+  m: function m(date, token, localize) {
     if (token === 'mo') {
       return localize.ordinalNumber(date.getUTCMinutes(), {
         unit: 'minute'
@@ -11327,7 +11441,7 @@ var formatters = {
     return _index7.default.m(date, token);
   },
   // Second
-  s: function (date, token, localize) {
+  s: function s(date, token, localize) {
     if (token === 'so') {
       return localize.ordinalNumber(date.getUTCSeconds(), {
         unit: 'second'
@@ -11337,11 +11451,11 @@ var formatters = {
     return _index7.default.s(date, token);
   },
   // Fraction of second
-  S: function (date, token) {
+  S: function S(date, token) {
     return _index7.default.S(date, token);
   },
   // Timezone (ISO-8601. If offset is 0, output is always `'Z'`)
-  X: function (date, token, _localize, options) {
+  X: function X(date, token, _localize, options) {
     var originalDate = options._originalDate || date;
     var timezoneOffset = originalDate.getTimezoneOffset();
 
@@ -11373,7 +11487,7 @@ var formatters = {
     }
   },
   // Timezone (ISO-8601. If offset is 0, output is `'+00:00'` or equivalent)
-  x: function (date, token, _localize, options) {
+  x: function x(date, token, _localize, options) {
     var originalDate = options._originalDate || date;
     var timezoneOffset = originalDate.getTimezoneOffset();
 
@@ -11401,7 +11515,7 @@ var formatters = {
     }
   },
   // Timezone (GMT)
-  O: function (date, token, _localize, options) {
+  O: function O(date, token, _localize, options) {
     var originalDate = options._originalDate || date;
     var timezoneOffset = originalDate.getTimezoneOffset();
 
@@ -11419,7 +11533,7 @@ var formatters = {
     }
   },
   // Timezone (specific non-location)
-  z: function (date, token, _localize, options) {
+  z: function z(date, token, _localize, options) {
     var originalDate = options._originalDate || date;
     var timezoneOffset = originalDate.getTimezoneOffset();
 
@@ -11437,13 +11551,13 @@ var formatters = {
     }
   },
   // Seconds timestamp
-  t: function (date, token, _localize, options) {
+  t: function t(date, token, _localize, options) {
     var originalDate = options._originalDate || date;
     var timestamp = Math.floor(originalDate.getTime() / 1000);
     return (0, _index6.default)(timestamp, token.length);
   },
   // Milliseconds timestamp
-  T: function (date, token, _localize, options) {
+  T: function T(date, token, _localize, options) {
     var originalDate = options._originalDate || date;
     var timestamp = originalDate.getTime();
     return (0, _index6.default)(timestamp, token.length);
@@ -11517,7 +11631,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  */
 var formatters = {
   // Year
-  y: function (date, token) {
+  y: function y(date, token) {
     // From http://www.unicode.org/reports/tr35/tr35-31/tr35-dates.html#Date_Format_tokens
     // | Year     |     y | yy |   yyy |  yyyy | yyyyy |
     // |----------|-------|----|-------|-------|-------|
@@ -11532,16 +11646,16 @@ var formatters = {
     return (0, _index.default)(token === 'yy' ? year % 100 : year, token.length);
   },
   // Month
-  M: function (date, token) {
+  M: function M(date, token) {
     var month = date.getUTCMonth();
     return token === 'M' ? String(month + 1) : (0, _index.default)(month + 1, 2);
   },
   // Day of the month
-  d: function (date, token) {
+  d: function d(date, token) {
     return (0, _index.default)(date.getUTCDate(), token.length);
   },
   // AM or PM
-  a: function (date, token) {
+  a: function a(date, token) {
     var dayPeriodEnumValue = date.getUTCHours() / 12 >= 1 ? 'pm' : 'am';
 
     switch (token) {
@@ -11561,23 +11675,23 @@ var formatters = {
     }
   },
   // Hour [1-12]
-  h: function (date, token) {
+  h: function h(date, token) {
     return (0, _index.default)(date.getUTCHours() % 12 || 12, token.length);
   },
   // Hour [0-23]
-  H: function (date, token) {
+  H: function H(date, token) {
     return (0, _index.default)(date.getUTCHours(), token.length);
   },
   // Minute
-  m: function (date, token) {
+  m: function m(date, token) {
     return (0, _index.default)(date.getUTCMinutes(), token.length);
   },
   // Second
-  s: function (date, token) {
+  s: function s(date, token) {
     return (0, _index.default)(date.getUTCSeconds(), token.length);
   },
   // Fraction of second
-  S: function (date, token) {
+  S: function S(date, token) {
     var numberOfDigits = token.length;
     var milliseconds = date.getUTCMilliseconds();
     var fractionalSeconds = Math.floor(milliseconds * Math.pow(10, numberOfDigits - 3));
@@ -11601,7 +11715,7 @@ Object.defineProperty(exports, "__esModule", ({
 }));
 exports["default"] = void 0;
 
-var dateLongFormatter = function (pattern, formatLong) {
+var dateLongFormatter = function dateLongFormatter(pattern, formatLong) {
   switch (pattern) {
     case 'P':
       return formatLong.date({
@@ -11626,7 +11740,7 @@ var dateLongFormatter = function (pattern, formatLong) {
   }
 };
 
-var timeLongFormatter = function (pattern, formatLong) {
+var timeLongFormatter = function timeLongFormatter(pattern, formatLong) {
   switch (pattern) {
     case 'p':
       return formatLong.time({
@@ -11651,7 +11765,7 @@ var timeLongFormatter = function (pattern, formatLong) {
   }
 };
 
-var dateTimeLongFormatter = function (pattern, formatLong) {
+var dateTimeLongFormatter = function dateTimeLongFormatter(pattern, formatLong) {
   var matchResult = pattern.match(/(P+)(p+)?/) || [];
   var datePattern = matchResult[1];
   var timePattern = matchResult[2];
@@ -12017,7 +12131,7 @@ var roundingMap = {
   ceil: Math.ceil,
   round: Math.round,
   floor: Math.floor,
-  trunc: function (value) {
+  trunc: function trunc(value) {
     return value < 0 ? Math.ceil(value) : Math.floor(value);
   } // Math.trunc is not supported by IE
 
@@ -12387,6 +12501,8 @@ var _index5 = _interopRequireDefault(__nccwpck_require__(1985));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 /**
  * @name add
  * @category Common Helpers
@@ -12428,7 +12544,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  */
 function add(dirtyDate, duration) {
   (0, _index4.default)(2, arguments);
-  if (!duration || typeof duration !== 'object') return new Date(NaN);
+  if (!duration || _typeof(duration) !== 'object') return new Date(NaN);
   var years = duration.years ? (0, _index5.default)(duration.years) : 0;
   var months = duration.months ? (0, _index5.default)(duration.months) : 0;
   var weeks = duration.weeks ? (0, _index5.default)(duration.weeks) : 0;
@@ -13519,7 +13635,7 @@ module.exports = exports.default;
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
-exports.secondsInQuarter = exports.secondsInMonth = exports.secondsInYear = exports.secondsInWeek = exports.secondsInDay = exports.secondsInMinute = exports.secondsInHour = exports.quartersInYear = exports.monthsInYear = exports.monthsInQuarter = exports.minutesInHour = exports.minTime = exports.millisecondsInSecond = exports.millisecondsInHour = exports.millisecondsInMinute = exports.maxTime = exports.daysInYear = exports.daysInWeek = void 0;
+exports.secondsInYear = exports.secondsInWeek = exports.secondsInQuarter = exports.secondsInMonth = exports.secondsInMinute = exports.secondsInHour = exports.secondsInDay = exports.quartersInYear = exports.monthsInYear = exports.monthsInQuarter = exports.minutesInHour = exports.minTime = exports.millisecondsInSecond = exports.millisecondsInMinute = exports.millisecondsInHour = exports.maxTime = exports.daysInYear = exports.daysInWeek = void 0;
 
 /**
  * Days in 1 week.
@@ -17820,6 +17936,8 @@ var _index = _interopRequireDefault(__nccwpck_require__(2063));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 /**
  * @name formatISODuration
  * @category Common Helpers
@@ -17848,7 +17966,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  */
 function formatISODuration(duration) {
   (0, _index.default)(1, arguments);
-  if (typeof duration !== 'object') throw new Error('Duration must be an object');
+  if (_typeof(duration) !== 'object') throw new Error('Duration must be an object');
   var _duration$years = duration.years,
       years = _duration$years === void 0 ? 0 : _duration$years,
       _duration$months = duration.months,
@@ -19943,1435 +20061,1435 @@ var _exportNames = {
 };
 Object.defineProperty(exports, "add", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index.default;
   }
 }));
 Object.defineProperty(exports, "addBusinessDays", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index2.default;
   }
 }));
 Object.defineProperty(exports, "addDays", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index3.default;
   }
 }));
 Object.defineProperty(exports, "addHours", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index4.default;
   }
 }));
 Object.defineProperty(exports, "addISOWeekYears", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index5.default;
   }
 }));
 Object.defineProperty(exports, "addMilliseconds", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index6.default;
   }
 }));
 Object.defineProperty(exports, "addMinutes", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index7.default;
   }
 }));
 Object.defineProperty(exports, "addMonths", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index8.default;
   }
 }));
 Object.defineProperty(exports, "addQuarters", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index9.default;
   }
 }));
 Object.defineProperty(exports, "addSeconds", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index10.default;
   }
 }));
 Object.defineProperty(exports, "addWeeks", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index11.default;
   }
 }));
 Object.defineProperty(exports, "addYears", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index12.default;
   }
 }));
 Object.defineProperty(exports, "areIntervalsOverlapping", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index13.default;
   }
 }));
 Object.defineProperty(exports, "clamp", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index14.default;
   }
 }));
 Object.defineProperty(exports, "closestIndexTo", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index15.default;
   }
 }));
 Object.defineProperty(exports, "closestTo", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index16.default;
   }
 }));
 Object.defineProperty(exports, "compareAsc", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index17.default;
   }
 }));
 Object.defineProperty(exports, "compareDesc", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index18.default;
   }
 }));
 Object.defineProperty(exports, "daysToWeeks", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index19.default;
   }
 }));
 Object.defineProperty(exports, "differenceInBusinessDays", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index20.default;
   }
 }));
 Object.defineProperty(exports, "differenceInCalendarDays", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index21.default;
   }
 }));
 Object.defineProperty(exports, "differenceInCalendarISOWeekYears", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index22.default;
   }
 }));
 Object.defineProperty(exports, "differenceInCalendarISOWeeks", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index23.default;
   }
 }));
 Object.defineProperty(exports, "differenceInCalendarMonths", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index24.default;
   }
 }));
 Object.defineProperty(exports, "differenceInCalendarQuarters", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index25.default;
   }
 }));
 Object.defineProperty(exports, "differenceInCalendarWeeks", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index26.default;
   }
 }));
 Object.defineProperty(exports, "differenceInCalendarYears", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index27.default;
   }
 }));
 Object.defineProperty(exports, "differenceInDays", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index28.default;
   }
 }));
 Object.defineProperty(exports, "differenceInHours", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index29.default;
   }
 }));
 Object.defineProperty(exports, "differenceInISOWeekYears", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index30.default;
   }
 }));
 Object.defineProperty(exports, "differenceInMilliseconds", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index31.default;
   }
 }));
 Object.defineProperty(exports, "differenceInMinutes", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index32.default;
   }
 }));
 Object.defineProperty(exports, "differenceInMonths", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index33.default;
   }
 }));
 Object.defineProperty(exports, "differenceInQuarters", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index34.default;
   }
 }));
 Object.defineProperty(exports, "differenceInSeconds", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index35.default;
   }
 }));
 Object.defineProperty(exports, "differenceInWeeks", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index36.default;
   }
 }));
 Object.defineProperty(exports, "differenceInYears", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index37.default;
   }
 }));
 Object.defineProperty(exports, "eachDayOfInterval", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index38.default;
   }
 }));
 Object.defineProperty(exports, "eachHourOfInterval", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index39.default;
   }
 }));
 Object.defineProperty(exports, "eachMinuteOfInterval", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index40.default;
   }
 }));
 Object.defineProperty(exports, "eachMonthOfInterval", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index41.default;
   }
 }));
 Object.defineProperty(exports, "eachQuarterOfInterval", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index42.default;
   }
 }));
 Object.defineProperty(exports, "eachWeekOfInterval", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index43.default;
   }
 }));
 Object.defineProperty(exports, "eachWeekendOfInterval", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index44.default;
   }
 }));
 Object.defineProperty(exports, "eachWeekendOfMonth", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index45.default;
   }
 }));
 Object.defineProperty(exports, "eachWeekendOfYear", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index46.default;
   }
 }));
 Object.defineProperty(exports, "eachYearOfInterval", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index47.default;
   }
 }));
 Object.defineProperty(exports, "endOfDay", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index48.default;
   }
 }));
 Object.defineProperty(exports, "endOfDecade", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index49.default;
   }
 }));
 Object.defineProperty(exports, "endOfHour", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index50.default;
   }
 }));
 Object.defineProperty(exports, "endOfISOWeek", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index51.default;
   }
 }));
 Object.defineProperty(exports, "endOfISOWeekYear", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index52.default;
   }
 }));
 Object.defineProperty(exports, "endOfMinute", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index53.default;
   }
 }));
 Object.defineProperty(exports, "endOfMonth", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index54.default;
   }
 }));
 Object.defineProperty(exports, "endOfQuarter", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index55.default;
   }
 }));
 Object.defineProperty(exports, "endOfSecond", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index56.default;
   }
 }));
 Object.defineProperty(exports, "endOfToday", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index57.default;
   }
 }));
 Object.defineProperty(exports, "endOfTomorrow", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index58.default;
   }
 }));
 Object.defineProperty(exports, "endOfWeek", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index59.default;
   }
 }));
 Object.defineProperty(exports, "endOfYear", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index60.default;
   }
 }));
 Object.defineProperty(exports, "endOfYesterday", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index61.default;
   }
 }));
 Object.defineProperty(exports, "format", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index62.default;
   }
 }));
 Object.defineProperty(exports, "formatDistance", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index63.default;
   }
 }));
 Object.defineProperty(exports, "formatDistanceStrict", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index64.default;
   }
 }));
 Object.defineProperty(exports, "formatDistanceToNow", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index65.default;
   }
 }));
 Object.defineProperty(exports, "formatDistanceToNowStrict", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index66.default;
   }
 }));
 Object.defineProperty(exports, "formatDuration", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index67.default;
   }
 }));
 Object.defineProperty(exports, "formatISO", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index68.default;
   }
 }));
 Object.defineProperty(exports, "formatISO9075", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index69.default;
   }
 }));
 Object.defineProperty(exports, "formatISODuration", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index70.default;
   }
 }));
 Object.defineProperty(exports, "formatRFC3339", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index71.default;
   }
 }));
 Object.defineProperty(exports, "formatRFC7231", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index72.default;
   }
 }));
 Object.defineProperty(exports, "formatRelative", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index73.default;
   }
 }));
 Object.defineProperty(exports, "fromUnixTime", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index74.default;
   }
 }));
 Object.defineProperty(exports, "getDate", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index75.default;
   }
 }));
 Object.defineProperty(exports, "getDay", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index76.default;
   }
 }));
 Object.defineProperty(exports, "getDayOfYear", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index77.default;
   }
 }));
 Object.defineProperty(exports, "getDaysInMonth", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index78.default;
   }
 }));
 Object.defineProperty(exports, "getDaysInYear", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index79.default;
   }
 }));
 Object.defineProperty(exports, "getDecade", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index80.default;
   }
 }));
 Object.defineProperty(exports, "getDefaultOptions", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index81.default;
   }
 }));
 Object.defineProperty(exports, "getHours", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index82.default;
   }
 }));
 Object.defineProperty(exports, "getISODay", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index83.default;
   }
 }));
 Object.defineProperty(exports, "getISOWeek", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index84.default;
   }
 }));
 Object.defineProperty(exports, "getISOWeekYear", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index85.default;
   }
 }));
 Object.defineProperty(exports, "getISOWeeksInYear", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index86.default;
   }
 }));
 Object.defineProperty(exports, "getMilliseconds", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index87.default;
   }
 }));
 Object.defineProperty(exports, "getMinutes", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index88.default;
   }
 }));
 Object.defineProperty(exports, "getMonth", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index89.default;
   }
 }));
 Object.defineProperty(exports, "getOverlappingDaysInIntervals", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index90.default;
   }
 }));
 Object.defineProperty(exports, "getQuarter", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index91.default;
   }
 }));
 Object.defineProperty(exports, "getSeconds", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index92.default;
   }
 }));
 Object.defineProperty(exports, "getTime", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index93.default;
   }
 }));
 Object.defineProperty(exports, "getUnixTime", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index94.default;
   }
 }));
 Object.defineProperty(exports, "getWeek", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index95.default;
   }
 }));
 Object.defineProperty(exports, "getWeekOfMonth", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index96.default;
   }
 }));
 Object.defineProperty(exports, "getWeekYear", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index97.default;
   }
 }));
 Object.defineProperty(exports, "getWeeksInMonth", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index98.default;
   }
 }));
 Object.defineProperty(exports, "getYear", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index99.default;
   }
 }));
 Object.defineProperty(exports, "hoursToMilliseconds", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index100.default;
   }
 }));
 Object.defineProperty(exports, "hoursToMinutes", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index101.default;
   }
 }));
 Object.defineProperty(exports, "hoursToSeconds", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index102.default;
   }
 }));
 Object.defineProperty(exports, "intervalToDuration", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index103.default;
   }
 }));
 Object.defineProperty(exports, "intlFormat", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index104.default;
   }
 }));
 Object.defineProperty(exports, "intlFormatDistance", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index105.default;
   }
 }));
 Object.defineProperty(exports, "isAfter", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index106.default;
   }
 }));
 Object.defineProperty(exports, "isBefore", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index107.default;
   }
 }));
 Object.defineProperty(exports, "isDate", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index108.default;
   }
 }));
 Object.defineProperty(exports, "isEqual", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index109.default;
   }
 }));
 Object.defineProperty(exports, "isExists", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index110.default;
   }
 }));
 Object.defineProperty(exports, "isFirstDayOfMonth", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index111.default;
   }
 }));
 Object.defineProperty(exports, "isFriday", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index112.default;
   }
 }));
 Object.defineProperty(exports, "isFuture", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index113.default;
   }
 }));
 Object.defineProperty(exports, "isLastDayOfMonth", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index114.default;
   }
 }));
 Object.defineProperty(exports, "isLeapYear", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index115.default;
   }
 }));
 Object.defineProperty(exports, "isMatch", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index116.default;
   }
 }));
 Object.defineProperty(exports, "isMonday", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index117.default;
   }
 }));
 Object.defineProperty(exports, "isPast", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index118.default;
   }
 }));
 Object.defineProperty(exports, "isSameDay", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index119.default;
   }
 }));
 Object.defineProperty(exports, "isSameHour", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index120.default;
   }
 }));
 Object.defineProperty(exports, "isSameISOWeek", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index121.default;
   }
 }));
 Object.defineProperty(exports, "isSameISOWeekYear", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index122.default;
   }
 }));
 Object.defineProperty(exports, "isSameMinute", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index123.default;
   }
 }));
 Object.defineProperty(exports, "isSameMonth", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index124.default;
   }
 }));
 Object.defineProperty(exports, "isSameQuarter", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index125.default;
   }
 }));
 Object.defineProperty(exports, "isSameSecond", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index126.default;
   }
 }));
 Object.defineProperty(exports, "isSameWeek", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index127.default;
   }
 }));
 Object.defineProperty(exports, "isSameYear", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index128.default;
   }
 }));
 Object.defineProperty(exports, "isSaturday", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index129.default;
   }
 }));
 Object.defineProperty(exports, "isSunday", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index130.default;
   }
 }));
 Object.defineProperty(exports, "isThisHour", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index131.default;
   }
 }));
 Object.defineProperty(exports, "isThisISOWeek", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index132.default;
   }
 }));
 Object.defineProperty(exports, "isThisMinute", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index133.default;
   }
 }));
 Object.defineProperty(exports, "isThisMonth", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index134.default;
   }
 }));
 Object.defineProperty(exports, "isThisQuarter", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index135.default;
   }
 }));
 Object.defineProperty(exports, "isThisSecond", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index136.default;
   }
 }));
 Object.defineProperty(exports, "isThisWeek", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index137.default;
   }
 }));
 Object.defineProperty(exports, "isThisYear", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index138.default;
   }
 }));
 Object.defineProperty(exports, "isThursday", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index139.default;
   }
 }));
 Object.defineProperty(exports, "isToday", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index140.default;
   }
 }));
 Object.defineProperty(exports, "isTomorrow", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index141.default;
   }
 }));
 Object.defineProperty(exports, "isTuesday", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index142.default;
   }
 }));
 Object.defineProperty(exports, "isValid", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index143.default;
   }
 }));
 Object.defineProperty(exports, "isWednesday", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index144.default;
   }
 }));
 Object.defineProperty(exports, "isWeekend", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index145.default;
   }
 }));
 Object.defineProperty(exports, "isWithinInterval", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index146.default;
   }
 }));
 Object.defineProperty(exports, "isYesterday", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index147.default;
   }
 }));
 Object.defineProperty(exports, "lastDayOfDecade", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index148.default;
   }
 }));
 Object.defineProperty(exports, "lastDayOfISOWeek", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index149.default;
   }
 }));
 Object.defineProperty(exports, "lastDayOfISOWeekYear", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index150.default;
   }
 }));
 Object.defineProperty(exports, "lastDayOfMonth", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index151.default;
   }
 }));
 Object.defineProperty(exports, "lastDayOfQuarter", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index152.default;
   }
 }));
 Object.defineProperty(exports, "lastDayOfWeek", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index153.default;
   }
 }));
 Object.defineProperty(exports, "lastDayOfYear", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index154.default;
   }
 }));
 Object.defineProperty(exports, "lightFormat", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index155.default;
   }
 }));
 Object.defineProperty(exports, "max", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index156.default;
   }
 }));
 Object.defineProperty(exports, "milliseconds", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index157.default;
   }
 }));
 Object.defineProperty(exports, "millisecondsToHours", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index158.default;
   }
 }));
 Object.defineProperty(exports, "millisecondsToMinutes", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index159.default;
   }
 }));
 Object.defineProperty(exports, "millisecondsToSeconds", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index160.default;
   }
 }));
 Object.defineProperty(exports, "min", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index161.default;
   }
 }));
 Object.defineProperty(exports, "minutesToHours", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index162.default;
   }
 }));
 Object.defineProperty(exports, "minutesToMilliseconds", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index163.default;
   }
 }));
 Object.defineProperty(exports, "minutesToSeconds", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index164.default;
   }
 }));
 Object.defineProperty(exports, "monthsToQuarters", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index165.default;
   }
 }));
 Object.defineProperty(exports, "monthsToYears", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index166.default;
   }
 }));
 Object.defineProperty(exports, "nextDay", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index167.default;
   }
 }));
 Object.defineProperty(exports, "nextFriday", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index168.default;
   }
 }));
 Object.defineProperty(exports, "nextMonday", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index169.default;
   }
 }));
 Object.defineProperty(exports, "nextSaturday", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index170.default;
   }
 }));
 Object.defineProperty(exports, "nextSunday", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index171.default;
   }
 }));
 Object.defineProperty(exports, "nextThursday", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index172.default;
   }
 }));
 Object.defineProperty(exports, "nextTuesday", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index173.default;
   }
 }));
 Object.defineProperty(exports, "nextWednesday", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index174.default;
   }
 }));
 Object.defineProperty(exports, "parse", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index175.default;
   }
 }));
 Object.defineProperty(exports, "parseISO", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index176.default;
   }
 }));
 Object.defineProperty(exports, "parseJSON", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index177.default;
   }
 }));
 Object.defineProperty(exports, "previousDay", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index178.default;
   }
 }));
 Object.defineProperty(exports, "previousFriday", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index179.default;
   }
 }));
 Object.defineProperty(exports, "previousMonday", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index180.default;
   }
 }));
 Object.defineProperty(exports, "previousSaturday", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index181.default;
   }
 }));
 Object.defineProperty(exports, "previousSunday", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index182.default;
   }
 }));
 Object.defineProperty(exports, "previousThursday", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index183.default;
   }
 }));
 Object.defineProperty(exports, "previousTuesday", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index184.default;
   }
 }));
 Object.defineProperty(exports, "previousWednesday", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index185.default;
   }
 }));
 Object.defineProperty(exports, "quartersToMonths", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index186.default;
   }
 }));
 Object.defineProperty(exports, "quartersToYears", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index187.default;
   }
 }));
 Object.defineProperty(exports, "roundToNearestMinutes", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index188.default;
   }
 }));
 Object.defineProperty(exports, "secondsToHours", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index189.default;
   }
 }));
 Object.defineProperty(exports, "secondsToMilliseconds", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index190.default;
   }
 }));
 Object.defineProperty(exports, "secondsToMinutes", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index191.default;
   }
 }));
 Object.defineProperty(exports, "set", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index192.default;
   }
 }));
 Object.defineProperty(exports, "setDate", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index193.default;
   }
 }));
 Object.defineProperty(exports, "setDay", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index194.default;
   }
 }));
 Object.defineProperty(exports, "setDayOfYear", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index195.default;
   }
 }));
 Object.defineProperty(exports, "setDefaultOptions", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index196.default;
   }
 }));
 Object.defineProperty(exports, "setHours", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index197.default;
   }
 }));
 Object.defineProperty(exports, "setISODay", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index198.default;
   }
 }));
 Object.defineProperty(exports, "setISOWeek", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index199.default;
   }
 }));
 Object.defineProperty(exports, "setISOWeekYear", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index200.default;
   }
 }));
 Object.defineProperty(exports, "setMilliseconds", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index201.default;
   }
 }));
 Object.defineProperty(exports, "setMinutes", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index202.default;
   }
 }));
 Object.defineProperty(exports, "setMonth", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index203.default;
   }
 }));
 Object.defineProperty(exports, "setQuarter", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index204.default;
   }
 }));
 Object.defineProperty(exports, "setSeconds", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index205.default;
   }
 }));
 Object.defineProperty(exports, "setWeek", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index206.default;
   }
 }));
 Object.defineProperty(exports, "setWeekYear", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index207.default;
   }
 }));
 Object.defineProperty(exports, "setYear", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index208.default;
   }
 }));
 Object.defineProperty(exports, "startOfDay", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index209.default;
   }
 }));
 Object.defineProperty(exports, "startOfDecade", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index210.default;
   }
 }));
 Object.defineProperty(exports, "startOfHour", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index211.default;
   }
 }));
 Object.defineProperty(exports, "startOfISOWeek", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index212.default;
   }
 }));
 Object.defineProperty(exports, "startOfISOWeekYear", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index213.default;
   }
 }));
 Object.defineProperty(exports, "startOfMinute", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index214.default;
   }
 }));
 Object.defineProperty(exports, "startOfMonth", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index215.default;
   }
 }));
 Object.defineProperty(exports, "startOfQuarter", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index216.default;
   }
 }));
 Object.defineProperty(exports, "startOfSecond", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index217.default;
   }
 }));
 Object.defineProperty(exports, "startOfToday", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index218.default;
   }
 }));
 Object.defineProperty(exports, "startOfTomorrow", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index219.default;
   }
 }));
 Object.defineProperty(exports, "startOfWeek", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index220.default;
   }
 }));
 Object.defineProperty(exports, "startOfWeekYear", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index221.default;
   }
 }));
 Object.defineProperty(exports, "startOfYear", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index222.default;
   }
 }));
 Object.defineProperty(exports, "startOfYesterday", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index223.default;
   }
 }));
 Object.defineProperty(exports, "sub", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index224.default;
   }
 }));
 Object.defineProperty(exports, "subBusinessDays", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index225.default;
   }
 }));
 Object.defineProperty(exports, "subDays", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index226.default;
   }
 }));
 Object.defineProperty(exports, "subHours", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index227.default;
   }
 }));
 Object.defineProperty(exports, "subISOWeekYears", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index228.default;
   }
 }));
 Object.defineProperty(exports, "subMilliseconds", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index229.default;
   }
 }));
 Object.defineProperty(exports, "subMinutes", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index230.default;
   }
 }));
 Object.defineProperty(exports, "subMonths", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index231.default;
   }
 }));
 Object.defineProperty(exports, "subQuarters", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index232.default;
   }
 }));
 Object.defineProperty(exports, "subSeconds", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index233.default;
   }
 }));
 Object.defineProperty(exports, "subWeeks", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index234.default;
   }
 }));
 Object.defineProperty(exports, "subYears", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index235.default;
   }
 }));
 Object.defineProperty(exports, "toDate", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index236.default;
   }
 }));
 Object.defineProperty(exports, "weeksToDays", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index237.default;
   }
 }));
 Object.defineProperty(exports, "yearsToMonths", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index238.default;
   }
 }));
 Object.defineProperty(exports, "yearsToQuarters", ({
   enumerable: true,
-  get: function () {
+  get: function get() {
     return _index239.default;
   }
 }));
@@ -21859,9 +21977,10 @@ var _index240 = __nccwpck_require__(5756);
 Object.keys(_index240).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  if (key in exports && exports[key] === _index240[key]) return;
   Object.defineProperty(exports, key, {
     enumerable: true,
-    get: function () {
+    get: function get() {
       return _index240[key];
     }
   });
@@ -22390,6 +22509,8 @@ var _index = _interopRequireDefault(__nccwpck_require__(2063));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 /**
  * @name isDate
  * @category Common Helpers
@@ -22424,7 +22545,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  */
 function isDate(value) {
   (0, _index.default)(1, arguments);
-  return value instanceof Date || typeof value === 'object' && Object.prototype.toString.call(value) === '[object Date]';
+  return value instanceof Date || _typeof(value) === 'object' && Object.prototype.toString.call(value) === '[object Date]';
 }
 
 module.exports = exports.default;
@@ -25394,7 +25515,7 @@ var formatDistanceLocale = {
   }
 };
 
-var formatDistance = function (token, count, options) {
+var formatDistance = function formatDistance(token, count, options) {
   var result;
   var tokenValue = formatDistanceLocale[token];
 
@@ -25495,7 +25616,7 @@ var formatRelativeLocale = {
   other: 'P'
 };
 
-var formatRelative = function (token, _date, _baseDate, _options) {
+var formatRelative = function formatRelative(token, _date, _baseDate, _options) {
   return formatRelativeLocale[token];
 };
 
@@ -25610,7 +25731,7 @@ var formattingDayPeriodValues = {
   }
 };
 
-var ordinalNumber = function (dirtyNumber, _options) {
+var ordinalNumber = function ordinalNumber(dirtyNumber, _options) {
   var number = Number(dirtyNumber); // If ordinal numbers depend on context, for example,
   // if they are different for different grammatical genders,
   // use `options.unit`.
@@ -25645,7 +25766,7 @@ var localize = {
   quarter: (0, _index.default)({
     values: quarterValues,
     defaultWidth: 'wide',
-    argumentCallback: function (quarter) {
+    argumentCallback: function argumentCallback(quarter) {
       return quarter - 1;
     }
   }),
@@ -25744,7 +25865,7 @@ var match = {
   ordinalNumber: (0, _index2.default)({
     matchPattern: matchOrdinalNumberPattern,
     parsePattern: parseOrdinalNumberPattern,
-    valueCallback: function (value) {
+    valueCallback: function valueCallback(value) {
       return parseInt(value, 10);
     }
   }),
@@ -25759,7 +25880,7 @@ var match = {
     defaultMatchWidth: 'wide',
     parsePatterns: parseQuarterPatterns,
     defaultParseWidth: 'any',
-    valueCallback: function (index) {
+    valueCallback: function valueCallback(index) {
       return index + 1;
     }
   }),
@@ -25857,6 +25978,8 @@ var _index2 = _interopRequireDefault(__nccwpck_require__(2063));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 /**
  * @name max
  * @category Common Helpers
@@ -25885,7 +26008,7 @@ function max(dirtyDatesArray) {
 
   if (dirtyDatesArray && typeof dirtyDatesArray.forEach === 'function') {
     datesArray = dirtyDatesArray; // If `dirtyDatesArray` is Array-like Object, convert to Array.
-  } else if (typeof dirtyDatesArray === 'object' && dirtyDatesArray !== null) {
+  } else if (_typeof(dirtyDatesArray) === 'object' && dirtyDatesArray !== null) {
     datesArray = Array.prototype.slice.call(dirtyDatesArray);
   } else {
     // `dirtyDatesArray` is non-iterable, return Invalid Date
@@ -26147,6 +26270,8 @@ var _index2 = _interopRequireDefault(__nccwpck_require__(2063));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 /**
  * @name min
  * @category Common Helpers
@@ -26175,7 +26300,7 @@ function min(dirtyDatesArray) {
 
   if (dirtyDatesArray && typeof dirtyDatesArray.forEach === 'function') {
     datesArray = dirtyDatesArray; // If `dirtyDatesArray` is Array-like Object, convert to Array.
-  } else if (typeof dirtyDatesArray === 'object' && dirtyDatesArray !== null) {
+  } else if (_typeof(dirtyDatesArray) === 'object' && dirtyDatesArray !== null) {
     datesArray = Array.prototype.slice.call(dirtyDatesArray);
   } else {
     // `dirtyDatesArray` is non-iterable, return Invalid Date
@@ -26801,35 +26926,40 @@ exports.Parser = void 0;
 
 var _Setter = __nccwpck_require__(5665);
 
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-class Parser {
-  constructor() {
-    _defineProperty(this, "incompatibleTokens", void 0);
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
-    _defineProperty(this, "priority", void 0);
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-    _defineProperty(this, "subPriority", void 0);
+var Parser = /*#__PURE__*/function () {
+  function Parser() {
+    _classCallCheck(this, Parser);
   }
 
-  run(dateString, token, match, options) {
-    var result = this.parse(dateString, token, match, options);
+  _createClass(Parser, [{
+    key: "run",
+    value: function run(dateString, token, match, options) {
+      var result = this.parse(dateString, token, match, options);
 
-    if (!result) {
-      return null;
+      if (!result) {
+        return null;
+      }
+
+      return {
+        setter: new _Setter.ValueSetter(result.value, this.validate, this.set, this.priority, this.subPriority),
+        rest: result.rest
+      };
     }
+  }, {
+    key: "validate",
+    value: function validate(_utcDate, _value, _options) {
+      return true;
+    }
+  }]);
 
-    return {
-      setter: new _Setter.ValueSetter(result.value, this.validate, this.set, this.priority, this.subPriority),
-      rest: result.rest
-    };
-  }
-
-  validate(_utcDate, _value, _options) {
-    return true;
-  }
-
-}
+  return Parser;
+}();
 
 exports.Parser = Parser;
 
@@ -26841,76 +26971,135 @@ exports.Parser = Parser;
 "use strict";
 
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
-exports.DateToSystemTimezoneSetter = exports.ValueSetter = exports.Setter = void 0;
+exports.ValueSetter = exports.Setter = exports.DateToSystemTimezoneSetter = void 0;
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 var TIMEZONE_UNIT_PRIORITY = 10;
 
-class Setter {
-  constructor() {
-    _defineProperty(this, "priority", void 0);
+var Setter = /*#__PURE__*/function () {
+  function Setter() {
+    _classCallCheck(this, Setter);
 
     _defineProperty(this, "subPriority", 0);
   }
 
-  validate(_utcDate, _options) {
-    return true;
-  }
+  _createClass(Setter, [{
+    key: "validate",
+    value: function validate(_utcDate, _options) {
+      return true;
+    }
+  }]);
 
-}
+  return Setter;
+}();
 
 exports.Setter = Setter;
 
-class ValueSetter extends Setter {
-  constructor(value, validateValue, setValue, priority, subPriority) {
-    super();
-    this.value = value;
-    this.validateValue = validateValue;
-    this.setValue = setValue;
-    this.priority = priority;
+var ValueSetter = /*#__PURE__*/function (_Setter) {
+  _inherits(ValueSetter, _Setter);
+
+  var _super = _createSuper(ValueSetter);
+
+  function ValueSetter(value, validateValue, setValue, priority, subPriority) {
+    var _this;
+
+    _classCallCheck(this, ValueSetter);
+
+    _this = _super.call(this);
+    _this.value = value;
+    _this.validateValue = validateValue;
+    _this.setValue = setValue;
+    _this.priority = priority;
 
     if (subPriority) {
-      this.subPriority = subPriority;
+      _this.subPriority = subPriority;
     }
+
+    return _this;
   }
 
-  validate(utcDate, options) {
-    return this.validateValue(utcDate, this.value, options);
-  }
+  _createClass(ValueSetter, [{
+    key: "validate",
+    value: function validate(utcDate, options) {
+      return this.validateValue(utcDate, this.value, options);
+    }
+  }, {
+    key: "set",
+    value: function set(utcDate, flags, options) {
+      return this.setValue(utcDate, flags, this.value, options);
+    }
+  }]);
 
-  set(utcDate, flags, options) {
-    return this.setValue(utcDate, flags, this.value, options);
-  }
-
-}
+  return ValueSetter;
+}(Setter);
 
 exports.ValueSetter = ValueSetter;
 
-class DateToSystemTimezoneSetter extends Setter {
-  constructor() {
-    super(...arguments);
+var DateToSystemTimezoneSetter = /*#__PURE__*/function (_Setter2) {
+  _inherits(DateToSystemTimezoneSetter, _Setter2);
 
-    _defineProperty(this, "priority", TIMEZONE_UNIT_PRIORITY);
+  var _super2 = _createSuper(DateToSystemTimezoneSetter);
 
-    _defineProperty(this, "subPriority", -1);
-  }
+  function DateToSystemTimezoneSetter() {
+    var _this2;
 
-  set(date, flags) {
-    if (flags.timestampIsSet) {
-      return date;
+    _classCallCheck(this, DateToSystemTimezoneSetter);
+
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
     }
 
-    var convertedDate = new Date(0);
-    convertedDate.setFullYear(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
-    convertedDate.setHours(date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds(), date.getUTCMilliseconds());
-    return convertedDate;
+    _this2 = _super2.call.apply(_super2, [this].concat(args));
+
+    _defineProperty(_assertThisInitialized(_this2), "priority", TIMEZONE_UNIT_PRIORITY);
+
+    _defineProperty(_assertThisInitialized(_this2), "subPriority", -1);
+
+    return _this2;
   }
 
-}
+  _createClass(DateToSystemTimezoneSetter, [{
+    key: "set",
+    value: function set(date, flags) {
+      if (flags.timestampIsSet) {
+        return date;
+      }
+
+      var convertedDate = new Date(0);
+      convertedDate.setFullYear(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
+      convertedDate.setHours(date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds(), date.getUTCMilliseconds());
+      return convertedDate;
+    }
+  }]);
+
+  return DateToSystemTimezoneSetter;
+}(Setter);
 
 exports.DateToSystemTimezoneSetter = DateToSystemTimezoneSetter;
 
@@ -26983,66 +27172,107 @@ exports.timezonePatterns = timezonePatterns;
 "use strict";
 
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
 exports.AMPMMidnightParser = void 0;
 
-var _Parser = __nccwpck_require__(5619);
+var _Parser2 = __nccwpck_require__(5619);
 
 var _utils = __nccwpck_require__(9042);
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-class AMPMMidnightParser extends _Parser.Parser {
-  constructor() {
-    super(...arguments);
+var AMPMMidnightParser = /*#__PURE__*/function (_Parser) {
+  _inherits(AMPMMidnightParser, _Parser);
 
-    _defineProperty(this, "priority", 80);
+  var _super = _createSuper(AMPMMidnightParser);
 
-    _defineProperty(this, "incompatibleTokens", ['a', 'B', 'H', 'k', 't', 'T']);
-  }
+  function AMPMMidnightParser() {
+    var _this;
 
-  parse(dateString, token, match) {
-    switch (token) {
-      case 'b':
-      case 'bb':
-      case 'bbb':
-        return match.dayPeriod(dateString, {
-          width: 'abbreviated',
-          context: 'formatting'
-        }) || match.dayPeriod(dateString, {
-          width: 'narrow',
-          context: 'formatting'
-        });
+    _classCallCheck(this, AMPMMidnightParser);
 
-      case 'bbbbb':
-        return match.dayPeriod(dateString, {
-          width: 'narrow',
-          context: 'formatting'
-        });
-
-      case 'bbbb':
-      default:
-        return match.dayPeriod(dateString, {
-          width: 'wide',
-          context: 'formatting'
-        }) || match.dayPeriod(dateString, {
-          width: 'abbreviated',
-          context: 'formatting'
-        }) || match.dayPeriod(dateString, {
-          width: 'narrow',
-          context: 'formatting'
-        });
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
     }
+
+    _this = _super.call.apply(_super, [this].concat(args));
+
+    _defineProperty(_assertThisInitialized(_this), "priority", 80);
+
+    _defineProperty(_assertThisInitialized(_this), "incompatibleTokens", ['a', 'B', 'H', 'k', 't', 'T']);
+
+    return _this;
   }
 
-  set(date, _flags, value) {
-    date.setUTCHours((0, _utils.dayPeriodEnumToHours)(value), 0, 0, 0);
-    return date;
-  }
+  _createClass(AMPMMidnightParser, [{
+    key: "parse",
+    value: function parse(dateString, token, match) {
+      switch (token) {
+        case 'b':
+        case 'bb':
+        case 'bbb':
+          return match.dayPeriod(dateString, {
+            width: 'abbreviated',
+            context: 'formatting'
+          }) || match.dayPeriod(dateString, {
+            width: 'narrow',
+            context: 'formatting'
+          });
 
-}
+        case 'bbbbb':
+          return match.dayPeriod(dateString, {
+            width: 'narrow',
+            context: 'formatting'
+          });
+
+        case 'bbbb':
+        default:
+          return match.dayPeriod(dateString, {
+            width: 'wide',
+            context: 'formatting'
+          }) || match.dayPeriod(dateString, {
+            width: 'abbreviated',
+            context: 'formatting'
+          }) || match.dayPeriod(dateString, {
+            width: 'narrow',
+            context: 'formatting'
+          });
+      }
+    }
+  }, {
+    key: "set",
+    value: function set(date, _flags, value) {
+      date.setUTCHours((0, _utils.dayPeriodEnumToHours)(value), 0, 0, 0);
+      return date;
+    }
+  }]);
+
+  return AMPMMidnightParser;
+}(_Parser2.Parser);
 
 exports.AMPMMidnightParser = AMPMMidnightParser;
 
@@ -27054,66 +27284,107 @@ exports.AMPMMidnightParser = AMPMMidnightParser;
 "use strict";
 
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
 exports.AMPMParser = void 0;
 
-var _Parser = __nccwpck_require__(5619);
+var _Parser2 = __nccwpck_require__(5619);
 
 var _utils = __nccwpck_require__(9042);
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-class AMPMParser extends _Parser.Parser {
-  constructor() {
-    super(...arguments);
+var AMPMParser = /*#__PURE__*/function (_Parser) {
+  _inherits(AMPMParser, _Parser);
 
-    _defineProperty(this, "priority", 80);
+  var _super = _createSuper(AMPMParser);
 
-    _defineProperty(this, "incompatibleTokens", ['b', 'B', 'H', 'k', 't', 'T']);
-  }
+  function AMPMParser() {
+    var _this;
 
-  parse(dateString, token, match) {
-    switch (token) {
-      case 'a':
-      case 'aa':
-      case 'aaa':
-        return match.dayPeriod(dateString, {
-          width: 'abbreviated',
-          context: 'formatting'
-        }) || match.dayPeriod(dateString, {
-          width: 'narrow',
-          context: 'formatting'
-        });
+    _classCallCheck(this, AMPMParser);
 
-      case 'aaaaa':
-        return match.dayPeriod(dateString, {
-          width: 'narrow',
-          context: 'formatting'
-        });
-
-      case 'aaaa':
-      default:
-        return match.dayPeriod(dateString, {
-          width: 'wide',
-          context: 'formatting'
-        }) || match.dayPeriod(dateString, {
-          width: 'abbreviated',
-          context: 'formatting'
-        }) || match.dayPeriod(dateString, {
-          width: 'narrow',
-          context: 'formatting'
-        });
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
     }
+
+    _this = _super.call.apply(_super, [this].concat(args));
+
+    _defineProperty(_assertThisInitialized(_this), "priority", 80);
+
+    _defineProperty(_assertThisInitialized(_this), "incompatibleTokens", ['b', 'B', 'H', 'k', 't', 'T']);
+
+    return _this;
   }
 
-  set(date, _flags, value) {
-    date.setUTCHours((0, _utils.dayPeriodEnumToHours)(value), 0, 0, 0);
-    return date;
-  }
+  _createClass(AMPMParser, [{
+    key: "parse",
+    value: function parse(dateString, token, match) {
+      switch (token) {
+        case 'a':
+        case 'aa':
+        case 'aaa':
+          return match.dayPeriod(dateString, {
+            width: 'abbreviated',
+            context: 'formatting'
+          }) || match.dayPeriod(dateString, {
+            width: 'narrow',
+            context: 'formatting'
+          });
 
-}
+        case 'aaaaa':
+          return match.dayPeriod(dateString, {
+            width: 'narrow',
+            context: 'formatting'
+          });
+
+        case 'aaaa':
+        default:
+          return match.dayPeriod(dateString, {
+            width: 'wide',
+            context: 'formatting'
+          }) || match.dayPeriod(dateString, {
+            width: 'abbreviated',
+            context: 'formatting'
+          }) || match.dayPeriod(dateString, {
+            width: 'narrow',
+            context: 'formatting'
+          });
+      }
+    }
+  }, {
+    key: "set",
+    value: function set(date, _flags, value) {
+      date.setUTCHours((0, _utils.dayPeriodEnumToHours)(value), 0, 0, 0);
+      return date;
+    }
+  }]);
+
+  return AMPMParser;
+}(_Parser2.Parser);
 
 exports.AMPMParser = AMPMParser;
 
@@ -27125,6 +27396,8 @@ exports.AMPMParser = AMPMParser;
 "use strict";
 
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
@@ -27132,60 +27405,100 @@ exports.DateParser = void 0;
 
 var _utils = __nccwpck_require__(9042);
 
-var _Parser = __nccwpck_require__(5619);
+var _Parser2 = __nccwpck_require__(5619);
 
 var _constants = __nccwpck_require__(463);
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 var DAYS_IN_MONTH = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 var DAYS_IN_MONTH_LEAP_YEAR = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]; // Day of the month
 
-class DateParser extends _Parser.Parser {
-  constructor() {
-    super(...arguments);
+var DateParser = /*#__PURE__*/function (_Parser) {
+  _inherits(DateParser, _Parser);
 
-    _defineProperty(this, "priority", 90);
+  var _super = _createSuper(DateParser);
 
-    _defineProperty(this, "subPriority", 1);
+  function DateParser() {
+    var _this;
 
-    _defineProperty(this, "incompatibleTokens", ['Y', 'R', 'q', 'Q', 'w', 'I', 'D', 'i', 'e', 'c', 't', 'T']);
-  }
+    _classCallCheck(this, DateParser);
 
-  parse(dateString, token, match) {
-    switch (token) {
-      case 'd':
-        return (0, _utils.parseNumericPattern)(_constants.numericPatterns.date, dateString);
-
-      case 'do':
-        return match.ordinalNumber(dateString, {
-          unit: 'date'
-        });
-
-      default:
-        return (0, _utils.parseNDigits)(token.length, dateString);
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
     }
+
+    _this = _super.call.apply(_super, [this].concat(args));
+
+    _defineProperty(_assertThisInitialized(_this), "priority", 90);
+
+    _defineProperty(_assertThisInitialized(_this), "subPriority", 1);
+
+    _defineProperty(_assertThisInitialized(_this), "incompatibleTokens", ['Y', 'R', 'q', 'Q', 'w', 'I', 'D', 'i', 'e', 'c', 't', 'T']);
+
+    return _this;
   }
 
-  validate(date, value) {
-    var year = date.getUTCFullYear();
-    var isLeapYear = (0, _utils.isLeapYearIndex)(year);
-    var month = date.getUTCMonth();
+  _createClass(DateParser, [{
+    key: "parse",
+    value: function parse(dateString, token, match) {
+      switch (token) {
+        case 'd':
+          return (0, _utils.parseNumericPattern)(_constants.numericPatterns.date, dateString);
 
-    if (isLeapYear) {
-      return value >= 1 && value <= DAYS_IN_MONTH_LEAP_YEAR[month];
-    } else {
-      return value >= 1 && value <= DAYS_IN_MONTH[month];
+        case 'do':
+          return match.ordinalNumber(dateString, {
+            unit: 'date'
+          });
+
+        default:
+          return (0, _utils.parseNDigits)(token.length, dateString);
+      }
     }
-  }
+  }, {
+    key: "validate",
+    value: function validate(date, value) {
+      var year = date.getUTCFullYear();
+      var isLeapYear = (0, _utils.isLeapYearIndex)(year);
+      var month = date.getUTCMonth();
 
-  set(date, _flags, value) {
-    date.setUTCDate(value);
-    date.setUTCHours(0, 0, 0, 0);
-    return date;
-  }
+      if (isLeapYear) {
+        return value >= 1 && value <= DAYS_IN_MONTH_LEAP_YEAR[month];
+      } else {
+        return value >= 1 && value <= DAYS_IN_MONTH[month];
+      }
+    }
+  }, {
+    key: "set",
+    value: function set(date, _flags, value) {
+      date.setUTCDate(value);
+      date.setUTCHours(0, 0, 0, 0);
+      return date;
+    }
+  }]);
 
-}
+  return DateParser;
+}(_Parser2.Parser);
 
 exports.DateParser = DateParser;
 
@@ -27197,64 +27510,106 @@ exports.DateParser = DateParser;
 "use strict";
 
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
 exports.DayOfYearParser = void 0;
 
-var _Parser = __nccwpck_require__(5619);
+var _Parser2 = __nccwpck_require__(5619);
 
 var _constants = __nccwpck_require__(463);
 
 var _utils = __nccwpck_require__(9042);
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-class DayOfYearParser extends _Parser.Parser {
-  constructor() {
-    super(...arguments);
+var DayOfYearParser = /*#__PURE__*/function (_Parser) {
+  _inherits(DayOfYearParser, _Parser);
 
-    _defineProperty(this, "priority", 90);
+  var _super = _createSuper(DayOfYearParser);
 
-    _defineProperty(this, "subpriority", 1);
+  function DayOfYearParser() {
+    var _this;
 
-    _defineProperty(this, "incompatibleTokens", ['Y', 'R', 'q', 'Q', 'M', 'L', 'w', 'I', 'd', 'E', 'i', 'e', 'c', 't', 'T']);
-  }
+    _classCallCheck(this, DayOfYearParser);
 
-  parse(dateString, token, match) {
-    switch (token) {
-      case 'D':
-      case 'DD':
-        return (0, _utils.parseNumericPattern)(_constants.numericPatterns.dayOfYear, dateString);
-
-      case 'Do':
-        return match.ordinalNumber(dateString, {
-          unit: 'date'
-        });
-
-      default:
-        return (0, _utils.parseNDigits)(token.length, dateString);
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
     }
+
+    _this = _super.call.apply(_super, [this].concat(args));
+
+    _defineProperty(_assertThisInitialized(_this), "priority", 90);
+
+    _defineProperty(_assertThisInitialized(_this), "subpriority", 1);
+
+    _defineProperty(_assertThisInitialized(_this), "incompatibleTokens", ['Y', 'R', 'q', 'Q', 'M', 'L', 'w', 'I', 'd', 'E', 'i', 'e', 'c', 't', 'T']);
+
+    return _this;
   }
 
-  validate(date, value) {
-    var year = date.getUTCFullYear();
-    var isLeapYear = (0, _utils.isLeapYearIndex)(year);
+  _createClass(DayOfYearParser, [{
+    key: "parse",
+    value: function parse(dateString, token, match) {
+      switch (token) {
+        case 'D':
+        case 'DD':
+          return (0, _utils.parseNumericPattern)(_constants.numericPatterns.dayOfYear, dateString);
 
-    if (isLeapYear) {
-      return value >= 1 && value <= 366;
-    } else {
-      return value >= 1 && value <= 365;
+        case 'Do':
+          return match.ordinalNumber(dateString, {
+            unit: 'date'
+          });
+
+        default:
+          return (0, _utils.parseNDigits)(token.length, dateString);
+      }
     }
-  }
+  }, {
+    key: "validate",
+    value: function validate(date, value) {
+      var year = date.getUTCFullYear();
+      var isLeapYear = (0, _utils.isLeapYearIndex)(year);
 
-  set(date, _flags, value) {
-    date.setUTCMonth(0, value);
-    date.setUTCHours(0, 0, 0, 0);
-    return date;
-  }
+      if (isLeapYear) {
+        return value >= 1 && value <= 366;
+      } else {
+        return value >= 1 && value <= 365;
+      }
+    }
+  }, {
+    key: "set",
+    value: function set(date, _flags, value) {
+      date.setUTCMonth(0, value);
+      date.setUTCHours(0, 0, 0, 0);
+      return date;
+    }
+  }]);
 
-}
+  return DayOfYearParser;
+}(_Parser2.Parser);
 
 exports.DayOfYearParser = DayOfYearParser;
 
@@ -27266,93 +27621,135 @@ exports.DayOfYearParser = DayOfYearParser;
 "use strict";
 
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
 exports.DayParser = void 0;
 
-var _Parser = __nccwpck_require__(5619);
+var _Parser2 = __nccwpck_require__(5619);
 
 var _index = _interopRequireDefault(__nccwpck_require__(2694));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 // Day of week
-class DayParser extends _Parser.Parser {
-  constructor() {
-    super(...arguments);
+var DayParser = /*#__PURE__*/function (_Parser) {
+  _inherits(DayParser, _Parser);
 
-    _defineProperty(this, "priority", 90);
+  var _super = _createSuper(DayParser);
 
-    _defineProperty(this, "incompatibleTokens", ['D', 'i', 'e', 'c', 't', 'T']);
-  }
+  function DayParser() {
+    var _this;
 
-  parse(dateString, token, match) {
-    switch (token) {
-      // Tue
-      case 'E':
-      case 'EE':
-      case 'EEE':
-        return match.day(dateString, {
-          width: 'abbreviated',
-          context: 'formatting'
-        }) || match.day(dateString, {
-          width: 'short',
-          context: 'formatting'
-        }) || match.day(dateString, {
-          width: 'narrow',
-          context: 'formatting'
-        });
-      // T
+    _classCallCheck(this, DayParser);
 
-      case 'EEEEE':
-        return match.day(dateString, {
-          width: 'narrow',
-          context: 'formatting'
-        });
-      // Tu
-
-      case 'EEEEEE':
-        return match.day(dateString, {
-          width: 'short',
-          context: 'formatting'
-        }) || match.day(dateString, {
-          width: 'narrow',
-          context: 'formatting'
-        });
-      // Tuesday
-
-      case 'EEEE':
-      default:
-        return match.day(dateString, {
-          width: 'wide',
-          context: 'formatting'
-        }) || match.day(dateString, {
-          width: 'abbreviated',
-          context: 'formatting'
-        }) || match.day(dateString, {
-          width: 'short',
-          context: 'formatting'
-        }) || match.day(dateString, {
-          width: 'narrow',
-          context: 'formatting'
-        });
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
     }
+
+    _this = _super.call.apply(_super, [this].concat(args));
+
+    _defineProperty(_assertThisInitialized(_this), "priority", 90);
+
+    _defineProperty(_assertThisInitialized(_this), "incompatibleTokens", ['D', 'i', 'e', 'c', 't', 'T']);
+
+    return _this;
   }
 
-  validate(_date, value) {
-    return value >= 0 && value <= 6;
-  }
+  _createClass(DayParser, [{
+    key: "parse",
+    value: function parse(dateString, token, match) {
+      switch (token) {
+        // Tue
+        case 'E':
+        case 'EE':
+        case 'EEE':
+          return match.day(dateString, {
+            width: 'abbreviated',
+            context: 'formatting'
+          }) || match.day(dateString, {
+            width: 'short',
+            context: 'formatting'
+          }) || match.day(dateString, {
+            width: 'narrow',
+            context: 'formatting'
+          });
+        // T
 
-  set(date, _flags, value, options) {
-    date = (0, _index.default)(date, value, options);
-    date.setUTCHours(0, 0, 0, 0);
-    return date;
-  }
+        case 'EEEEE':
+          return match.day(dateString, {
+            width: 'narrow',
+            context: 'formatting'
+          });
+        // Tu
 
-}
+        case 'EEEEEE':
+          return match.day(dateString, {
+            width: 'short',
+            context: 'formatting'
+          }) || match.day(dateString, {
+            width: 'narrow',
+            context: 'formatting'
+          });
+        // Tuesday
+
+        case 'EEEE':
+        default:
+          return match.day(dateString, {
+            width: 'wide',
+            context: 'formatting'
+          }) || match.day(dateString, {
+            width: 'abbreviated',
+            context: 'formatting'
+          }) || match.day(dateString, {
+            width: 'short',
+            context: 'formatting'
+          }) || match.day(dateString, {
+            width: 'narrow',
+            context: 'formatting'
+          });
+      }
+    }
+  }, {
+    key: "validate",
+    value: function validate(_date, value) {
+      return value >= 0 && value <= 6;
+    }
+  }, {
+    key: "set",
+    value: function set(date, _flags, value, options) {
+      date = (0, _index.default)(date, value, options);
+      date.setUTCHours(0, 0, 0, 0);
+      return date;
+    }
+  }]);
+
+  return DayParser;
+}(_Parser2.Parser);
 
 exports.DayParser = DayParser;
 
@@ -27364,67 +27761,108 @@ exports.DayParser = DayParser;
 "use strict";
 
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
 exports.DayPeriodParser = void 0;
 
-var _Parser = __nccwpck_require__(5619);
+var _Parser2 = __nccwpck_require__(5619);
 
 var _utils = __nccwpck_require__(9042);
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 // in the morning, in the afternoon, in the evening, at night
-class DayPeriodParser extends _Parser.Parser {
-  constructor() {
-    super(...arguments);
+var DayPeriodParser = /*#__PURE__*/function (_Parser) {
+  _inherits(DayPeriodParser, _Parser);
 
-    _defineProperty(this, "priority", 80);
+  var _super = _createSuper(DayPeriodParser);
 
-    _defineProperty(this, "incompatibleTokens", ['a', 'b', 't', 'T']);
-  }
+  function DayPeriodParser() {
+    var _this;
 
-  parse(dateString, token, match) {
-    switch (token) {
-      case 'B':
-      case 'BB':
-      case 'BBB':
-        return match.dayPeriod(dateString, {
-          width: 'abbreviated',
-          context: 'formatting'
-        }) || match.dayPeriod(dateString, {
-          width: 'narrow',
-          context: 'formatting'
-        });
+    _classCallCheck(this, DayPeriodParser);
 
-      case 'BBBBB':
-        return match.dayPeriod(dateString, {
-          width: 'narrow',
-          context: 'formatting'
-        });
-
-      case 'BBBB':
-      default:
-        return match.dayPeriod(dateString, {
-          width: 'wide',
-          context: 'formatting'
-        }) || match.dayPeriod(dateString, {
-          width: 'abbreviated',
-          context: 'formatting'
-        }) || match.dayPeriod(dateString, {
-          width: 'narrow',
-          context: 'formatting'
-        });
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
     }
+
+    _this = _super.call.apply(_super, [this].concat(args));
+
+    _defineProperty(_assertThisInitialized(_this), "priority", 80);
+
+    _defineProperty(_assertThisInitialized(_this), "incompatibleTokens", ['a', 'b', 't', 'T']);
+
+    return _this;
   }
 
-  set(date, _flags, value) {
-    date.setUTCHours((0, _utils.dayPeriodEnumToHours)(value), 0, 0, 0);
-    return date;
-  }
+  _createClass(DayPeriodParser, [{
+    key: "parse",
+    value: function parse(dateString, token, match) {
+      switch (token) {
+        case 'B':
+        case 'BB':
+        case 'BBB':
+          return match.dayPeriod(dateString, {
+            width: 'abbreviated',
+            context: 'formatting'
+          }) || match.dayPeriod(dateString, {
+            width: 'narrow',
+            context: 'formatting'
+          });
 
-}
+        case 'BBBBB':
+          return match.dayPeriod(dateString, {
+            width: 'narrow',
+            context: 'formatting'
+          });
+
+        case 'BBBB':
+        default:
+          return match.dayPeriod(dateString, {
+            width: 'wide',
+            context: 'formatting'
+          }) || match.dayPeriod(dateString, {
+            width: 'abbreviated',
+            context: 'formatting'
+          }) || match.dayPeriod(dateString, {
+            width: 'narrow',
+            context: 'formatting'
+          });
+      }
+    }
+  }, {
+    key: "set",
+    value: function set(date, _flags, value) {
+      date.setUTCHours((0, _utils.dayPeriodEnumToHours)(value), 0, 0, 0);
+      return date;
+    }
+  }]);
+
+  return DayPeriodParser;
+}(_Parser2.Parser);
 
 exports.DayPeriodParser = DayPeriodParser;
 
@@ -27436,63 +27874,104 @@ exports.DayPeriodParser = DayPeriodParser;
 "use strict";
 
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
 exports.EraParser = void 0;
 
-var _Parser = __nccwpck_require__(5619);
+var _Parser2 = __nccwpck_require__(5619);
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-class EraParser extends _Parser.Parser {
-  constructor() {
-    super(...arguments);
+var EraParser = /*#__PURE__*/function (_Parser) {
+  _inherits(EraParser, _Parser);
 
-    _defineProperty(this, "priority", 140);
+  var _super = _createSuper(EraParser);
 
-    _defineProperty(this, "incompatibleTokens", ['R', 'u', 't', 'T']);
-  }
+  function EraParser() {
+    var _this;
 
-  parse(dateString, token, match) {
-    switch (token) {
-      // AD, BC
-      case 'G':
-      case 'GG':
-      case 'GGG':
-        return match.era(dateString, {
-          width: 'abbreviated'
-        }) || match.era(dateString, {
-          width: 'narrow'
-        });
-      // A, B
+    _classCallCheck(this, EraParser);
 
-      case 'GGGGG':
-        return match.era(dateString, {
-          width: 'narrow'
-        });
-      // Anno Domini, Before Christ
-
-      case 'GGGG':
-      default:
-        return match.era(dateString, {
-          width: 'wide'
-        }) || match.era(dateString, {
-          width: 'abbreviated'
-        }) || match.era(dateString, {
-          width: 'narrow'
-        });
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
     }
+
+    _this = _super.call.apply(_super, [this].concat(args));
+
+    _defineProperty(_assertThisInitialized(_this), "priority", 140);
+
+    _defineProperty(_assertThisInitialized(_this), "incompatibleTokens", ['R', 'u', 't', 'T']);
+
+    return _this;
   }
 
-  set(date, flags, value) {
-    flags.era = value;
-    date.setUTCFullYear(value, 0, 1);
-    date.setUTCHours(0, 0, 0, 0);
-    return date;
-  }
+  _createClass(EraParser, [{
+    key: "parse",
+    value: function parse(dateString, token, match) {
+      switch (token) {
+        // AD, BC
+        case 'G':
+        case 'GG':
+        case 'GGG':
+          return match.era(dateString, {
+            width: 'abbreviated'
+          }) || match.era(dateString, {
+            width: 'narrow'
+          });
+        // A, B
 
-}
+        case 'GGGGG':
+          return match.era(dateString, {
+            width: 'narrow'
+          });
+        // Anno Domini, Before Christ
+
+        case 'GGGG':
+        default:
+          return match.era(dateString, {
+            width: 'wide'
+          }) || match.era(dateString, {
+            width: 'abbreviated'
+          }) || match.era(dateString, {
+            width: 'narrow'
+          });
+      }
+    }
+  }, {
+    key: "set",
+    value: function set(date, flags, value) {
+      flags.era = value;
+      date.setUTCFullYear(value, 0, 1);
+      date.setUTCHours(0, 0, 0, 0);
+      return date;
+    }
+  }]);
+
+  return EraParser;
+}(_Parser2.Parser);
 
 exports.EraParser = EraParser;
 
@@ -27504,41 +27983,82 @@ exports.EraParser = EraParser;
 "use strict";
 
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
 exports.ExtendedYearParser = void 0;
 
-var _Parser = __nccwpck_require__(5619);
+var _Parser2 = __nccwpck_require__(5619);
 
 var _utils = __nccwpck_require__(9042);
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-class ExtendedYearParser extends _Parser.Parser {
-  constructor() {
-    super(...arguments);
+var ExtendedYearParser = /*#__PURE__*/function (_Parser) {
+  _inherits(ExtendedYearParser, _Parser);
 
-    _defineProperty(this, "priority", 130);
+  var _super = _createSuper(ExtendedYearParser);
 
-    _defineProperty(this, "incompatibleTokens", ['G', 'y', 'Y', 'R', 'w', 'I', 'i', 'e', 'c', 't', 'T']);
-  }
+  function ExtendedYearParser() {
+    var _this;
 
-  parse(dateString, token) {
-    if (token === 'u') {
-      return (0, _utils.parseNDigitsSigned)(4, dateString);
+    _classCallCheck(this, ExtendedYearParser);
+
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
     }
 
-    return (0, _utils.parseNDigitsSigned)(token.length, dateString);
+    _this = _super.call.apply(_super, [this].concat(args));
+
+    _defineProperty(_assertThisInitialized(_this), "priority", 130);
+
+    _defineProperty(_assertThisInitialized(_this), "incompatibleTokens", ['G', 'y', 'Y', 'R', 'w', 'I', 'i', 'e', 'c', 't', 'T']);
+
+    return _this;
   }
 
-  set(date, _flags, value) {
-    date.setUTCFullYear(value, 0, 1);
-    date.setUTCHours(0, 0, 0, 0);
-    return date;
-  }
+  _createClass(ExtendedYearParser, [{
+    key: "parse",
+    value: function parse(dateString, token) {
+      if (token === 'u') {
+        return (0, _utils.parseNDigitsSigned)(4, dateString);
+      }
 
-}
+      return (0, _utils.parseNDigitsSigned)(token.length, dateString);
+    }
+  }, {
+    key: "set",
+    value: function set(date, _flags, value) {
+      date.setUTCFullYear(value, 0, 1);
+      date.setUTCHours(0, 0, 0, 0);
+      return date;
+    }
+  }]);
+
+  return ExtendedYearParser;
+}(_Parser2.Parser);
 
 exports.ExtendedYearParser = ExtendedYearParser;
 
@@ -27550,40 +28070,81 @@ exports.ExtendedYearParser = ExtendedYearParser;
 "use strict";
 
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
 exports.FractionOfSecondParser = void 0;
 
-var _Parser = __nccwpck_require__(5619);
+var _Parser2 = __nccwpck_require__(5619);
 
 var _utils = __nccwpck_require__(9042);
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-class FractionOfSecondParser extends _Parser.Parser {
-  constructor() {
-    super(...arguments);
+var FractionOfSecondParser = /*#__PURE__*/function (_Parser) {
+  _inherits(FractionOfSecondParser, _Parser);
 
-    _defineProperty(this, "priority", 30);
+  var _super = _createSuper(FractionOfSecondParser);
 
-    _defineProperty(this, "incompatibleTokens", ['t', 'T']);
+  function FractionOfSecondParser() {
+    var _this;
+
+    _classCallCheck(this, FractionOfSecondParser);
+
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    _this = _super.call.apply(_super, [this].concat(args));
+
+    _defineProperty(_assertThisInitialized(_this), "priority", 30);
+
+    _defineProperty(_assertThisInitialized(_this), "incompatibleTokens", ['t', 'T']);
+
+    return _this;
   }
 
-  parse(dateString, token) {
-    var valueCallback = function (value) {
-      return Math.floor(value * Math.pow(10, -token.length + 3));
-    };
+  _createClass(FractionOfSecondParser, [{
+    key: "parse",
+    value: function parse(dateString, token) {
+      var valueCallback = function valueCallback(value) {
+        return Math.floor(value * Math.pow(10, -token.length + 3));
+      };
 
-    return (0, _utils.mapValue)((0, _utils.parseNDigits)(token.length, dateString), valueCallback);
-  }
+      return (0, _utils.mapValue)((0, _utils.parseNDigits)(token.length, dateString), valueCallback);
+    }
+  }, {
+    key: "set",
+    value: function set(date, _flags, value) {
+      date.setUTCMilliseconds(value);
+      return date;
+    }
+  }]);
 
-  set(date, _flags, value) {
-    date.setUTCMilliseconds(value);
-    return date;
-  }
-
-}
+  return FractionOfSecondParser;
+}(_Parser2.Parser);
 
 exports.FractionOfSecondParser = FractionOfSecondParser;
 
@@ -27595,60 +28156,102 @@ exports.FractionOfSecondParser = FractionOfSecondParser;
 "use strict";
 
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
 exports.Hour0To11Parser = void 0;
 
-var _Parser = __nccwpck_require__(5619);
+var _Parser2 = __nccwpck_require__(5619);
 
 var _constants = __nccwpck_require__(463);
 
 var _utils = __nccwpck_require__(9042);
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-class Hour0To11Parser extends _Parser.Parser {
-  constructor() {
-    super(...arguments);
+var Hour0To11Parser = /*#__PURE__*/function (_Parser) {
+  _inherits(Hour0To11Parser, _Parser);
 
-    _defineProperty(this, "priority", 70);
+  var _super = _createSuper(Hour0To11Parser);
 
-    _defineProperty(this, "incompatibleTokens", ['h', 'H', 'k', 't', 'T']);
-  }
+  function Hour0To11Parser() {
+    var _this;
 
-  parse(dateString, token, match) {
-    switch (token) {
-      case 'K':
-        return (0, _utils.parseNumericPattern)(_constants.numericPatterns.hour11h, dateString);
+    _classCallCheck(this, Hour0To11Parser);
 
-      case 'Ko':
-        return match.ordinalNumber(dateString, {
-          unit: 'hour'
-        });
-
-      default:
-        return (0, _utils.parseNDigits)(token.length, dateString);
-    }
-  }
-
-  validate(_date, value) {
-    return value >= 0 && value <= 11;
-  }
-
-  set(date, _flags, value) {
-    var isPM = date.getUTCHours() >= 12;
-
-    if (isPM && value < 12) {
-      date.setUTCHours(value + 12, 0, 0, 0);
-    } else {
-      date.setUTCHours(value, 0, 0, 0);
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
     }
 
-    return date;
+    _this = _super.call.apply(_super, [this].concat(args));
+
+    _defineProperty(_assertThisInitialized(_this), "priority", 70);
+
+    _defineProperty(_assertThisInitialized(_this), "incompatibleTokens", ['h', 'H', 'k', 't', 'T']);
+
+    return _this;
   }
 
-}
+  _createClass(Hour0To11Parser, [{
+    key: "parse",
+    value: function parse(dateString, token, match) {
+      switch (token) {
+        case 'K':
+          return (0, _utils.parseNumericPattern)(_constants.numericPatterns.hour11h, dateString);
+
+        case 'Ko':
+          return match.ordinalNumber(dateString, {
+            unit: 'hour'
+          });
+
+        default:
+          return (0, _utils.parseNDigits)(token.length, dateString);
+      }
+    }
+  }, {
+    key: "validate",
+    value: function validate(_date, value) {
+      return value >= 0 && value <= 11;
+    }
+  }, {
+    key: "set",
+    value: function set(date, _flags, value) {
+      var isPM = date.getUTCHours() >= 12;
+
+      if (isPM && value < 12) {
+        date.setUTCHours(value + 12, 0, 0, 0);
+      } else {
+        date.setUTCHours(value, 0, 0, 0);
+      }
+
+      return date;
+    }
+  }]);
+
+  return Hour0To11Parser;
+}(_Parser2.Parser);
 
 exports.Hour0To11Parser = Hour0To11Parser;
 
@@ -27660,53 +28263,95 @@ exports.Hour0To11Parser = Hour0To11Parser;
 "use strict";
 
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
 exports.Hour0to23Parser = void 0;
 
-var _Parser = __nccwpck_require__(5619);
+var _Parser2 = __nccwpck_require__(5619);
 
 var _constants = __nccwpck_require__(463);
 
 var _utils = __nccwpck_require__(9042);
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-class Hour0to23Parser extends _Parser.Parser {
-  constructor() {
-    super(...arguments);
+var Hour0to23Parser = /*#__PURE__*/function (_Parser) {
+  _inherits(Hour0to23Parser, _Parser);
 
-    _defineProperty(this, "priority", 70);
+  var _super = _createSuper(Hour0to23Parser);
 
-    _defineProperty(this, "incompatibleTokens", ['a', 'b', 'h', 'K', 'k', 't', 'T']);
-  }
+  function Hour0to23Parser() {
+    var _this;
 
-  parse(dateString, token, match) {
-    switch (token) {
-      case 'H':
-        return (0, _utils.parseNumericPattern)(_constants.numericPatterns.hour23h, dateString);
+    _classCallCheck(this, Hour0to23Parser);
 
-      case 'Ho':
-        return match.ordinalNumber(dateString, {
-          unit: 'hour'
-        });
-
-      default:
-        return (0, _utils.parseNDigits)(token.length, dateString);
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
     }
+
+    _this = _super.call.apply(_super, [this].concat(args));
+
+    _defineProperty(_assertThisInitialized(_this), "priority", 70);
+
+    _defineProperty(_assertThisInitialized(_this), "incompatibleTokens", ['a', 'b', 'h', 'K', 'k', 't', 'T']);
+
+    return _this;
   }
 
-  validate(_date, value) {
-    return value >= 0 && value <= 23;
-  }
+  _createClass(Hour0to23Parser, [{
+    key: "parse",
+    value: function parse(dateString, token, match) {
+      switch (token) {
+        case 'H':
+          return (0, _utils.parseNumericPattern)(_constants.numericPatterns.hour23h, dateString);
 
-  set(date, _flags, value) {
-    date.setUTCHours(value, 0, 0, 0);
-    return date;
-  }
+        case 'Ho':
+          return match.ordinalNumber(dateString, {
+            unit: 'hour'
+          });
 
-}
+        default:
+          return (0, _utils.parseNDigits)(token.length, dateString);
+      }
+    }
+  }, {
+    key: "validate",
+    value: function validate(_date, value) {
+      return value >= 0 && value <= 23;
+    }
+  }, {
+    key: "set",
+    value: function set(date, _flags, value) {
+      date.setUTCHours(value, 0, 0, 0);
+      return date;
+    }
+  }]);
+
+  return Hour0to23Parser;
+}(_Parser2.Parser);
 
 exports.Hour0to23Parser = Hour0to23Parser;
 
@@ -27718,54 +28363,96 @@ exports.Hour0to23Parser = Hour0to23Parser;
 "use strict";
 
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
 exports.Hour1To24Parser = void 0;
 
-var _Parser = __nccwpck_require__(5619);
+var _Parser2 = __nccwpck_require__(5619);
 
 var _constants = __nccwpck_require__(463);
 
 var _utils = __nccwpck_require__(9042);
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-class Hour1To24Parser extends _Parser.Parser {
-  constructor() {
-    super(...arguments);
+var Hour1To24Parser = /*#__PURE__*/function (_Parser) {
+  _inherits(Hour1To24Parser, _Parser);
 
-    _defineProperty(this, "priority", 70);
+  var _super = _createSuper(Hour1To24Parser);
 
-    _defineProperty(this, "incompatibleTokens", ['a', 'b', 'h', 'H', 'K', 't', 'T']);
-  }
+  function Hour1To24Parser() {
+    var _this;
 
-  parse(dateString, token, match) {
-    switch (token) {
-      case 'k':
-        return (0, _utils.parseNumericPattern)(_constants.numericPatterns.hour24h, dateString);
+    _classCallCheck(this, Hour1To24Parser);
 
-      case 'ko':
-        return match.ordinalNumber(dateString, {
-          unit: 'hour'
-        });
-
-      default:
-        return (0, _utils.parseNDigits)(token.length, dateString);
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
     }
+
+    _this = _super.call.apply(_super, [this].concat(args));
+
+    _defineProperty(_assertThisInitialized(_this), "priority", 70);
+
+    _defineProperty(_assertThisInitialized(_this), "incompatibleTokens", ['a', 'b', 'h', 'H', 'K', 't', 'T']);
+
+    return _this;
   }
 
-  validate(_date, value) {
-    return value >= 1 && value <= 24;
-  }
+  _createClass(Hour1To24Parser, [{
+    key: "parse",
+    value: function parse(dateString, token, match) {
+      switch (token) {
+        case 'k':
+          return (0, _utils.parseNumericPattern)(_constants.numericPatterns.hour24h, dateString);
 
-  set(date, _flags, value) {
-    var hours = value <= 24 ? value % 24 : value;
-    date.setUTCHours(hours, 0, 0, 0);
-    return date;
-  }
+        case 'ko':
+          return match.ordinalNumber(dateString, {
+            unit: 'hour'
+          });
 
-}
+        default:
+          return (0, _utils.parseNDigits)(token.length, dateString);
+      }
+    }
+  }, {
+    key: "validate",
+    value: function validate(_date, value) {
+      return value >= 1 && value <= 24;
+    }
+  }, {
+    key: "set",
+    value: function set(date, _flags, value) {
+      var hours = value <= 24 ? value % 24 : value;
+      date.setUTCHours(hours, 0, 0, 0);
+      return date;
+    }
+  }]);
+
+  return Hour1To24Parser;
+}(_Parser2.Parser);
 
 exports.Hour1To24Parser = Hour1To24Parser;
 
@@ -27777,62 +28464,104 @@ exports.Hour1To24Parser = Hour1To24Parser;
 "use strict";
 
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
 exports.Hour1to12Parser = void 0;
 
-var _Parser = __nccwpck_require__(5619);
+var _Parser2 = __nccwpck_require__(5619);
 
 var _constants = __nccwpck_require__(463);
 
 var _utils = __nccwpck_require__(9042);
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-class Hour1to12Parser extends _Parser.Parser {
-  constructor() {
-    super(...arguments);
+var Hour1to12Parser = /*#__PURE__*/function (_Parser) {
+  _inherits(Hour1to12Parser, _Parser);
 
-    _defineProperty(this, "priority", 70);
+  var _super = _createSuper(Hour1to12Parser);
 
-    _defineProperty(this, "incompatibleTokens", ['H', 'K', 'k', 't', 'T']);
-  }
+  function Hour1to12Parser() {
+    var _this;
 
-  parse(dateString, token, match) {
-    switch (token) {
-      case 'h':
-        return (0, _utils.parseNumericPattern)(_constants.numericPatterns.hour12h, dateString);
+    _classCallCheck(this, Hour1to12Parser);
 
-      case 'ho':
-        return match.ordinalNumber(dateString, {
-          unit: 'hour'
-        });
-
-      default:
-        return (0, _utils.parseNDigits)(token.length, dateString);
-    }
-  }
-
-  validate(_date, value) {
-    return value >= 1 && value <= 12;
-  }
-
-  set(date, _flags, value) {
-    var isPM = date.getUTCHours() >= 12;
-
-    if (isPM && value < 12) {
-      date.setUTCHours(value + 12, 0, 0, 0);
-    } else if (!isPM && value === 12) {
-      date.setUTCHours(0, 0, 0, 0);
-    } else {
-      date.setUTCHours(value, 0, 0, 0);
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
     }
 
-    return date;
+    _this = _super.call.apply(_super, [this].concat(args));
+
+    _defineProperty(_assertThisInitialized(_this), "priority", 70);
+
+    _defineProperty(_assertThisInitialized(_this), "incompatibleTokens", ['H', 'K', 'k', 't', 'T']);
+
+    return _this;
   }
 
-}
+  _createClass(Hour1to12Parser, [{
+    key: "parse",
+    value: function parse(dateString, token, match) {
+      switch (token) {
+        case 'h':
+          return (0, _utils.parseNumericPattern)(_constants.numericPatterns.hour12h, dateString);
+
+        case 'ho':
+          return match.ordinalNumber(dateString, {
+            unit: 'hour'
+          });
+
+        default:
+          return (0, _utils.parseNDigits)(token.length, dateString);
+      }
+    }
+  }, {
+    key: "validate",
+    value: function validate(_date, value) {
+      return value >= 1 && value <= 12;
+    }
+  }, {
+    key: "set",
+    value: function set(date, _flags, value) {
+      var isPM = date.getUTCHours() >= 12;
+
+      if (isPM && value < 12) {
+        date.setUTCHours(value + 12, 0, 0, 0);
+      } else if (!isPM && value === 12) {
+        date.setUTCHours(0, 0, 0, 0);
+      } else {
+        date.setUTCHours(value, 0, 0, 0);
+      }
+
+      return date;
+    }
+  }]);
+
+  return Hour1to12Parser;
+}(_Parser2.Parser);
 
 exports.Hour1to12Parser = Hour1to12Parser;
 
@@ -27844,12 +28573,14 @@ exports.Hour1to12Parser = Hour1to12Parser;
 "use strict";
 
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
 exports.ISODayParser = void 0;
 
-var _Parser = __nccwpck_require__(5619);
+var _Parser2 = __nccwpck_require__(5619);
 
 var _utils = __nccwpck_require__(9042);
 
@@ -27857,100 +28588,140 @@ var _index = _interopRequireDefault(__nccwpck_require__(7985));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 // ISO day of week
-class ISODayParser extends _Parser.Parser {
-  constructor() {
-    super(...arguments);
+var ISODayParser = /*#__PURE__*/function (_Parser) {
+  _inherits(ISODayParser, _Parser);
 
-    _defineProperty(this, "priority", 90);
+  var _super = _createSuper(ISODayParser);
 
-    _defineProperty(this, "incompatibleTokens", ['y', 'Y', 'u', 'q', 'Q', 'M', 'L', 'w', 'd', 'D', 'E', 'e', 'c', 't', 'T']);
-  }
+  function ISODayParser() {
+    var _this;
 
-  parse(dateString, token, match) {
-    var valueCallback = function (value) {
-      if (value === 0) {
-        return 7;
-      }
+    _classCallCheck(this, ISODayParser);
 
-      return value;
-    };
-
-    switch (token) {
-      // 2
-      case 'i':
-      case 'ii':
-        // 02
-        return (0, _utils.parseNDigits)(token.length, dateString);
-      // 2nd
-
-      case 'io':
-        return match.ordinalNumber(dateString, {
-          unit: 'day'
-        });
-      // Tue
-
-      case 'iii':
-        return (0, _utils.mapValue)(match.day(dateString, {
-          width: 'abbreviated',
-          context: 'formatting'
-        }) || match.day(dateString, {
-          width: 'short',
-          context: 'formatting'
-        }) || match.day(dateString, {
-          width: 'narrow',
-          context: 'formatting'
-        }), valueCallback);
-      // T
-
-      case 'iiiii':
-        return (0, _utils.mapValue)(match.day(dateString, {
-          width: 'narrow',
-          context: 'formatting'
-        }), valueCallback);
-      // Tu
-
-      case 'iiiiii':
-        return (0, _utils.mapValue)(match.day(dateString, {
-          width: 'short',
-          context: 'formatting'
-        }) || match.day(dateString, {
-          width: 'narrow',
-          context: 'formatting'
-        }), valueCallback);
-      // Tuesday
-
-      case 'iiii':
-      default:
-        return (0, _utils.mapValue)(match.day(dateString, {
-          width: 'wide',
-          context: 'formatting'
-        }) || match.day(dateString, {
-          width: 'abbreviated',
-          context: 'formatting'
-        }) || match.day(dateString, {
-          width: 'short',
-          context: 'formatting'
-        }) || match.day(dateString, {
-          width: 'narrow',
-          context: 'formatting'
-        }), valueCallback);
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
     }
+
+    _this = _super.call.apply(_super, [this].concat(args));
+
+    _defineProperty(_assertThisInitialized(_this), "priority", 90);
+
+    _defineProperty(_assertThisInitialized(_this), "incompatibleTokens", ['y', 'Y', 'u', 'q', 'Q', 'M', 'L', 'w', 'd', 'D', 'E', 'e', 'c', 't', 'T']);
+
+    return _this;
   }
 
-  validate(_date, value) {
-    return value >= 1 && value <= 7;
-  }
+  _createClass(ISODayParser, [{
+    key: "parse",
+    value: function parse(dateString, token, match) {
+      var valueCallback = function valueCallback(value) {
+        if (value === 0) {
+          return 7;
+        }
 
-  set(date, _flags, value) {
-    date = (0, _index.default)(date, value);
-    date.setUTCHours(0, 0, 0, 0);
-    return date;
-  }
+        return value;
+      };
 
-}
+      switch (token) {
+        // 2
+        case 'i':
+        case 'ii':
+          // 02
+          return (0, _utils.parseNDigits)(token.length, dateString);
+        // 2nd
+
+        case 'io':
+          return match.ordinalNumber(dateString, {
+            unit: 'day'
+          });
+        // Tue
+
+        case 'iii':
+          return (0, _utils.mapValue)(match.day(dateString, {
+            width: 'abbreviated',
+            context: 'formatting'
+          }) || match.day(dateString, {
+            width: 'short',
+            context: 'formatting'
+          }) || match.day(dateString, {
+            width: 'narrow',
+            context: 'formatting'
+          }), valueCallback);
+        // T
+
+        case 'iiiii':
+          return (0, _utils.mapValue)(match.day(dateString, {
+            width: 'narrow',
+            context: 'formatting'
+          }), valueCallback);
+        // Tu
+
+        case 'iiiiii':
+          return (0, _utils.mapValue)(match.day(dateString, {
+            width: 'short',
+            context: 'formatting'
+          }) || match.day(dateString, {
+            width: 'narrow',
+            context: 'formatting'
+          }), valueCallback);
+        // Tuesday
+
+        case 'iiii':
+        default:
+          return (0, _utils.mapValue)(match.day(dateString, {
+            width: 'wide',
+            context: 'formatting'
+          }) || match.day(dateString, {
+            width: 'abbreviated',
+            context: 'formatting'
+          }) || match.day(dateString, {
+            width: 'short',
+            context: 'formatting'
+          }) || match.day(dateString, {
+            width: 'narrow',
+            context: 'formatting'
+          }), valueCallback);
+      }
+    }
+  }, {
+    key: "validate",
+    value: function validate(_date, value) {
+      return value >= 1 && value <= 7;
+    }
+  }, {
+    key: "set",
+    value: function set(date, _flags, value) {
+      date = (0, _index.default)(date, value);
+      date.setUTCHours(0, 0, 0, 0);
+      return date;
+    }
+  }]);
+
+  return ISODayParser;
+}(_Parser2.Parser);
 
 exports.ISODayParser = ISODayParser;
 
@@ -27962,58 +28733,99 @@ exports.ISODayParser = ISODayParser;
 "use strict";
 
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
 exports.ISOTimezoneParser = void 0;
 
-var _Parser = __nccwpck_require__(5619);
+var _Parser2 = __nccwpck_require__(5619);
 
 var _constants = __nccwpck_require__(463);
 
 var _utils = __nccwpck_require__(9042);
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 // Timezone (ISO-8601)
-class ISOTimezoneParser extends _Parser.Parser {
-  constructor() {
-    super(...arguments);
+var ISOTimezoneParser = /*#__PURE__*/function (_Parser) {
+  _inherits(ISOTimezoneParser, _Parser);
 
-    _defineProperty(this, "priority", 10);
+  var _super = _createSuper(ISOTimezoneParser);
 
-    _defineProperty(this, "incompatibleTokens", ['t', 'T', 'X']);
-  }
+  function ISOTimezoneParser() {
+    var _this;
 
-  parse(dateString, token) {
-    switch (token) {
-      case 'x':
-        return (0, _utils.parseTimezonePattern)(_constants.timezonePatterns.basicOptionalMinutes, dateString);
+    _classCallCheck(this, ISOTimezoneParser);
 
-      case 'xx':
-        return (0, _utils.parseTimezonePattern)(_constants.timezonePatterns.basic, dateString);
-
-      case 'xxxx':
-        return (0, _utils.parseTimezonePattern)(_constants.timezonePatterns.basicOptionalSeconds, dateString);
-
-      case 'xxxxx':
-        return (0, _utils.parseTimezonePattern)(_constants.timezonePatterns.extendedOptionalSeconds, dateString);
-
-      case 'xxx':
-      default:
-        return (0, _utils.parseTimezonePattern)(_constants.timezonePatterns.extended, dateString);
-    }
-  }
-
-  set(date, flags, value) {
-    if (flags.timestampIsSet) {
-      return date;
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
     }
 
-    return new Date(date.getTime() - value);
+    _this = _super.call.apply(_super, [this].concat(args));
+
+    _defineProperty(_assertThisInitialized(_this), "priority", 10);
+
+    _defineProperty(_assertThisInitialized(_this), "incompatibleTokens", ['t', 'T', 'X']);
+
+    return _this;
   }
 
-}
+  _createClass(ISOTimezoneParser, [{
+    key: "parse",
+    value: function parse(dateString, token) {
+      switch (token) {
+        case 'x':
+          return (0, _utils.parseTimezonePattern)(_constants.timezonePatterns.basicOptionalMinutes, dateString);
+
+        case 'xx':
+          return (0, _utils.parseTimezonePattern)(_constants.timezonePatterns.basic, dateString);
+
+        case 'xxxx':
+          return (0, _utils.parseTimezonePattern)(_constants.timezonePatterns.basicOptionalSeconds, dateString);
+
+        case 'xxxxx':
+          return (0, _utils.parseTimezonePattern)(_constants.timezonePatterns.extendedOptionalSeconds, dateString);
+
+        case 'xxx':
+        default:
+          return (0, _utils.parseTimezonePattern)(_constants.timezonePatterns.extended, dateString);
+      }
+    }
+  }, {
+    key: "set",
+    value: function set(date, flags, value) {
+      if (flags.timestampIsSet) {
+        return date;
+      }
+
+      return new Date(date.getTime() - value);
+    }
+  }]);
+
+  return ISOTimezoneParser;
+}(_Parser2.Parser);
 
 exports.ISOTimezoneParser = ISOTimezoneParser;
 
@@ -28025,58 +28837,99 @@ exports.ISOTimezoneParser = ISOTimezoneParser;
 "use strict";
 
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
 exports.ISOTimezoneWithZParser = void 0;
 
-var _Parser = __nccwpck_require__(5619);
+var _Parser2 = __nccwpck_require__(5619);
 
 var _constants = __nccwpck_require__(463);
 
 var _utils = __nccwpck_require__(9042);
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 // Timezone (ISO-8601. +00:00 is `'Z'`)
-class ISOTimezoneWithZParser extends _Parser.Parser {
-  constructor() {
-    super(...arguments);
+var ISOTimezoneWithZParser = /*#__PURE__*/function (_Parser) {
+  _inherits(ISOTimezoneWithZParser, _Parser);
 
-    _defineProperty(this, "priority", 10);
+  var _super = _createSuper(ISOTimezoneWithZParser);
 
-    _defineProperty(this, "incompatibleTokens", ['t', 'T', 'x']);
-  }
+  function ISOTimezoneWithZParser() {
+    var _this;
 
-  parse(dateString, token) {
-    switch (token) {
-      case 'X':
-        return (0, _utils.parseTimezonePattern)(_constants.timezonePatterns.basicOptionalMinutes, dateString);
+    _classCallCheck(this, ISOTimezoneWithZParser);
 
-      case 'XX':
-        return (0, _utils.parseTimezonePattern)(_constants.timezonePatterns.basic, dateString);
-
-      case 'XXXX':
-        return (0, _utils.parseTimezonePattern)(_constants.timezonePatterns.basicOptionalSeconds, dateString);
-
-      case 'XXXXX':
-        return (0, _utils.parseTimezonePattern)(_constants.timezonePatterns.extendedOptionalSeconds, dateString);
-
-      case 'XXX':
-      default:
-        return (0, _utils.parseTimezonePattern)(_constants.timezonePatterns.extended, dateString);
-    }
-  }
-
-  set(date, flags, value) {
-    if (flags.timestampIsSet) {
-      return date;
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
     }
 
-    return new Date(date.getTime() - value);
+    _this = _super.call.apply(_super, [this].concat(args));
+
+    _defineProperty(_assertThisInitialized(_this), "priority", 10);
+
+    _defineProperty(_assertThisInitialized(_this), "incompatibleTokens", ['t', 'T', 'x']);
+
+    return _this;
   }
 
-}
+  _createClass(ISOTimezoneWithZParser, [{
+    key: "parse",
+    value: function parse(dateString, token) {
+      switch (token) {
+        case 'X':
+          return (0, _utils.parseTimezonePattern)(_constants.timezonePatterns.basicOptionalMinutes, dateString);
+
+        case 'XX':
+          return (0, _utils.parseTimezonePattern)(_constants.timezonePatterns.basic, dateString);
+
+        case 'XXXX':
+          return (0, _utils.parseTimezonePattern)(_constants.timezonePatterns.basicOptionalSeconds, dateString);
+
+        case 'XXXXX':
+          return (0, _utils.parseTimezonePattern)(_constants.timezonePatterns.extendedOptionalSeconds, dateString);
+
+        case 'XXX':
+        default:
+          return (0, _utils.parseTimezonePattern)(_constants.timezonePatterns.extended, dateString);
+      }
+    }
+  }, {
+    key: "set",
+    value: function set(date, flags, value) {
+      if (flags.timestampIsSet) {
+        return date;
+      }
+
+      return new Date(date.getTime() - value);
+    }
+  }]);
+
+  return ISOTimezoneWithZParser;
+}(_Parser2.Parser);
 
 exports.ISOTimezoneWithZParser = ISOTimezoneWithZParser;
 
@@ -28088,12 +28941,14 @@ exports.ISOTimezoneWithZParser = ISOTimezoneWithZParser;
 "use strict";
 
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
 exports.ISOWeekParser = void 0;
 
-var _Parser = __nccwpck_require__(5619);
+var _Parser2 = __nccwpck_require__(5619);
 
 var _constants = __nccwpck_require__(463);
 
@@ -28105,42 +28960,82 @@ var _index2 = _interopRequireDefault(__nccwpck_require__(3061));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 // ISO week of year
-class ISOWeekParser extends _Parser.Parser {
-  constructor() {
-    super(...arguments);
+var ISOWeekParser = /*#__PURE__*/function (_Parser) {
+  _inherits(ISOWeekParser, _Parser);
 
-    _defineProperty(this, "priority", 100);
+  var _super = _createSuper(ISOWeekParser);
 
-    _defineProperty(this, "incompatibleTokens", ['y', 'Y', 'u', 'q', 'Q', 'M', 'L', 'w', 'd', 'D', 'e', 'c', 't', 'T']);
-  }
+  function ISOWeekParser() {
+    var _this;
 
-  parse(dateString, token, match) {
-    switch (token) {
-      case 'I':
-        return (0, _utils.parseNumericPattern)(_constants.numericPatterns.week, dateString);
+    _classCallCheck(this, ISOWeekParser);
 
-      case 'Io':
-        return match.ordinalNumber(dateString, {
-          unit: 'week'
-        });
-
-      default:
-        return (0, _utils.parseNDigits)(token.length, dateString);
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
     }
+
+    _this = _super.call.apply(_super, [this].concat(args));
+
+    _defineProperty(_assertThisInitialized(_this), "priority", 100);
+
+    _defineProperty(_assertThisInitialized(_this), "incompatibleTokens", ['y', 'Y', 'u', 'q', 'Q', 'M', 'L', 'w', 'd', 'D', 'e', 'c', 't', 'T']);
+
+    return _this;
   }
 
-  validate(_date, value) {
-    return value >= 1 && value <= 53;
-  }
+  _createClass(ISOWeekParser, [{
+    key: "parse",
+    value: function parse(dateString, token, match) {
+      switch (token) {
+        case 'I':
+          return (0, _utils.parseNumericPattern)(_constants.numericPatterns.week, dateString);
 
-  set(date, _flags, value) {
-    return (0, _index2.default)((0, _index.default)(date, value));
-  }
+        case 'Io':
+          return match.ordinalNumber(dateString, {
+            unit: 'week'
+          });
 
-}
+        default:
+          return (0, _utils.parseNDigits)(token.length, dateString);
+      }
+    }
+  }, {
+    key: "validate",
+    value: function validate(_date, value) {
+      return value >= 1 && value <= 53;
+    }
+  }, {
+    key: "set",
+    value: function set(date, _flags, value) {
+      return (0, _index2.default)((0, _index.default)(date, value));
+    }
+  }]);
+
+  return ISOWeekParser;
+}(_Parser2.Parser);
 
 exports.ISOWeekParser = ISOWeekParser;
 
@@ -28152,12 +29047,14 @@ exports.ISOWeekParser = ISOWeekParser;
 "use strict";
 
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
 exports.ISOWeekYearParser = void 0;
 
-var _Parser = __nccwpck_require__(5619);
+var _Parser2 = __nccwpck_require__(5619);
 
 var _utils = __nccwpck_require__(9042);
 
@@ -28165,34 +29062,73 @@ var _index = _interopRequireDefault(__nccwpck_require__(3061));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 // ISO week-numbering year
-class ISOWeekYearParser extends _Parser.Parser {
-  constructor() {
-    super(...arguments);
+var ISOWeekYearParser = /*#__PURE__*/function (_Parser) {
+  _inherits(ISOWeekYearParser, _Parser);
 
-    _defineProperty(this, "priority", 130);
+  var _super = _createSuper(ISOWeekYearParser);
 
-    _defineProperty(this, "incompatibleTokens", ['G', 'y', 'Y', 'u', 'Q', 'q', 'M', 'L', 'w', 'd', 'D', 'e', 'c', 't', 'T']);
-  }
+  function ISOWeekYearParser() {
+    var _this;
 
-  parse(dateString, token) {
-    if (token === 'R') {
-      return (0, _utils.parseNDigitsSigned)(4, dateString);
+    _classCallCheck(this, ISOWeekYearParser);
+
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
     }
 
-    return (0, _utils.parseNDigitsSigned)(token.length, dateString);
+    _this = _super.call.apply(_super, [this].concat(args));
+
+    _defineProperty(_assertThisInitialized(_this), "priority", 130);
+
+    _defineProperty(_assertThisInitialized(_this), "incompatibleTokens", ['G', 'y', 'Y', 'u', 'Q', 'q', 'M', 'L', 'w', 'd', 'D', 'e', 'c', 't', 'T']);
+
+    return _this;
   }
 
-  set(_date, _flags, value) {
-    var firstWeekOfYear = new Date(0);
-    firstWeekOfYear.setUTCFullYear(value, 0, 4);
-    firstWeekOfYear.setUTCHours(0, 0, 0, 0);
-    return (0, _index.default)(firstWeekOfYear);
-  }
+  _createClass(ISOWeekYearParser, [{
+    key: "parse",
+    value: function parse(dateString, token) {
+      if (token === 'R') {
+        return (0, _utils.parseNDigitsSigned)(4, dateString);
+      }
 
-}
+      return (0, _utils.parseNDigitsSigned)(token.length, dateString);
+    }
+  }, {
+    key: "set",
+    value: function set(_date, _flags, value) {
+      var firstWeekOfYear = new Date(0);
+      firstWeekOfYear.setUTCFullYear(value, 0, 4);
+      firstWeekOfYear.setUTCHours(0, 0, 0, 0);
+      return (0, _index.default)(firstWeekOfYear);
+    }
+  }]);
+
+  return ISOWeekYearParser;
+}(_Parser2.Parser);
 
 exports.ISOWeekYearParser = ISOWeekYearParser;
 
@@ -28204,12 +29140,14 @@ exports.ISOWeekYearParser = ISOWeekYearParser;
 "use strict";
 
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
 exports.LocalDayParser = void 0;
 
-var _Parser = __nccwpck_require__(5619);
+var _Parser2 = __nccwpck_require__(5619);
 
 var _utils = __nccwpck_require__(9042);
 
@@ -28217,97 +29155,137 @@ var _index = _interopRequireDefault(__nccwpck_require__(2694));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 // Local day of week
-class LocalDayParser extends _Parser.Parser {
-  constructor() {
-    super(...arguments);
+var LocalDayParser = /*#__PURE__*/function (_Parser) {
+  _inherits(LocalDayParser, _Parser);
 
-    _defineProperty(this, "priority", 90);
+  var _super = _createSuper(LocalDayParser);
 
-    _defineProperty(this, "incompatibleTokens", ['y', 'R', 'u', 'q', 'Q', 'M', 'L', 'I', 'd', 'D', 'E', 'i', 'c', 't', 'T']);
-  }
+  function LocalDayParser() {
+    var _this;
 
-  parse(dateString, token, match, options) {
-    var valueCallback = function (value) {
-      var wholeWeekDays = Math.floor((value - 1) / 7) * 7;
-      return (value + options.weekStartsOn + 6) % 7 + wholeWeekDays;
-    };
+    _classCallCheck(this, LocalDayParser);
 
-    switch (token) {
-      // 3
-      case 'e':
-      case 'ee':
-        // 03
-        return (0, _utils.mapValue)((0, _utils.parseNDigits)(token.length, dateString), valueCallback);
-      // 3rd
-
-      case 'eo':
-        return (0, _utils.mapValue)(match.ordinalNumber(dateString, {
-          unit: 'day'
-        }), valueCallback);
-      // Tue
-
-      case 'eee':
-        return match.day(dateString, {
-          width: 'abbreviated',
-          context: 'formatting'
-        }) || match.day(dateString, {
-          width: 'short',
-          context: 'formatting'
-        }) || match.day(dateString, {
-          width: 'narrow',
-          context: 'formatting'
-        });
-      // T
-
-      case 'eeeee':
-        return match.day(dateString, {
-          width: 'narrow',
-          context: 'formatting'
-        });
-      // Tu
-
-      case 'eeeeee':
-        return match.day(dateString, {
-          width: 'short',
-          context: 'formatting'
-        }) || match.day(dateString, {
-          width: 'narrow',
-          context: 'formatting'
-        });
-      // Tuesday
-
-      case 'eeee':
-      default:
-        return match.day(dateString, {
-          width: 'wide',
-          context: 'formatting'
-        }) || match.day(dateString, {
-          width: 'abbreviated',
-          context: 'formatting'
-        }) || match.day(dateString, {
-          width: 'short',
-          context: 'formatting'
-        }) || match.day(dateString, {
-          width: 'narrow',
-          context: 'formatting'
-        });
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
     }
+
+    _this = _super.call.apply(_super, [this].concat(args));
+
+    _defineProperty(_assertThisInitialized(_this), "priority", 90);
+
+    _defineProperty(_assertThisInitialized(_this), "incompatibleTokens", ['y', 'R', 'u', 'q', 'Q', 'M', 'L', 'I', 'd', 'D', 'E', 'i', 'c', 't', 'T']);
+
+    return _this;
   }
 
-  validate(_date, value) {
-    return value >= 0 && value <= 6;
-  }
+  _createClass(LocalDayParser, [{
+    key: "parse",
+    value: function parse(dateString, token, match, options) {
+      var valueCallback = function valueCallback(value) {
+        var wholeWeekDays = Math.floor((value - 1) / 7) * 7;
+        return (value + options.weekStartsOn + 6) % 7 + wholeWeekDays;
+      };
 
-  set(date, _flags, value, options) {
-    date = (0, _index.default)(date, value, options);
-    date.setUTCHours(0, 0, 0, 0);
-    return date;
-  }
+      switch (token) {
+        // 3
+        case 'e':
+        case 'ee':
+          // 03
+          return (0, _utils.mapValue)((0, _utils.parseNDigits)(token.length, dateString), valueCallback);
+        // 3rd
 
-}
+        case 'eo':
+          return (0, _utils.mapValue)(match.ordinalNumber(dateString, {
+            unit: 'day'
+          }), valueCallback);
+        // Tue
+
+        case 'eee':
+          return match.day(dateString, {
+            width: 'abbreviated',
+            context: 'formatting'
+          }) || match.day(dateString, {
+            width: 'short',
+            context: 'formatting'
+          }) || match.day(dateString, {
+            width: 'narrow',
+            context: 'formatting'
+          });
+        // T
+
+        case 'eeeee':
+          return match.day(dateString, {
+            width: 'narrow',
+            context: 'formatting'
+          });
+        // Tu
+
+        case 'eeeeee':
+          return match.day(dateString, {
+            width: 'short',
+            context: 'formatting'
+          }) || match.day(dateString, {
+            width: 'narrow',
+            context: 'formatting'
+          });
+        // Tuesday
+
+        case 'eeee':
+        default:
+          return match.day(dateString, {
+            width: 'wide',
+            context: 'formatting'
+          }) || match.day(dateString, {
+            width: 'abbreviated',
+            context: 'formatting'
+          }) || match.day(dateString, {
+            width: 'short',
+            context: 'formatting'
+          }) || match.day(dateString, {
+            width: 'narrow',
+            context: 'formatting'
+          });
+      }
+    }
+  }, {
+    key: "validate",
+    value: function validate(_date, value) {
+      return value >= 0 && value <= 6;
+    }
+  }, {
+    key: "set",
+    value: function set(date, _flags, value, options) {
+      date = (0, _index.default)(date, value, options);
+      date.setUTCHours(0, 0, 0, 0);
+      return date;
+    }
+  }]);
+
+  return LocalDayParser;
+}(_Parser2.Parser);
 
 exports.LocalDayParser = LocalDayParser;
 
@@ -28319,12 +29297,14 @@ exports.LocalDayParser = LocalDayParser;
 "use strict";
 
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
 exports.LocalWeekParser = void 0;
 
-var _Parser = __nccwpck_require__(5619);
+var _Parser2 = __nccwpck_require__(5619);
 
 var _constants = __nccwpck_require__(463);
 
@@ -28336,42 +29316,82 @@ var _index2 = _interopRequireDefault(__nccwpck_require__(2258));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 // Local week of year
-class LocalWeekParser extends _Parser.Parser {
-  constructor() {
-    super(...arguments);
+var LocalWeekParser = /*#__PURE__*/function (_Parser) {
+  _inherits(LocalWeekParser, _Parser);
 
-    _defineProperty(this, "priority", 100);
+  var _super = _createSuper(LocalWeekParser);
 
-    _defineProperty(this, "incompatibleTokens", ['y', 'R', 'u', 'q', 'Q', 'M', 'L', 'I', 'd', 'D', 'i', 't', 'T']);
-  }
+  function LocalWeekParser() {
+    var _this;
 
-  parse(dateString, token, match) {
-    switch (token) {
-      case 'w':
-        return (0, _utils.parseNumericPattern)(_constants.numericPatterns.week, dateString);
+    _classCallCheck(this, LocalWeekParser);
 
-      case 'wo':
-        return match.ordinalNumber(dateString, {
-          unit: 'week'
-        });
-
-      default:
-        return (0, _utils.parseNDigits)(token.length, dateString);
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
     }
+
+    _this = _super.call.apply(_super, [this].concat(args));
+
+    _defineProperty(_assertThisInitialized(_this), "priority", 100);
+
+    _defineProperty(_assertThisInitialized(_this), "incompatibleTokens", ['y', 'R', 'u', 'q', 'Q', 'M', 'L', 'I', 'd', 'D', 'i', 't', 'T']);
+
+    return _this;
   }
 
-  validate(_date, value) {
-    return value >= 1 && value <= 53;
-  }
+  _createClass(LocalWeekParser, [{
+    key: "parse",
+    value: function parse(dateString, token, match) {
+      switch (token) {
+        case 'w':
+          return (0, _utils.parseNumericPattern)(_constants.numericPatterns.week, dateString);
 
-  set(date, _flags, value, options) {
-    return (0, _index2.default)((0, _index.default)(date, value, options), options);
-  }
+        case 'wo':
+          return match.ordinalNumber(dateString, {
+            unit: 'week'
+          });
 
-}
+        default:
+          return (0, _utils.parseNDigits)(token.length, dateString);
+      }
+    }
+  }, {
+    key: "validate",
+    value: function validate(_date, value) {
+      return value >= 1 && value <= 53;
+    }
+  }, {
+    key: "set",
+    value: function set(date, _flags, value, options) {
+      return (0, _index2.default)((0, _index.default)(date, value, options), options);
+    }
+  }]);
+
+  return LocalWeekParser;
+}(_Parser2.Parser);
 
 exports.LocalWeekParser = LocalWeekParser;
 
@@ -28383,12 +29403,14 @@ exports.LocalWeekParser = LocalWeekParser;
 "use strict";
 
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
 exports.LocalWeekYearParser = void 0;
 
-var _Parser = __nccwpck_require__(5619);
+var _Parser2 = __nccwpck_require__(5619);
 
 var _utils = __nccwpck_require__(9042);
 
@@ -28398,61 +29420,101 @@ var _index2 = _interopRequireDefault(__nccwpck_require__(2258));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 // Local week-numbering year
-class LocalWeekYearParser extends _Parser.Parser {
-  constructor() {
-    super(...arguments);
+var LocalWeekYearParser = /*#__PURE__*/function (_Parser) {
+  _inherits(LocalWeekYearParser, _Parser);
 
-    _defineProperty(this, "priority", 130);
+  var _super = _createSuper(LocalWeekYearParser);
 
-    _defineProperty(this, "incompatibleTokens", ['y', 'R', 'u', 'Q', 'q', 'M', 'L', 'I', 'd', 'D', 'i', 't', 'T']);
-  }
+  function LocalWeekYearParser() {
+    var _this;
 
-  parse(dateString, token, match) {
-    var valueCallback = function (year) {
-      return {
-        year: year,
-        isTwoDigitYear: token === 'YY'
-      };
-    };
+    _classCallCheck(this, LocalWeekYearParser);
 
-    switch (token) {
-      case 'Y':
-        return (0, _utils.mapValue)((0, _utils.parseNDigits)(4, dateString), valueCallback);
-
-      case 'Yo':
-        return (0, _utils.mapValue)(match.ordinalNumber(dateString, {
-          unit: 'year'
-        }), valueCallback);
-
-      default:
-        return (0, _utils.mapValue)((0, _utils.parseNDigits)(token.length, dateString), valueCallback);
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
     }
+
+    _this = _super.call.apply(_super, [this].concat(args));
+
+    _defineProperty(_assertThisInitialized(_this), "priority", 130);
+
+    _defineProperty(_assertThisInitialized(_this), "incompatibleTokens", ['y', 'R', 'u', 'Q', 'q', 'M', 'L', 'I', 'd', 'D', 'i', 't', 'T']);
+
+    return _this;
   }
 
-  validate(_date, value) {
-    return value.isTwoDigitYear || value.year > 0;
-  }
+  _createClass(LocalWeekYearParser, [{
+    key: "parse",
+    value: function parse(dateString, token, match) {
+      var valueCallback = function valueCallback(year) {
+        return {
+          year: year,
+          isTwoDigitYear: token === 'YY'
+        };
+      };
 
-  set(date, flags, value, options) {
-    var currentYear = (0, _index.default)(date, options);
+      switch (token) {
+        case 'Y':
+          return (0, _utils.mapValue)((0, _utils.parseNDigits)(4, dateString), valueCallback);
 
-    if (value.isTwoDigitYear) {
-      var normalizedTwoDigitYear = (0, _utils.normalizeTwoDigitYear)(value.year, currentYear);
-      date.setUTCFullYear(normalizedTwoDigitYear, 0, options.firstWeekContainsDate);
+        case 'Yo':
+          return (0, _utils.mapValue)(match.ordinalNumber(dateString, {
+            unit: 'year'
+          }), valueCallback);
+
+        default:
+          return (0, _utils.mapValue)((0, _utils.parseNDigits)(token.length, dateString), valueCallback);
+      }
+    }
+  }, {
+    key: "validate",
+    value: function validate(_date, value) {
+      return value.isTwoDigitYear || value.year > 0;
+    }
+  }, {
+    key: "set",
+    value: function set(date, flags, value, options) {
+      var currentYear = (0, _index.default)(date, options);
+
+      if (value.isTwoDigitYear) {
+        var normalizedTwoDigitYear = (0, _utils.normalizeTwoDigitYear)(value.year, currentYear);
+        date.setUTCFullYear(normalizedTwoDigitYear, 0, options.firstWeekContainsDate);
+        date.setUTCHours(0, 0, 0, 0);
+        return (0, _index2.default)(date, options);
+      }
+
+      var year = !('era' in flags) || flags.era === 1 ? value.year : 1 - value.year;
+      date.setUTCFullYear(year, 0, options.firstWeekContainsDate);
       date.setUTCHours(0, 0, 0, 0);
       return (0, _index2.default)(date, options);
     }
+  }]);
 
-    var year = !('era' in flags) || flags.era === 1 ? value.year : 1 - value.year;
-    date.setUTCFullYear(year, 0, options.firstWeekContainsDate);
-    date.setUTCHours(0, 0, 0, 0);
-    return (0, _index2.default)(date, options);
-  }
-
-}
+  return LocalWeekYearParser;
+}(_Parser2.Parser);
 
 exports.LocalWeekYearParser = LocalWeekYearParser;
 
@@ -28464,53 +29526,95 @@ exports.LocalWeekYearParser = LocalWeekYearParser;
 "use strict";
 
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
 exports.MinuteParser = void 0;
 
-var _Parser = __nccwpck_require__(5619);
+var _Parser2 = __nccwpck_require__(5619);
 
 var _constants = __nccwpck_require__(463);
 
 var _utils = __nccwpck_require__(9042);
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-class MinuteParser extends _Parser.Parser {
-  constructor() {
-    super(...arguments);
+var MinuteParser = /*#__PURE__*/function (_Parser) {
+  _inherits(MinuteParser, _Parser);
 
-    _defineProperty(this, "priority", 60);
+  var _super = _createSuper(MinuteParser);
 
-    _defineProperty(this, "incompatibleTokens", ['t', 'T']);
-  }
+  function MinuteParser() {
+    var _this;
 
-  parse(dateString, token, match) {
-    switch (token) {
-      case 'm':
-        return (0, _utils.parseNumericPattern)(_constants.numericPatterns.minute, dateString);
+    _classCallCheck(this, MinuteParser);
 
-      case 'mo':
-        return match.ordinalNumber(dateString, {
-          unit: 'minute'
-        });
-
-      default:
-        return (0, _utils.parseNDigits)(token.length, dateString);
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
     }
+
+    _this = _super.call.apply(_super, [this].concat(args));
+
+    _defineProperty(_assertThisInitialized(_this), "priority", 60);
+
+    _defineProperty(_assertThisInitialized(_this), "incompatibleTokens", ['t', 'T']);
+
+    return _this;
   }
 
-  validate(_date, value) {
-    return value >= 0 && value <= 59;
-  }
+  _createClass(MinuteParser, [{
+    key: "parse",
+    value: function parse(dateString, token, match) {
+      switch (token) {
+        case 'm':
+          return (0, _utils.parseNumericPattern)(_constants.numericPatterns.minute, dateString);
 
-  set(date, _flags, value) {
-    date.setUTCMinutes(value, 0, 0);
-    return date;
-  }
+        case 'mo':
+          return match.ordinalNumber(dateString, {
+            unit: 'minute'
+          });
 
-}
+        default:
+          return (0, _utils.parseNDigits)(token.length, dateString);
+      }
+    }
+  }, {
+    key: "validate",
+    value: function validate(_date, value) {
+      return value >= 0 && value <= 59;
+    }
+  }, {
+    key: "set",
+    value: function set(date, _flags, value) {
+      date.setUTCMinutes(value, 0, 0);
+      return date;
+    }
+  }]);
+
+  return MinuteParser;
+}(_Parser2.Parser);
 
 exports.MinuteParser = MinuteParser;
 
@@ -28522,6 +29626,8 @@ exports.MinuteParser = MinuteParser;
 "use strict";
 
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
@@ -28529,85 +29635,125 @@ exports.MonthParser = void 0;
 
 var _utils = __nccwpck_require__(9042);
 
-var _Parser = __nccwpck_require__(5619);
+var _Parser2 = __nccwpck_require__(5619);
 
 var _constants = __nccwpck_require__(463);
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-class MonthParser extends _Parser.Parser {
-  constructor() {
-    super(...arguments);
+var MonthParser = /*#__PURE__*/function (_Parser) {
+  _inherits(MonthParser, _Parser);
 
-    _defineProperty(this, "incompatibleTokens", ['Y', 'R', 'q', 'Q', 'L', 'w', 'I', 'D', 'i', 'e', 'c', 't', 'T']);
+  var _super = _createSuper(MonthParser);
 
-    _defineProperty(this, "priority", 110);
-  }
+  function MonthParser() {
+    var _this;
 
-  parse(dateString, token, match) {
-    var valueCallback = function (value) {
-      return value - 1;
-    };
+    _classCallCheck(this, MonthParser);
 
-    switch (token) {
-      // 1, 2, ..., 12
-      case 'M':
-        return (0, _utils.mapValue)((0, _utils.parseNumericPattern)(_constants.numericPatterns.month, dateString), valueCallback);
-      // 01, 02, ..., 12
-
-      case 'MM':
-        return (0, _utils.mapValue)((0, _utils.parseNDigits)(2, dateString), valueCallback);
-      // 1st, 2nd, ..., 12th
-
-      case 'Mo':
-        return (0, _utils.mapValue)(match.ordinalNumber(dateString, {
-          unit: 'month'
-        }), valueCallback);
-      // Jan, Feb, ..., Dec
-
-      case 'MMM':
-        return match.month(dateString, {
-          width: 'abbreviated',
-          context: 'formatting'
-        }) || match.month(dateString, {
-          width: 'narrow',
-          context: 'formatting'
-        });
-      // J, F, ..., D
-
-      case 'MMMMM':
-        return match.month(dateString, {
-          width: 'narrow',
-          context: 'formatting'
-        });
-      // January, February, ..., December
-
-      case 'MMMM':
-      default:
-        return match.month(dateString, {
-          width: 'wide',
-          context: 'formatting'
-        }) || match.month(dateString, {
-          width: 'abbreviated',
-          context: 'formatting'
-        }) || match.month(dateString, {
-          width: 'narrow',
-          context: 'formatting'
-        });
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
     }
+
+    _this = _super.call.apply(_super, [this].concat(args));
+
+    _defineProperty(_assertThisInitialized(_this), "incompatibleTokens", ['Y', 'R', 'q', 'Q', 'L', 'w', 'I', 'D', 'i', 'e', 'c', 't', 'T']);
+
+    _defineProperty(_assertThisInitialized(_this), "priority", 110);
+
+    return _this;
   }
 
-  validate(_date, value) {
-    return value >= 0 && value <= 11;
-  }
+  _createClass(MonthParser, [{
+    key: "parse",
+    value: function parse(dateString, token, match) {
+      var valueCallback = function valueCallback(value) {
+        return value - 1;
+      };
 
-  set(date, _flags, value) {
-    date.setUTCMonth(value, 1);
-    date.setUTCHours(0, 0, 0, 0);
-    return date;
-  }
+      switch (token) {
+        // 1, 2, ..., 12
+        case 'M':
+          return (0, _utils.mapValue)((0, _utils.parseNumericPattern)(_constants.numericPatterns.month, dateString), valueCallback);
+        // 01, 02, ..., 12
 
-}
+        case 'MM':
+          return (0, _utils.mapValue)((0, _utils.parseNDigits)(2, dateString), valueCallback);
+        // 1st, 2nd, ..., 12th
+
+        case 'Mo':
+          return (0, _utils.mapValue)(match.ordinalNumber(dateString, {
+            unit: 'month'
+          }), valueCallback);
+        // Jan, Feb, ..., Dec
+
+        case 'MMM':
+          return match.month(dateString, {
+            width: 'abbreviated',
+            context: 'formatting'
+          }) || match.month(dateString, {
+            width: 'narrow',
+            context: 'formatting'
+          });
+        // J, F, ..., D
+
+        case 'MMMMM':
+          return match.month(dateString, {
+            width: 'narrow',
+            context: 'formatting'
+          });
+        // January, February, ..., December
+
+        case 'MMMM':
+        default:
+          return match.month(dateString, {
+            width: 'wide',
+            context: 'formatting'
+          }) || match.month(dateString, {
+            width: 'abbreviated',
+            context: 'formatting'
+          }) || match.month(dateString, {
+            width: 'narrow',
+            context: 'formatting'
+          });
+      }
+    }
+  }, {
+    key: "validate",
+    value: function validate(_date, value) {
+      return value >= 0 && value <= 11;
+    }
+  }, {
+    key: "set",
+    value: function set(date, _flags, value) {
+      date.setUTCMonth(value, 1);
+      date.setUTCHours(0, 0, 0, 0);
+      return date;
+    }
+  }]);
+
+  return MonthParser;
+}(_Parser2.Parser);
 
 exports.MonthParser = MonthParser;
 
@@ -28619,84 +29765,126 @@ exports.MonthParser = MonthParser;
 "use strict";
 
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
 exports.QuarterParser = void 0;
 
-var _Parser = __nccwpck_require__(5619);
+var _Parser2 = __nccwpck_require__(5619);
 
 var _utils = __nccwpck_require__(9042);
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-class QuarterParser extends _Parser.Parser {
-  constructor() {
-    super(...arguments);
+var QuarterParser = /*#__PURE__*/function (_Parser) {
+  _inherits(QuarterParser, _Parser);
 
-    _defineProperty(this, "priority", 120);
+  var _super = _createSuper(QuarterParser);
 
-    _defineProperty(this, "incompatibleTokens", ['Y', 'R', 'q', 'M', 'L', 'w', 'I', 'd', 'D', 'i', 'e', 'c', 't', 'T']);
-  }
+  function QuarterParser() {
+    var _this;
 
-  parse(dateString, token, match) {
-    switch (token) {
-      // 1, 2, 3, 4
-      case 'Q':
-      case 'QQ':
-        // 01, 02, 03, 04
-        return (0, _utils.parseNDigits)(token.length, dateString);
-      // 1st, 2nd, 3rd, 4th
+    _classCallCheck(this, QuarterParser);
 
-      case 'Qo':
-        return match.ordinalNumber(dateString, {
-          unit: 'quarter'
-        });
-      // Q1, Q2, Q3, Q4
-
-      case 'QQQ':
-        return match.quarter(dateString, {
-          width: 'abbreviated',
-          context: 'formatting'
-        }) || match.quarter(dateString, {
-          width: 'narrow',
-          context: 'formatting'
-        });
-      // 1, 2, 3, 4 (narrow quarter; could be not numerical)
-
-      case 'QQQQQ':
-        return match.quarter(dateString, {
-          width: 'narrow',
-          context: 'formatting'
-        });
-      // 1st quarter, 2nd quarter, ...
-
-      case 'QQQQ':
-      default:
-        return match.quarter(dateString, {
-          width: 'wide',
-          context: 'formatting'
-        }) || match.quarter(dateString, {
-          width: 'abbreviated',
-          context: 'formatting'
-        }) || match.quarter(dateString, {
-          width: 'narrow',
-          context: 'formatting'
-        });
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
     }
+
+    _this = _super.call.apply(_super, [this].concat(args));
+
+    _defineProperty(_assertThisInitialized(_this), "priority", 120);
+
+    _defineProperty(_assertThisInitialized(_this), "incompatibleTokens", ['Y', 'R', 'q', 'M', 'L', 'w', 'I', 'd', 'D', 'i', 'e', 'c', 't', 'T']);
+
+    return _this;
   }
 
-  validate(_date, value) {
-    return value >= 1 && value <= 4;
-  }
+  _createClass(QuarterParser, [{
+    key: "parse",
+    value: function parse(dateString, token, match) {
+      switch (token) {
+        // 1, 2, 3, 4
+        case 'Q':
+        case 'QQ':
+          // 01, 02, 03, 04
+          return (0, _utils.parseNDigits)(token.length, dateString);
+        // 1st, 2nd, 3rd, 4th
 
-  set(date, _flags, value) {
-    date.setUTCMonth((value - 1) * 3, 1);
-    date.setUTCHours(0, 0, 0, 0);
-    return date;
-  }
+        case 'Qo':
+          return match.ordinalNumber(dateString, {
+            unit: 'quarter'
+          });
+        // Q1, Q2, Q3, Q4
 
-}
+        case 'QQQ':
+          return match.quarter(dateString, {
+            width: 'abbreviated',
+            context: 'formatting'
+          }) || match.quarter(dateString, {
+            width: 'narrow',
+            context: 'formatting'
+          });
+        // 1, 2, 3, 4 (narrow quarter; could be not numerical)
+
+        case 'QQQQQ':
+          return match.quarter(dateString, {
+            width: 'narrow',
+            context: 'formatting'
+          });
+        // 1st quarter, 2nd quarter, ...
+
+        case 'QQQQ':
+        default:
+          return match.quarter(dateString, {
+            width: 'wide',
+            context: 'formatting'
+          }) || match.quarter(dateString, {
+            width: 'abbreviated',
+            context: 'formatting'
+          }) || match.quarter(dateString, {
+            width: 'narrow',
+            context: 'formatting'
+          });
+      }
+    }
+  }, {
+    key: "validate",
+    value: function validate(_date, value) {
+      return value >= 1 && value <= 4;
+    }
+  }, {
+    key: "set",
+    value: function set(date, _flags, value) {
+      date.setUTCMonth((value - 1) * 3, 1);
+      date.setUTCHours(0, 0, 0, 0);
+      return date;
+    }
+  }]);
+
+  return QuarterParser;
+}(_Parser2.Parser);
 
 exports.QuarterParser = QuarterParser;
 
@@ -28708,53 +29896,95 @@ exports.QuarterParser = QuarterParser;
 "use strict";
 
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
 exports.SecondParser = void 0;
 
-var _Parser = __nccwpck_require__(5619);
+var _Parser2 = __nccwpck_require__(5619);
 
 var _constants = __nccwpck_require__(463);
 
 var _utils = __nccwpck_require__(9042);
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-class SecondParser extends _Parser.Parser {
-  constructor() {
-    super(...arguments);
+var SecondParser = /*#__PURE__*/function (_Parser) {
+  _inherits(SecondParser, _Parser);
 
-    _defineProperty(this, "priority", 50);
+  var _super = _createSuper(SecondParser);
 
-    _defineProperty(this, "incompatibleTokens", ['t', 'T']);
-  }
+  function SecondParser() {
+    var _this;
 
-  parse(dateString, token, match) {
-    switch (token) {
-      case 's':
-        return (0, _utils.parseNumericPattern)(_constants.numericPatterns.second, dateString);
+    _classCallCheck(this, SecondParser);
 
-      case 'so':
-        return match.ordinalNumber(dateString, {
-          unit: 'second'
-        });
-
-      default:
-        return (0, _utils.parseNDigits)(token.length, dateString);
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
     }
+
+    _this = _super.call.apply(_super, [this].concat(args));
+
+    _defineProperty(_assertThisInitialized(_this), "priority", 50);
+
+    _defineProperty(_assertThisInitialized(_this), "incompatibleTokens", ['t', 'T']);
+
+    return _this;
   }
 
-  validate(_date, value) {
-    return value >= 0 && value <= 59;
-  }
+  _createClass(SecondParser, [{
+    key: "parse",
+    value: function parse(dateString, token, match) {
+      switch (token) {
+        case 's':
+          return (0, _utils.parseNumericPattern)(_constants.numericPatterns.second, dateString);
 
-  set(date, _flags, value) {
-    date.setUTCSeconds(value, 0);
-    return date;
-  }
+        case 'so':
+          return match.ordinalNumber(dateString, {
+            unit: 'second'
+          });
 
-}
+        default:
+          return (0, _utils.parseNDigits)(token.length, dateString);
+      }
+    }
+  }, {
+    key: "validate",
+    value: function validate(_date, value) {
+      return value >= 0 && value <= 59;
+    }
+  }, {
+    key: "set",
+    value: function set(date, _flags, value) {
+      date.setUTCSeconds(value, 0);
+      return date;
+    }
+  }]);
+
+  return SecondParser;
+}(_Parser2.Parser);
 
 exports.SecondParser = SecondParser;
 
@@ -28766,12 +29996,14 @@ exports.SecondParser = SecondParser;
 "use strict";
 
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
 exports.StandAloneLocalDayParser = void 0;
 
-var _Parser = __nccwpck_require__(5619);
+var _Parser2 = __nccwpck_require__(5619);
 
 var _utils = __nccwpck_require__(9042);
 
@@ -28779,97 +30011,137 @@ var _index = _interopRequireDefault(__nccwpck_require__(2694));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 // Stand-alone local day of week
-class StandAloneLocalDayParser extends _Parser.Parser {
-  constructor() {
-    super(...arguments);
+var StandAloneLocalDayParser = /*#__PURE__*/function (_Parser) {
+  _inherits(StandAloneLocalDayParser, _Parser);
 
-    _defineProperty(this, "priority", 90);
+  var _super = _createSuper(StandAloneLocalDayParser);
 
-    _defineProperty(this, "incompatibleTokens", ['y', 'R', 'u', 'q', 'Q', 'M', 'L', 'I', 'd', 'D', 'E', 'i', 'e', 't', 'T']);
-  }
+  function StandAloneLocalDayParser() {
+    var _this;
 
-  parse(dateString, token, match, options) {
-    var valueCallback = function (value) {
-      var wholeWeekDays = Math.floor((value - 1) / 7) * 7;
-      return (value + options.weekStartsOn + 6) % 7 + wholeWeekDays;
-    };
+    _classCallCheck(this, StandAloneLocalDayParser);
 
-    switch (token) {
-      // 3
-      case 'c':
-      case 'cc':
-        // 03
-        return (0, _utils.mapValue)((0, _utils.parseNDigits)(token.length, dateString), valueCallback);
-      // 3rd
-
-      case 'co':
-        return (0, _utils.mapValue)(match.ordinalNumber(dateString, {
-          unit: 'day'
-        }), valueCallback);
-      // Tue
-
-      case 'ccc':
-        return match.day(dateString, {
-          width: 'abbreviated',
-          context: 'standalone'
-        }) || match.day(dateString, {
-          width: 'short',
-          context: 'standalone'
-        }) || match.day(dateString, {
-          width: 'narrow',
-          context: 'standalone'
-        });
-      // T
-
-      case 'ccccc':
-        return match.day(dateString, {
-          width: 'narrow',
-          context: 'standalone'
-        });
-      // Tu
-
-      case 'cccccc':
-        return match.day(dateString, {
-          width: 'short',
-          context: 'standalone'
-        }) || match.day(dateString, {
-          width: 'narrow',
-          context: 'standalone'
-        });
-      // Tuesday
-
-      case 'cccc':
-      default:
-        return match.day(dateString, {
-          width: 'wide',
-          context: 'standalone'
-        }) || match.day(dateString, {
-          width: 'abbreviated',
-          context: 'standalone'
-        }) || match.day(dateString, {
-          width: 'short',
-          context: 'standalone'
-        }) || match.day(dateString, {
-          width: 'narrow',
-          context: 'standalone'
-        });
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
     }
+
+    _this = _super.call.apply(_super, [this].concat(args));
+
+    _defineProperty(_assertThisInitialized(_this), "priority", 90);
+
+    _defineProperty(_assertThisInitialized(_this), "incompatibleTokens", ['y', 'R', 'u', 'q', 'Q', 'M', 'L', 'I', 'd', 'D', 'E', 'i', 'e', 't', 'T']);
+
+    return _this;
   }
 
-  validate(_date, value) {
-    return value >= 0 && value <= 6;
-  }
+  _createClass(StandAloneLocalDayParser, [{
+    key: "parse",
+    value: function parse(dateString, token, match, options) {
+      var valueCallback = function valueCallback(value) {
+        var wholeWeekDays = Math.floor((value - 1) / 7) * 7;
+        return (value + options.weekStartsOn + 6) % 7 + wholeWeekDays;
+      };
 
-  set(date, _flags, value, options) {
-    date = (0, _index.default)(date, value, options);
-    date.setUTCHours(0, 0, 0, 0);
-    return date;
-  }
+      switch (token) {
+        // 3
+        case 'c':
+        case 'cc':
+          // 03
+          return (0, _utils.mapValue)((0, _utils.parseNDigits)(token.length, dateString), valueCallback);
+        // 3rd
 
-}
+        case 'co':
+          return (0, _utils.mapValue)(match.ordinalNumber(dateString, {
+            unit: 'day'
+          }), valueCallback);
+        // Tue
+
+        case 'ccc':
+          return match.day(dateString, {
+            width: 'abbreviated',
+            context: 'standalone'
+          }) || match.day(dateString, {
+            width: 'short',
+            context: 'standalone'
+          }) || match.day(dateString, {
+            width: 'narrow',
+            context: 'standalone'
+          });
+        // T
+
+        case 'ccccc':
+          return match.day(dateString, {
+            width: 'narrow',
+            context: 'standalone'
+          });
+        // Tu
+
+        case 'cccccc':
+          return match.day(dateString, {
+            width: 'short',
+            context: 'standalone'
+          }) || match.day(dateString, {
+            width: 'narrow',
+            context: 'standalone'
+          });
+        // Tuesday
+
+        case 'cccc':
+        default:
+          return match.day(dateString, {
+            width: 'wide',
+            context: 'standalone'
+          }) || match.day(dateString, {
+            width: 'abbreviated',
+            context: 'standalone'
+          }) || match.day(dateString, {
+            width: 'short',
+            context: 'standalone'
+          }) || match.day(dateString, {
+            width: 'narrow',
+            context: 'standalone'
+          });
+      }
+    }
+  }, {
+    key: "validate",
+    value: function validate(_date, value) {
+      return value >= 0 && value <= 6;
+    }
+  }, {
+    key: "set",
+    value: function set(date, _flags, value, options) {
+      date = (0, _index.default)(date, value, options);
+      date.setUTCHours(0, 0, 0, 0);
+      return date;
+    }
+  }]);
+
+  return StandAloneLocalDayParser;
+}(_Parser2.Parser);
 
 exports.StandAloneLocalDayParser = StandAloneLocalDayParser;
 
@@ -28881,92 +30153,134 @@ exports.StandAloneLocalDayParser = StandAloneLocalDayParser;
 "use strict";
 
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
 exports.StandAloneMonthParser = void 0;
 
-var _Parser = __nccwpck_require__(5619);
+var _Parser2 = __nccwpck_require__(5619);
 
 var _constants = __nccwpck_require__(463);
 
 var _utils = __nccwpck_require__(9042);
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-class StandAloneMonthParser extends _Parser.Parser {
-  constructor() {
-    super(...arguments);
+var StandAloneMonthParser = /*#__PURE__*/function (_Parser) {
+  _inherits(StandAloneMonthParser, _Parser);
 
-    _defineProperty(this, "priority", 110);
+  var _super = _createSuper(StandAloneMonthParser);
 
-    _defineProperty(this, "incompatibleTokens", ['Y', 'R', 'q', 'Q', 'M', 'w', 'I', 'D', 'i', 'e', 'c', 't', 'T']);
-  }
+  function StandAloneMonthParser() {
+    var _this;
 
-  parse(dateString, token, match) {
-    var valueCallback = function (value) {
-      return value - 1;
-    };
+    _classCallCheck(this, StandAloneMonthParser);
 
-    switch (token) {
-      // 1, 2, ..., 12
-      case 'L':
-        return (0, _utils.mapValue)((0, _utils.parseNumericPattern)(_constants.numericPatterns.month, dateString), valueCallback);
-      // 01, 02, ..., 12
-
-      case 'LL':
-        return (0, _utils.mapValue)((0, _utils.parseNDigits)(2, dateString), valueCallback);
-      // 1st, 2nd, ..., 12th
-
-      case 'Lo':
-        return (0, _utils.mapValue)(match.ordinalNumber(dateString, {
-          unit: 'month'
-        }), valueCallback);
-      // Jan, Feb, ..., Dec
-
-      case 'LLL':
-        return match.month(dateString, {
-          width: 'abbreviated',
-          context: 'standalone'
-        }) || match.month(dateString, {
-          width: 'narrow',
-          context: 'standalone'
-        });
-      // J, F, ..., D
-
-      case 'LLLLL':
-        return match.month(dateString, {
-          width: 'narrow',
-          context: 'standalone'
-        });
-      // January, February, ..., December
-
-      case 'LLLL':
-      default:
-        return match.month(dateString, {
-          width: 'wide',
-          context: 'standalone'
-        }) || match.month(dateString, {
-          width: 'abbreviated',
-          context: 'standalone'
-        }) || match.month(dateString, {
-          width: 'narrow',
-          context: 'standalone'
-        });
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
     }
+
+    _this = _super.call.apply(_super, [this].concat(args));
+
+    _defineProperty(_assertThisInitialized(_this), "priority", 110);
+
+    _defineProperty(_assertThisInitialized(_this), "incompatibleTokens", ['Y', 'R', 'q', 'Q', 'M', 'w', 'I', 'D', 'i', 'e', 'c', 't', 'T']);
+
+    return _this;
   }
 
-  validate(_date, value) {
-    return value >= 0 && value <= 11;
-  }
+  _createClass(StandAloneMonthParser, [{
+    key: "parse",
+    value: function parse(dateString, token, match) {
+      var valueCallback = function valueCallback(value) {
+        return value - 1;
+      };
 
-  set(date, _flags, value) {
-    date.setUTCMonth(value, 1);
-    date.setUTCHours(0, 0, 0, 0);
-    return date;
-  }
+      switch (token) {
+        // 1, 2, ..., 12
+        case 'L':
+          return (0, _utils.mapValue)((0, _utils.parseNumericPattern)(_constants.numericPatterns.month, dateString), valueCallback);
+        // 01, 02, ..., 12
 
-}
+        case 'LL':
+          return (0, _utils.mapValue)((0, _utils.parseNDigits)(2, dateString), valueCallback);
+        // 1st, 2nd, ..., 12th
+
+        case 'Lo':
+          return (0, _utils.mapValue)(match.ordinalNumber(dateString, {
+            unit: 'month'
+          }), valueCallback);
+        // Jan, Feb, ..., Dec
+
+        case 'LLL':
+          return match.month(dateString, {
+            width: 'abbreviated',
+            context: 'standalone'
+          }) || match.month(dateString, {
+            width: 'narrow',
+            context: 'standalone'
+          });
+        // J, F, ..., D
+
+        case 'LLLLL':
+          return match.month(dateString, {
+            width: 'narrow',
+            context: 'standalone'
+          });
+        // January, February, ..., December
+
+        case 'LLLL':
+        default:
+          return match.month(dateString, {
+            width: 'wide',
+            context: 'standalone'
+          }) || match.month(dateString, {
+            width: 'abbreviated',
+            context: 'standalone'
+          }) || match.month(dateString, {
+            width: 'narrow',
+            context: 'standalone'
+          });
+      }
+    }
+  }, {
+    key: "validate",
+    value: function validate(_date, value) {
+      return value >= 0 && value <= 11;
+    }
+  }, {
+    key: "set",
+    value: function set(date, _flags, value) {
+      date.setUTCMonth(value, 1);
+      date.setUTCHours(0, 0, 0, 0);
+      return date;
+    }
+  }]);
+
+  return StandAloneMonthParser;
+}(_Parser2.Parser);
 
 exports.StandAloneMonthParser = StandAloneMonthParser;
 
@@ -28978,84 +30292,126 @@ exports.StandAloneMonthParser = StandAloneMonthParser;
 "use strict";
 
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
 exports.StandAloneQuarterParser = void 0;
 
-var _Parser = __nccwpck_require__(5619);
+var _Parser2 = __nccwpck_require__(5619);
 
 var _utils = __nccwpck_require__(9042);
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-class StandAloneQuarterParser extends _Parser.Parser {
-  constructor() {
-    super(...arguments);
+var StandAloneQuarterParser = /*#__PURE__*/function (_Parser) {
+  _inherits(StandAloneQuarterParser, _Parser);
 
-    _defineProperty(this, "priority", 120);
+  var _super = _createSuper(StandAloneQuarterParser);
 
-    _defineProperty(this, "incompatibleTokens", ['Y', 'R', 'Q', 'M', 'L', 'w', 'I', 'd', 'D', 'i', 'e', 'c', 't', 'T']);
-  }
+  function StandAloneQuarterParser() {
+    var _this;
 
-  parse(dateString, token, match) {
-    switch (token) {
-      // 1, 2, 3, 4
-      case 'q':
-      case 'qq':
-        // 01, 02, 03, 04
-        return (0, _utils.parseNDigits)(token.length, dateString);
-      // 1st, 2nd, 3rd, 4th
+    _classCallCheck(this, StandAloneQuarterParser);
 
-      case 'qo':
-        return match.ordinalNumber(dateString, {
-          unit: 'quarter'
-        });
-      // Q1, Q2, Q3, Q4
-
-      case 'qqq':
-        return match.quarter(dateString, {
-          width: 'abbreviated',
-          context: 'standalone'
-        }) || match.quarter(dateString, {
-          width: 'narrow',
-          context: 'standalone'
-        });
-      // 1, 2, 3, 4 (narrow quarter; could be not numerical)
-
-      case 'qqqqq':
-        return match.quarter(dateString, {
-          width: 'narrow',
-          context: 'standalone'
-        });
-      // 1st quarter, 2nd quarter, ...
-
-      case 'qqqq':
-      default:
-        return match.quarter(dateString, {
-          width: 'wide',
-          context: 'standalone'
-        }) || match.quarter(dateString, {
-          width: 'abbreviated',
-          context: 'standalone'
-        }) || match.quarter(dateString, {
-          width: 'narrow',
-          context: 'standalone'
-        });
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
     }
+
+    _this = _super.call.apply(_super, [this].concat(args));
+
+    _defineProperty(_assertThisInitialized(_this), "priority", 120);
+
+    _defineProperty(_assertThisInitialized(_this), "incompatibleTokens", ['Y', 'R', 'Q', 'M', 'L', 'w', 'I', 'd', 'D', 'i', 'e', 'c', 't', 'T']);
+
+    return _this;
   }
 
-  validate(_date, value) {
-    return value >= 1 && value <= 4;
-  }
+  _createClass(StandAloneQuarterParser, [{
+    key: "parse",
+    value: function parse(dateString, token, match) {
+      switch (token) {
+        // 1, 2, 3, 4
+        case 'q':
+        case 'qq':
+          // 01, 02, 03, 04
+          return (0, _utils.parseNDigits)(token.length, dateString);
+        // 1st, 2nd, 3rd, 4th
 
-  set(date, _flags, value) {
-    date.setUTCMonth((value - 1) * 3, 1);
-    date.setUTCHours(0, 0, 0, 0);
-    return date;
-  }
+        case 'qo':
+          return match.ordinalNumber(dateString, {
+            unit: 'quarter'
+          });
+        // Q1, Q2, Q3, Q4
 
-}
+        case 'qqq':
+          return match.quarter(dateString, {
+            width: 'abbreviated',
+            context: 'standalone'
+          }) || match.quarter(dateString, {
+            width: 'narrow',
+            context: 'standalone'
+          });
+        // 1, 2, 3, 4 (narrow quarter; could be not numerical)
+
+        case 'qqqqq':
+          return match.quarter(dateString, {
+            width: 'narrow',
+            context: 'standalone'
+          });
+        // 1st quarter, 2nd quarter, ...
+
+        case 'qqqq':
+        default:
+          return match.quarter(dateString, {
+            width: 'wide',
+            context: 'standalone'
+          }) || match.quarter(dateString, {
+            width: 'abbreviated',
+            context: 'standalone'
+          }) || match.quarter(dateString, {
+            width: 'narrow',
+            context: 'standalone'
+          });
+      }
+    }
+  }, {
+    key: "validate",
+    value: function validate(_date, value) {
+      return value >= 1 && value <= 4;
+    }
+  }, {
+    key: "set",
+    value: function set(date, _flags, value) {
+      date.setUTCMonth((value - 1) * 3, 1);
+      date.setUTCHours(0, 0, 0, 0);
+      return date;
+    }
+  }]);
+
+  return StandAloneQuarterParser;
+}(_Parser2.Parser);
 
 exports.StandAloneQuarterParser = StandAloneQuarterParser;
 
@@ -29067,37 +30423,78 @@ exports.StandAloneQuarterParser = StandAloneQuarterParser;
 "use strict";
 
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
 exports.TimestampMillisecondsParser = void 0;
 
-var _Parser = __nccwpck_require__(5619);
+var _Parser2 = __nccwpck_require__(5619);
 
 var _utils = __nccwpck_require__(9042);
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-class TimestampMillisecondsParser extends _Parser.Parser {
-  constructor() {
-    super(...arguments);
+var TimestampMillisecondsParser = /*#__PURE__*/function (_Parser) {
+  _inherits(TimestampMillisecondsParser, _Parser);
 
-    _defineProperty(this, "priority", 20);
+  var _super = _createSuper(TimestampMillisecondsParser);
 
-    _defineProperty(this, "incompatibleTokens", '*');
+  function TimestampMillisecondsParser() {
+    var _this;
+
+    _classCallCheck(this, TimestampMillisecondsParser);
+
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    _this = _super.call.apply(_super, [this].concat(args));
+
+    _defineProperty(_assertThisInitialized(_this), "priority", 20);
+
+    _defineProperty(_assertThisInitialized(_this), "incompatibleTokens", '*');
+
+    return _this;
   }
 
-  parse(dateString) {
-    return (0, _utils.parseAnyDigitsSigned)(dateString);
-  }
+  _createClass(TimestampMillisecondsParser, [{
+    key: "parse",
+    value: function parse(dateString) {
+      return (0, _utils.parseAnyDigitsSigned)(dateString);
+    }
+  }, {
+    key: "set",
+    value: function set(_date, _flags, value) {
+      return [new Date(value), {
+        timestampIsSet: true
+      }];
+    }
+  }]);
 
-  set(_date, _flags, value) {
-    return [new Date(value), {
-      timestampIsSet: true
-    }];
-  }
-
-}
+  return TimestampMillisecondsParser;
+}(_Parser2.Parser);
 
 exports.TimestampMillisecondsParser = TimestampMillisecondsParser;
 
@@ -29109,37 +30506,78 @@ exports.TimestampMillisecondsParser = TimestampMillisecondsParser;
 "use strict";
 
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
 exports.TimestampSecondsParser = void 0;
 
-var _Parser = __nccwpck_require__(5619);
+var _Parser2 = __nccwpck_require__(5619);
 
 var _utils = __nccwpck_require__(9042);
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-class TimestampSecondsParser extends _Parser.Parser {
-  constructor() {
-    super(...arguments);
+var TimestampSecondsParser = /*#__PURE__*/function (_Parser) {
+  _inherits(TimestampSecondsParser, _Parser);
 
-    _defineProperty(this, "priority", 40);
+  var _super = _createSuper(TimestampSecondsParser);
 
-    _defineProperty(this, "incompatibleTokens", '*');
+  function TimestampSecondsParser() {
+    var _this;
+
+    _classCallCheck(this, TimestampSecondsParser);
+
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    _this = _super.call.apply(_super, [this].concat(args));
+
+    _defineProperty(_assertThisInitialized(_this), "priority", 40);
+
+    _defineProperty(_assertThisInitialized(_this), "incompatibleTokens", '*');
+
+    return _this;
   }
 
-  parse(dateString) {
-    return (0, _utils.parseAnyDigitsSigned)(dateString);
-  }
+  _createClass(TimestampSecondsParser, [{
+    key: "parse",
+    value: function parse(dateString) {
+      return (0, _utils.parseAnyDigitsSigned)(dateString);
+    }
+  }, {
+    key: "set",
+    value: function set(_date, _flags, value) {
+      return [new Date(value * 1000), {
+        timestampIsSet: true
+      }];
+    }
+  }]);
 
-  set(_date, _flags, value) {
-    return [new Date(value * 1000), {
-      timestampIsSet: true
-    }];
-  }
-
-}
+  return TimestampSecondsParser;
+}(_Parser2.Parser);
 
 exports.TimestampSecondsParser = TimestampSecondsParser;
 
@@ -29151,14 +30589,36 @@ exports.TimestampSecondsParser = TimestampSecondsParser;
 "use strict";
 
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
 exports.YearParser = void 0;
 
-var _Parser = __nccwpck_require__(5619);
+var _Parser2 = __nccwpck_require__(5619);
 
 var _utils = __nccwpck_require__(9042);
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -29170,58 +30630,78 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 // | AD 123   |   123 | 23 |   123 |  0123 | 00123 |
 // | AD 1234  |  1234 | 34 |  1234 |  1234 | 01234 |
 // | AD 12345 | 12345 | 45 | 12345 | 12345 | 12345 |
-class YearParser extends _Parser.Parser {
-  constructor() {
-    super(...arguments);
+var YearParser = /*#__PURE__*/function (_Parser) {
+  _inherits(YearParser, _Parser);
 
-    _defineProperty(this, "priority", 130);
+  var _super = _createSuper(YearParser);
 
-    _defineProperty(this, "incompatibleTokens", ['Y', 'R', 'u', 'w', 'I', 'i', 'e', 'c', 't', 'T']);
-  }
+  function YearParser() {
+    var _this;
 
-  parse(dateString, token, match) {
-    var valueCallback = function (year) {
-      return {
-        year: year,
-        isTwoDigitYear: token === 'yy'
-      };
-    };
+    _classCallCheck(this, YearParser);
 
-    switch (token) {
-      case 'y':
-        return (0, _utils.mapValue)((0, _utils.parseNDigits)(4, dateString), valueCallback);
-
-      case 'yo':
-        return (0, _utils.mapValue)(match.ordinalNumber(dateString, {
-          unit: 'year'
-        }), valueCallback);
-
-      default:
-        return (0, _utils.mapValue)((0, _utils.parseNDigits)(token.length, dateString), valueCallback);
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
     }
+
+    _this = _super.call.apply(_super, [this].concat(args));
+
+    _defineProperty(_assertThisInitialized(_this), "priority", 130);
+
+    _defineProperty(_assertThisInitialized(_this), "incompatibleTokens", ['Y', 'R', 'u', 'w', 'I', 'i', 'e', 'c', 't', 'T']);
+
+    return _this;
   }
 
-  validate(_date, value) {
-    return value.isTwoDigitYear || value.year > 0;
-  }
+  _createClass(YearParser, [{
+    key: "parse",
+    value: function parse(dateString, token, match) {
+      var valueCallback = function valueCallback(year) {
+        return {
+          year: year,
+          isTwoDigitYear: token === 'yy'
+        };
+      };
 
-  set(date, flags, value) {
-    var currentYear = date.getUTCFullYear();
+      switch (token) {
+        case 'y':
+          return (0, _utils.mapValue)((0, _utils.parseNDigits)(4, dateString), valueCallback);
 
-    if (value.isTwoDigitYear) {
-      var normalizedTwoDigitYear = (0, _utils.normalizeTwoDigitYear)(value.year, currentYear);
-      date.setUTCFullYear(normalizedTwoDigitYear, 0, 1);
+        case 'yo':
+          return (0, _utils.mapValue)(match.ordinalNumber(dateString, {
+            unit: 'year'
+          }), valueCallback);
+
+        default:
+          return (0, _utils.mapValue)((0, _utils.parseNDigits)(token.length, dateString), valueCallback);
+      }
+    }
+  }, {
+    key: "validate",
+    value: function validate(_date, value) {
+      return value.isTwoDigitYear || value.year > 0;
+    }
+  }, {
+    key: "set",
+    value: function set(date, flags, value) {
+      var currentYear = date.getUTCFullYear();
+
+      if (value.isTwoDigitYear) {
+        var normalizedTwoDigitYear = (0, _utils.normalizeTwoDigitYear)(value.year, currentYear);
+        date.setUTCFullYear(normalizedTwoDigitYear, 0, 1);
+        date.setUTCHours(0, 0, 0, 0);
+        return date;
+      }
+
+      var year = !('era' in flags) || flags.era === 1 ? value.year : 1 - value.year;
+      date.setUTCFullYear(year, 0, 1);
       date.setUTCHours(0, 0, 0, 0);
       return date;
     }
+  }]);
 
-    var year = !('era' in flags) || flags.era === 1 ? value.year : 1 - value.year;
-    date.setUTCFullYear(year, 0, 1);
-    date.setUTCHours(0, 0, 0, 0);
-    return date;
-  }
-
-}
+  return YearParser;
+}(_Parser2.Parser);
 
 exports.YearParser = YearParser;
 
@@ -29389,15 +30869,15 @@ exports.parsers = parsers;
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
+exports.dayPeriodEnumToHours = dayPeriodEnumToHours;
+exports.isLeapYearIndex = isLeapYearIndex;
 exports.mapValue = mapValue;
-exports.parseNumericPattern = parseNumericPattern;
-exports.parseTimezonePattern = parseTimezonePattern;
+exports.normalizeTwoDigitYear = normalizeTwoDigitYear;
 exports.parseAnyDigitsSigned = parseAnyDigitsSigned;
 exports.parseNDigits = parseNDigits;
 exports.parseNDigitsSigned = parseNDigitsSigned;
-exports.dayPeriodEnumToHours = dayPeriodEnumToHours;
-exports.normalizeTwoDigitYear = normalizeTwoDigitYear;
-exports.isLeapYearIndex = isLeapYearIndex;
+exports.parseNumericPattern = parseNumericPattern;
+exports.parseTimezonePattern = parseTimezonePattern;
 
 var _index = __nccwpck_require__(5756);
 
@@ -29578,6 +31058,14 @@ var _index10 = __nccwpck_require__(5193);
 var _index11 = __nccwpck_require__(9307);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _createForOfIteratorHelper(o, allowArrayLike) { var it; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 
 // This RegExp consists of three parts separated by `|`:
 // - [yYQqMLwIdDecihHKkms]o matches any available ordinal number token
@@ -29952,80 +31440,87 @@ function parse(dirtyDateString, dirtyFormatString, dirtyReferenceDate, options) 
   }).join('').match(formattingTokensRegExp);
   var usedTokens = [];
 
-  var _loop = function (_token) {
-    if (!(options !== null && options !== void 0 && options.useAdditionalWeekYearTokens) && (0, _index7.isProtectedWeekYearToken)(_token)) {
-      (0, _index7.throwProtectedError)(_token, formatString, dirtyDateString);
-    }
+  var _iterator = _createForOfIteratorHelper(tokens),
+      _step;
 
-    if (!(options !== null && options !== void 0 && options.useAdditionalDayOfYearTokens) && (0, _index7.isProtectedDayOfYearToken)(_token)) {
-      (0, _index7.throwProtectedError)(_token, formatString, dirtyDateString);
-    }
+  try {
+    var _loop = function _loop() {
+      var token = _step.value;
 
-    var firstCharacter = _token[0];
-    var parser = _index10.parsers[firstCharacter];
+      if (!(options !== null && options !== void 0 && options.useAdditionalWeekYearTokens) && (0, _index7.isProtectedWeekYearToken)(token)) {
+        (0, _index7.throwProtectedError)(token, formatString, dirtyDateString);
+      }
 
-    if (parser) {
-      var incompatibleTokens = parser.incompatibleTokens;
+      if (!(options !== null && options !== void 0 && options.useAdditionalDayOfYearTokens) && (0, _index7.isProtectedDayOfYearToken)(token)) {
+        (0, _index7.throwProtectedError)(token, formatString, dirtyDateString);
+      }
 
-      if (Array.isArray(incompatibleTokens)) {
-        var incompatibleToken = usedTokens.find(function (usedToken) {
-          return incompatibleTokens.includes(usedToken.token) || usedToken.token === firstCharacter;
-        });
+      var firstCharacter = token[0];
+      var parser = _index10.parsers[firstCharacter];
 
-        if (incompatibleToken) {
-          throw new RangeError("The format string mustn't contain `".concat(incompatibleToken.fullToken, "` and `").concat(_token, "` at the same time"));
+      if (parser) {
+        var incompatibleTokens = parser.incompatibleTokens;
+
+        if (Array.isArray(incompatibleTokens)) {
+          var incompatibleToken = usedTokens.find(function (usedToken) {
+            return incompatibleTokens.includes(usedToken.token) || usedToken.token === firstCharacter;
+          });
+
+          if (incompatibleToken) {
+            throw new RangeError("The format string mustn't contain `".concat(incompatibleToken.fullToken, "` and `").concat(token, "` at the same time"));
+          }
+        } else if (parser.incompatibleTokens === '*' && usedTokens.length > 0) {
+          throw new RangeError("The format string mustn't contain `".concat(token, "` and any other token at the same time"));
         }
-      } else if (parser.incompatibleTokens === '*' && usedTokens.length > 0) {
-        throw new RangeError("The format string mustn't contain `".concat(_token, "` and any other token at the same time"));
-      }
 
-      usedTokens.push({
-        token: firstCharacter,
-        fullToken: _token
-      });
-      var parseResult = parser.run(dateString, _token, locale.match, subFnOptions);
+        usedTokens.push({
+          token: firstCharacter,
+          fullToken: token
+        });
+        var parseResult = parser.run(dateString, token, locale.match, subFnOptions);
 
-      if (!parseResult) {
-        token = _token;
-        return {
-          v: new Date(NaN)
-        };
-      }
+        if (!parseResult) {
+          return {
+            v: new Date(NaN)
+          };
+        }
 
-      setters.push(parseResult.setter);
-      dateString = parseResult.rest;
-    } else {
-      if (firstCharacter.match(unescapedLatinCharacterRegExp)) {
-        throw new RangeError('Format string contains an unescaped latin alphabet character `' + firstCharacter + '`');
-      } // Replace two single quote characters with one single quote character
-
-
-      if (_token === "''") {
-        _token = "'";
-      } else if (firstCharacter === "'") {
-        _token = cleanEscapedString(_token);
-      } // Cut token from string, or, if string doesn't match the token, return Invalid Date
-
-
-      if (dateString.indexOf(_token) === 0) {
-        dateString = dateString.slice(_token.length);
+        setters.push(parseResult.setter);
+        dateString = parseResult.rest;
       } else {
-        token = _token;
-        return {
-          v: new Date(NaN)
-        };
+        if (firstCharacter.match(unescapedLatinCharacterRegExp)) {
+          throw new RangeError('Format string contains an unescaped latin alphabet character `' + firstCharacter + '`');
+        } // Replace two single quote characters with one single quote character
+
+
+        if (token === "''") {
+          token = "'";
+        } else if (firstCharacter === "'") {
+          token = cleanEscapedString(token);
+        } // Cut token from string, or, if string doesn't match the token, return Invalid Date
+
+
+        if (dateString.indexOf(token) === 0) {
+          dateString = dateString.slice(token.length);
+        } else {
+          return {
+            v: new Date(NaN)
+          };
+        }
       }
-    }
+    };
 
-    token = _token;
-  };
+    for (_iterator.s(); !(_step = _iterator.n()).done;) {
+      var _ret = _loop();
 
-  for (var token of tokens) {
-    var _ret = _loop(token);
+      if (_typeof(_ret) === "object") return _ret.v;
+    } // Check if the remaining input contains something other than whitespace
 
-    if (typeof _ret === "object") return _ret.v;
-  } // Check if the remaining input contains something other than whitespace
-
+  } catch (err) {
+    _iterator.e(err);
+  } finally {
+    _iterator.f();
+  }
 
   if (dateString.length > 0 && notWhitespaceRegExp.test(dateString)) {
     return new Date(NaN);
@@ -30056,19 +31551,30 @@ function parse(dirtyDateString, dirtyFormatString, dirtyReferenceDate, options) 
   var utcDate = (0, _index2.default)(date, (0, _index6.default)(date));
   var flags = {};
 
-  for (var setter of uniquePrioritySetters) {
-    if (!setter.validate(utcDate, subFnOptions)) {
-      return new Date(NaN);
-    }
+  var _iterator2 = _createForOfIteratorHelper(uniquePrioritySetters),
+      _step2;
 
-    var result = setter.set(utcDate, flags, subFnOptions); // Result is tuple (date, flags)
+  try {
+    for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+      var setter = _step2.value;
 
-    if (Array.isArray(result)) {
-      utcDate = result[0];
-      (0, _index4.default)(flags, result[1]); // Result is date
-    } else {
-      utcDate = result;
+      if (!setter.validate(utcDate, subFnOptions)) {
+        return new Date(NaN);
+      }
+
+      var result = setter.set(utcDate, flags, subFnOptions); // Result is tuple (date, flags)
+
+      if (Array.isArray(result)) {
+        utcDate = result[0];
+        (0, _index4.default)(flags, result[1]); // Result is date
+      } else {
+        utcDate = result;
+      }
     }
+  } catch (err) {
+    _iterator2.e(err);
+  } finally {
+    _iterator2.f();
   }
 
   return utcDate;
@@ -31129,6 +32635,8 @@ var _index4 = _interopRequireDefault(__nccwpck_require__(2063));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 /**
  * @name set
  * @category Common Helpers
@@ -31170,7 +32678,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function set(dirtyDate, values) {
   (0, _index4.default)(2, arguments);
 
-  if (typeof values !== 'object' || values === null) {
+  if (_typeof(values) !== 'object' || values === null) {
     throw new RangeError('values parameter must be an object');
   }
 
@@ -32960,6 +34468,8 @@ var _index4 = _interopRequireDefault(__nccwpck_require__(1985));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 /**
  * @name sub
  * @category Common Helpers
@@ -33001,7 +34511,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  */
 function sub(date, duration) {
   (0, _index3.default)(2, arguments);
-  if (!duration || typeof duration !== 'object') return new Date(NaN);
+  if (!duration || _typeof(duration) !== 'object') return new Date(NaN);
   var years = duration.years ? (0, _index4.default)(duration.years) : 0;
   var months = duration.months ? (0, _index4.default)(duration.months) : 0;
   var weeks = duration.weeks ? (0, _index4.default)(duration.weeks) : 0;
@@ -33559,6 +35069,8 @@ var _index = _interopRequireDefault(__nccwpck_require__(2063));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 /**
  * @name toDate
  * @category Common Helpers
@@ -33593,7 +35105,7 @@ function toDate(argument) {
   (0, _index.default)(1, arguments);
   var argStr = Object.prototype.toString.call(argument); // Clone the date
 
-  if (argument instanceof Date || typeof argument === 'object' && argStr === '[object Date]') {
+  if (argument instanceof Date || _typeof(argument) === 'object' && argStr === '[object Date]') {
     // Prevent the date to lose the milliseconds when passed to new Date() in IE10
     return new Date(argument.getTime());
   } else if (typeof argument === 'number' || argStr === '[object Number]') {
