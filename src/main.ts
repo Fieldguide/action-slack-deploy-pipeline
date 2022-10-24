@@ -1,16 +1,16 @@
 import {error, getInput, isDebug, setFailed, setOutput} from '@actions/core'
 import {getOctokit} from '@actions/github'
-import {GitHubClient} from './github/types'
+import {OctokitClient} from './github/types'
 import {getEnv} from './input'
 import {postMessage} from './message'
 import {SlackClient} from './slack/client'
 
 async function run(): Promise<void> {
   try {
-    const github = createGitHubClient()
+    const octokit = createOctokitClient()
     const slack = createSlackClient()
 
-    const ts = await postMessage(github, slack)
+    const ts = await postMessage(octokit, slack)
 
     if (ts) {
       setOutput('ts', ts)
@@ -31,7 +31,7 @@ function createSlackClient(): SlackClient {
   return new SlackClient({token, channel})
 }
 
-function createGitHubClient(): GitHubClient {
+function createOctokitClient(): OctokitClient {
   const token = getInput('github_token', {required: true})
 
   return getOctokit(token)
