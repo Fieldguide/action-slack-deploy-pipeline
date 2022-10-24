@@ -1,7 +1,7 @@
 import {getInput, info} from '@actions/core'
 import {getStageMessage} from './github/stage'
 import {getSummaryMessage} from './github/summary'
-import {GitHubClient, isSuccessful} from './github/types'
+import {OctokitClient, isSuccessful} from './github/types'
 import {SlackClient} from './slack/client'
 
 /**
@@ -12,20 +12,21 @@ import {SlackClient} from './slack/client'
  * @returns message timestamp ID
  */
 export async function postMessage(
-  github: GitHubClient,
+  octokit: OctokitClient,
   slack: SlackClient
 ): Promise<string | undefined> {
   const threadTs = getInput('thread_ts')
 
   if (!threadTs) {
     info('Posting summary message')
+    const message = await getSummaryMessage(octokit)
 
-    return slack.postMessage(getSummaryMessage())
+    return slack.postMessage(message)
   }
 
   const status = getInput('status', {required: true})
   const now = new Date()
-  const stageMessage = await getStageMessage({github, status, now})
+  const stageMessage = await getStageMessage({octokit, status, now})
 
   info(`Posting stage message in thread: ${threadTs}`)
   await slack.postMessage({
@@ -37,8 +38,10 @@ export async function postMessage(
 
   if (conclusion || !isSuccessful(status)) {
     info(`Updating summary message: ${status}`)
+    const message = await getSummaryMessage(octokit, {status, threadTs, now})
+
     await slack.updateMessage({
-      ...getSummaryMessage({status, threadTs, now}),
+      ...message,
       ts: threadTs
     })
   }

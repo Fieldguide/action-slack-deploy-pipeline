@@ -1,12 +1,18 @@
-import {context} from '@actions/github'
+import * as github from '@actions/github'
 import {intervalToDuration} from 'date-fns'
 import {bold, emoji, link} from '../slack/mrkdwn'
 import {Link} from '../slack/types'
 import {dateFromTs} from '../slack/utils'
 import {getContextBlock} from './context'
 import {createMessage, emojiFromStatus} from './message'
-import {JobStatus, Message, Text} from './types'
-import {isPullRequestEvent, isPushEvent} from './webhook'
+import {JobStatus, Message, OctokitClient, Text} from './types'
+import {
+  assertUnsupportedEvent,
+  isPullRequestEvent,
+  isPushEvent,
+  isScheduleEvent,
+  SupportedContext
+} from './webhook'
 
 interface Options {
   status: string
@@ -17,8 +23,11 @@ interface Options {
 /**
  * Return the initial summary message.
  */
-export function getSummaryMessage(options?: Options): Message {
-  const text = getText(options?.status)
+export async function getSummaryMessage(
+  octokit: OctokitClient,
+  options?: Options
+): Promise<Message> {
+  const text = await getText(octokit, options?.status)
 
   const duration = options
     ? intervalToDuration({
@@ -32,9 +41,9 @@ export function getSummaryMessage(options?: Options): Message {
   return createMessage(text, contextBlock)
 }
 
-function getText(status?: string): Text {
+async function getText(octokit: OctokitClient, status?: string): Promise<Text> {
   const summarySentence = getSummarySentence(status)
-  const eventLink = getEventLink()
+  const eventLink = await getEventLink(octokit)
 
   const mrkdwn = [
     status ? emojiFromStatus(status) : emoji('black_square_button'),
@@ -50,7 +59,7 @@ function getText(status?: string): Text {
 
 function getSummarySentence(status?: string): Text {
   const verb = status ? verbFromStatus(status) : 'Deploying'
-  const {repo} = context.repo
+  const {repo} = github.context.repo
 
   return {
     plain: `${verb} ${repo}`,
@@ -71,7 +80,9 @@ function verbFromStatus(status: string): string {
   }
 }
 
-function getEventLink(): Link {
+async function getEventLink(octokit: OctokitClient): Promise<Link> {
+  const context = github.context as SupportedContext
+
   if (isPullRequestEvent(context)) {
     const pullRequest = context.payload.pull_request
 
@@ -81,8 +92,12 @@ function getEventLink(): Link {
     }
   }
 
-  if (isPushEvent(context) && context.payload.head_commit) {
+  if (isPushEvent(context)) {
     const commit = context.payload.head_commit
+
+    if (!commit) {
+      throw new Error('Unexpected push event payload (undefined head_commit)')
+    }
 
     return {
       text: getEventLinkText(commit.message),
@@ -90,9 +105,21 @@ function getEventLink(): Link {
     }
   }
 
-  throw new Error(
-    `Unsupported event ${context.eventName} (currently supported events include: pull_request, push)`
-  )
+  if (isScheduleEvent(context)) {
+    const commit = (
+      await octokit.rest.repos.getCommit({
+        ...context.repo,
+        ref: context.sha
+      })
+    ).data.commit
+
+    return {
+      text: getEventLinkText(commit.message),
+      url: commit.url
+    }
+  }
+
+  assertUnsupportedEvent(context)
 }
 
 /**

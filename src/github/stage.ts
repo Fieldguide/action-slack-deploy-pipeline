@@ -4,7 +4,7 @@ import {bold} from '../slack/mrkdwn'
 import {getContextBlock} from './context'
 import {createMessage, emojiFromStatus} from './message'
 import {
-  GitHubClient,
+  OctokitClient,
   isCompletedJobStep,
   isSuccessful,
   JobStatus,
@@ -13,7 +13,7 @@ import {
 } from './types'
 
 interface Options {
-  github: GitHubClient
+  octokit: OctokitClient
   status: string
   now: Date
 }
@@ -22,13 +22,13 @@ interface Options {
  * Return a progressed stage message, posted via threaded reply.
  */
 export async function getStageMessage({
-  github,
+  octokit,
   status,
   now
 }: Options): Promise<Message> {
   const text = getText(status)
 
-  const duration = await computeDuration(github, now)
+  const duration = await computeDuration(octokit, now)
   const contextBlock = getContextBlock(duration)
 
   return {
@@ -66,10 +66,10 @@ function verbFromStatus(status: string): string {
 }
 
 async function computeDuration(
-  github: GitHubClient,
+  octokit: OctokitClient,
   now: Date
 ): Promise<Duration | undefined> {
-  const {data} = await github.rest.actions.listJobsForWorkflowRun({
+  const {data} = await octokit.rest.actions.listJobsForWorkflowRun({
     ...context.repo,
     run_id: context.runId
   })
