@@ -17,13 +17,25 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getMessageAuthor = void 0;
+const core_1 = __nccwpck_require__(2186);
 const github_1 = __nccwpck_require__(5438);
 const webhook_1 = __nccwpck_require__(4464);
+const input_1 = __nccwpck_require__(8657);
 function getMessageAuthor(octokit, slack) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
+            const githubSender = (0, webhook_1.senderFromPayload)(github_1.context.payload);
             const slackUsers = yield slack.getUsers();
             console.log({ slackUsers });
+            if (!slackUsers) {
+                (0, core_1.warning)(`${input_1.EnvironmentVariable.SlackBotToken} does not include "users:read" OAuth scope, and the message author will fallback to a GitHub username.`);
+                return githubSender
+                    ? {
+                        username: githubSender.login,
+                        icon_url: githubSender.avatar_url
+                    }
+                    : null;
+            }
             const githubUser = yield getGitHubUser(octokit);
             console.log({ githubUser });
             const githubEmails = (yield octokit.rest.users.listEmailsForAuthenticatedUser()).data;
@@ -31,6 +43,7 @@ function getMessageAuthor(octokit, slack) {
             const slackUserByEmail = slackUsers.find(slackUser => {
                 return githubEmails.some(({ email }) => email === slackUser.email);
             });
+            return null;
         }
         catch (error) {
             console.error(error);
@@ -42,12 +55,13 @@ exports.getMessageAuthor = getMessageAuthor;
 function getGitHubUser(octokit) {
     return __awaiter(this, void 0, void 0, function* () {
         const sender = (0, webhook_1.senderFromPayload)(github_1.context.payload);
-        if (sender) {
-            const { data } = yield octokit.rest.users.getByUsername({
-                username: sender.login
-            });
-            return data;
+        if (!sender) {
+            return null;
         }
+        const { data } = yield octokit.rest.users.getByUsername({
+            username: sender.login
+        });
+        return data;
     });
 }
 
@@ -495,7 +509,12 @@ exports.senderFromPayload = senderFromPayload;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getEnv = void 0;
+exports.getEnv = exports.EnvironmentVariable = void 0;
+var EnvironmentVariable;
+(function (EnvironmentVariable) {
+    EnvironmentVariable["SlackBotToken"] = "SLACK_DEPLOY_BOT_TOKEN";
+    EnvironmentVariable["SlackChannel"] = "SLACK_DEPLOY_CHANNEL";
+})(EnvironmentVariable = exports.EnvironmentVariable || (exports.EnvironmentVariable = {}));
 /**
  * Get the value of a required environment variable.
  *
@@ -555,8 +574,8 @@ function run() {
     });
 }
 function createSlackClient() {
-    const token = (0, input_1.getEnv)('SLACK_DEPLOY_BOT_TOKEN');
-    const channel = (0, input_1.getEnv)('SLACK_DEPLOY_CHANNEL');
+    const token = (0, input_1.getEnv)(input_1.EnvironmentVariable.SlackBotToken);
+    const channel = (0, input_1.getEnv)(input_1.EnvironmentVariable.SlackChannel);
     return new client_1.SlackClient({ token, channel });
 }
 function createOctokitClient() {
@@ -614,6 +633,7 @@ function postMessage(octokit, slack) {
             const message = yield (0, getSummaryMessage_1.getSummaryMessage)(octokit, { status, threadTs, now });
             yield slack.updateMessage(Object.assign(Object.assign({}, message), { ts: threadTs }));
         }
+        return null;
     });
 }
 exports.postMessage = postMessage;
@@ -638,19 +658,31 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.SlackClient = void 0;
 const web_api_1 = __nccwpck_require__(431);
+const errors_1 = __nccwpck_require__(1299);
 class SlackClient {
     constructor({ token, channel, fallbackAuthor }) {
         this.web = new web_api_1.WebClient(token);
         this.channel = channel;
         // this.fallbackAuthor = fallbackAuthor
     }
+    /**
+     * @returns `null` if the bot token is missing the required OAuth scope
+     */
     getUsers() {
         return __awaiter(this, void 0, void 0, function* () {
-            const { members } = yield this.web.users.list();
-            if (!members) {
-                throw new Error('Error fetching users');
+            try {
+                const { members } = yield this.web.users.list();
+                if (!members) {
+                    throw new Error('Error fetching users');
+                }
+                return members;
             }
-            return members;
+            catch (error) {
+                if ((0, errors_1.isMissingScopeError)(error)) {
+                    return null;
+                }
+                throw error;
+            }
         });
     }
     /**
@@ -672,6 +704,28 @@ class SlackClient {
     }
 }
 exports.SlackClient = SlackClient;
+
+
+/***/ }),
+
+/***/ 1299:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.isCodedError = exports.isMissingScopeError = void 0;
+const web_api_1 = __nccwpck_require__(431);
+function isMissingScopeError(error) {
+    return (isCodedError(error) &&
+        web_api_1.ErrorCode.PlatformError === error.code &&
+        'missing_scope' === error.data.error);
+}
+exports.isMissingScopeError = isMissingScopeError;
+function isCodedError(error) {
+    return (error instanceof Error && 'string' === typeof error.code);
+}
+exports.isCodedError = isCodedError;
 
 
 /***/ }),

@@ -1,4 +1,5 @@
 import {WebClient} from '@slack/web-api'
+import {isMissingScopeError} from './errors'
 import type {
   MessageAuthor,
   PostMessageArguments,
@@ -23,14 +24,25 @@ export class SlackClient {
     // this.fallbackAuthor = fallbackAuthor
   }
 
-  async getUsers(): Promise<User[]> {
-    const {members} = await this.web.users.list()
+  /**
+   * @returns `null` if the bot token is missing the required OAuth scope
+   */
+  async getUsers(): Promise<User[] | null> {
+    try {
+      const {members} = await this.web.users.list()
 
-    if (!members) {
-      throw new Error('Error fetching users')
+      if (!members) {
+        throw new Error('Error fetching users')
+      }
+
+      return members
+    } catch (error) {
+      if (isMissingScopeError(error)) {
+        return null
+      }
+
+      throw error
     }
-
-    return members
   }
 
   /**

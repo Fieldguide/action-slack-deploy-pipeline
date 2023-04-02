@@ -9,7 +9,7 @@ import {SlackClient} from '../slack/client'
 describe('postMessage', () => {
   let octokit: OctokitClient
   let slack: SlackClient
-  let ts: string | undefined
+  let ts: string | null
 
   const OLD_CONTEXT = github.context
   const OLD_ENV = process.env

@@ -14,7 +14,7 @@ import {SlackClient} from './slack/client'
 export async function postMessage(
   octokit: OctokitClient,
   slack: SlackClient
-): Promise<string | undefined> {
+): Promise<string | null> {
   const threadTs = getInput('thread_ts')
 
   if (!threadTs) {
@@ -45,4 +45,6 @@ export async function postMessage(
       ts: threadTs
     })
   }
+
+  return null
 }
