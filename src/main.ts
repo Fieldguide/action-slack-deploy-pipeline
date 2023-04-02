@@ -1,14 +1,17 @@
 import {error, getInput, isDebug, setFailed, setOutput} from '@actions/core'
 import {getOctokit} from '@actions/github'
+import {getMessageAuthor} from './getMessageAuthor'
 import {OctokitClient} from './github/types'
 import {getEnv} from './input'
-import {postMessage} from './message'
+import {postMessage} from './postMessage'
 import {SlackClient} from './slack/client'
 
 async function run(): Promise<void> {
   try {
     const octokit = createOctokitClient()
     const slack = createSlackClient()
+
+    await getMessageAuthor(octokit, slack)
 
     const ts = await postMessage(octokit, slack)
 

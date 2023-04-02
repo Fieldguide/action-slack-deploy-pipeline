@@ -13,7 +13,7 @@ Post [GitHub Action](https://github.com/features/actions) deploy workflow progre
 - Posts summary message at beginning of the deploy workflow, surfacing commit message and author
 - Threads intermediate stage completions, sending unexpected failures back to the channel
 - Updates summary message duration at conclusion of the workflow
-- Supports `pull_request`, `push`, and `schedule` [event types](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows)
+- Supports `pull_request`, `push`, `schedule`, and `workflow_dispatch` [event types](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows)
 
 ## Setup
 

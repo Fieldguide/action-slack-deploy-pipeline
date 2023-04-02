@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as github from '@actions/github'
 import {afterAll, beforeEach, describe, expect, it, jest} from '@jest/globals'
-import {EVENT_NAME_IMAGE_MAP} from '../github/context'
+import {EVENT_NAME_IMAGE_MAP} from '../github/getContextBlock'
 import {OctokitClient} from '../github/types'
-import {postMessage} from '../message'
+import {postMessage} from '../postMessage'
 import {SlackClient} from '../slack/client'
 
 describe('postMessage', () => {

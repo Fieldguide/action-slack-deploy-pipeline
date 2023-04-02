@@ -1,6 +1,6 @@
 import {getInput, info} from '@actions/core'
-import {getStageMessage} from './github/stage'
-import {getSummaryMessage} from './github/summary'
+import {getStageMessage} from './github/getStageMessage'
+import {getSummaryMessage} from './github/getSummaryMessage'
 import {OctokitClient, isSuccessful} from './github/types'
 import {SlackClient} from './slack/client'
 

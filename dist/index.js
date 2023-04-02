@@ -1,7 +1,59 @@
 require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 8963:
+/***/ 4262:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getMessageAuthor = void 0;
+const github_1 = __nccwpck_require__(5438);
+const webhook_1 = __nccwpck_require__(4464);
+function getMessageAuthor(octokit, slack) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const slackUsers = yield slack.getUsers();
+            console.log({ slackUsers });
+            const githubUser = yield getGitHubUser(octokit);
+            console.log({ githubUser });
+            const githubEmails = (yield octokit.rest.users.listEmailsForAuthenticatedUser()).data;
+            console.log({ githubEmails });
+            const slackUserByEmail = slackUsers.find(slackUser => {
+                return githubEmails.some(({ email }) => email === slackUser.email);
+            });
+        }
+        catch (error) {
+            throw error;
+        }
+    });
+}
+exports.getMessageAuthor = getMessageAuthor;
+function getGitHubUser(octokit) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const sender = (0, webhook_1.senderFromPayload)(github_1.context.payload);
+        if (sender) {
+            const { data } = yield octokit.rest.users.getByUsername({
+                username: sender.login
+            });
+            return data;
+        }
+    });
+}
+
+
+/***/ }),
+
+/***/ 2009:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -77,55 +129,7 @@ function getCommitUrl() {
 
 /***/ }),
 
-/***/ 8700:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.emojiFromStatus = exports.createMessage = void 0;
-const github_1 = __nccwpck_require__(5438);
-const mrkdwn_1 = __nccwpck_require__(8699);
-const types_1 = __nccwpck_require__(305);
-const webhook_1 = __nccwpck_require__(4464);
-function createMessage(text, contextBlock) {
-    const sender = (0, webhook_1.senderFromPayload)(github_1.context.payload);
-    return {
-        icon_url: sender === null || sender === void 0 ? void 0 : sender.avatar_url,
-        username: sender ? `${sender.login} (via GitHub)` : undefined,
-        unfurl_links: false,
-        text: text.plain,
-        blocks: [
-            {
-                type: 'section',
-                text: {
-                    type: 'mrkdwn',
-                    text: text.mrkdwn
-                }
-            },
-            contextBlock
-        ]
-    };
-}
-exports.createMessage = createMessage;
-function emojiFromStatus(status) {
-    switch (status) {
-        case types_1.JobStatus.Success:
-            return (0, mrkdwn_1.emoji)('white_check_mark');
-        case types_1.JobStatus.Failure:
-            return (0, mrkdwn_1.emoji)('x');
-        case types_1.JobStatus.Cancelled:
-            return (0, mrkdwn_1.emoji)('no_entry_sign');
-        default:
-            throw new Error(`Unexpected status ${status}`);
-    }
-}
-exports.emojiFromStatus = emojiFromStatus;
-
-
-/***/ }),
-
-/***/ 6428:
+/***/ 9966:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -144,7 +148,7 @@ exports.getStageMessage = void 0;
 const github_1 = __nccwpck_require__(5438);
 const date_fns_1 = __nccwpck_require__(3314);
 const mrkdwn_1 = __nccwpck_require__(8699);
-const context_1 = __nccwpck_require__(8963);
+const getContextBlock_1 = __nccwpck_require__(2009);
 const message_1 = __nccwpck_require__(8700);
 const types_1 = __nccwpck_require__(305);
 /**
@@ -154,7 +158,7 @@ function getStageMessage({ octokit, status, now }) {
     return __awaiter(this, void 0, void 0, function* () {
         const text = getText(status);
         const duration = yield computeDuration(octokit, now);
-        const contextBlock = (0, context_1.getContextBlock)(duration);
+        const contextBlock = (0, getContextBlock_1.getContextBlock)(duration);
         return Object.assign(Object.assign({}, (0, message_1.createMessage)(text, contextBlock)), { reply_broadcast: !(0, types_1.isSuccessful)(status) });
     });
 }
@@ -203,7 +207,7 @@ function computeDuration(octokit, now) {
 
 /***/ }),
 
-/***/ 9651:
+/***/ 6919:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -246,7 +250,7 @@ const github = __importStar(__nccwpck_require__(5438));
 const date_fns_1 = __nccwpck_require__(3314);
 const mrkdwn_1 = __nccwpck_require__(8699);
 const utils_1 = __nccwpck_require__(4047);
-const context_1 = __nccwpck_require__(8963);
+const getContextBlock_1 = __nccwpck_require__(2009);
 const message_1 = __nccwpck_require__(8700);
 const types_1 = __nccwpck_require__(305);
 const webhook_1 = __nccwpck_require__(4464);
@@ -262,7 +266,7 @@ function getSummaryMessage(octokit, options) {
                 end: options.now
             })
             : undefined;
-        const contextBlock = (0, context_1.getContextBlock)(duration);
+        const contextBlock = (0, getContextBlock_1.getContextBlock)(duration);
         return (0, message_1.createMessage)(text, contextBlock);
     });
 }
@@ -338,6 +342,54 @@ function getEventLink(octokit) {
 function getEventLinkText(message) {
     return message.split('\n', 1)[0];
 }
+
+
+/***/ }),
+
+/***/ 8700:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.emojiFromStatus = exports.createMessage = void 0;
+const github_1 = __nccwpck_require__(5438);
+const mrkdwn_1 = __nccwpck_require__(8699);
+const types_1 = __nccwpck_require__(305);
+const webhook_1 = __nccwpck_require__(4464);
+function createMessage(text, contextBlock) {
+    const sender = (0, webhook_1.senderFromPayload)(github_1.context.payload);
+    return {
+        icon_url: sender === null || sender === void 0 ? void 0 : sender.avatar_url,
+        username: sender ? `${sender.login} (via GitHub)` : undefined,
+        unfurl_links: false,
+        text: text.plain,
+        blocks: [
+            {
+                type: 'section',
+                text: {
+                    type: 'mrkdwn',
+                    text: text.mrkdwn
+                }
+            },
+            contextBlock
+        ]
+    };
+}
+exports.createMessage = createMessage;
+function emojiFromStatus(status) {
+    switch (status) {
+        case types_1.JobStatus.Success:
+            return (0, mrkdwn_1.emoji)('white_check_mark');
+        case types_1.JobStatus.Failure:
+            return (0, mrkdwn_1.emoji)('x');
+        case types_1.JobStatus.Cancelled:
+            return (0, mrkdwn_1.emoji)('no_entry_sign');
+        default:
+            throw new Error(`Unexpected status ${status}`);
+    }
+}
+exports.emojiFromStatus = emojiFromStatus;
 
 
 /***/ }),
@@ -478,15 +530,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core_1 = __nccwpck_require__(2186);
 const github_1 = __nccwpck_require__(5438);
+const getMessageAuthor_1 = __nccwpck_require__(4262);
 const input_1 = __nccwpck_require__(8657);
-const message_1 = __nccwpck_require__(3307);
+const postMessage_1 = __nccwpck_require__(7965);
 const client_1 = __nccwpck_require__(6593);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const octokit = createOctokitClient();
             const slack = createSlackClient();
-            const ts = yield (0, message_1.postMessage)(octokit, slack);
+            yield (0, getMessageAuthor_1.getMessageAuthor)(octokit, slack);
+            const ts = yield (0, postMessage_1.postMessage)(octokit, slack);
             if (ts) {
                 (0, core_1.setOutput)('ts', ts);
             }
@@ -513,7 +567,7 @@ run();
 
 /***/ }),
 
-/***/ 3307:
+/***/ 7965:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -530,8 +584,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.postMessage = void 0;
 const core_1 = __nccwpck_require__(2186);
-const stage_1 = __nccwpck_require__(6428);
-const summary_1 = __nccwpck_require__(9651);
+const getStageMessage_1 = __nccwpck_require__(9966);
+const getSummaryMessage_1 = __nccwpck_require__(6919);
 const types_1 = __nccwpck_require__(305);
 /**
  * Post an initial summary message or progress reply when `thread_ts` input is set.
@@ -545,18 +599,18 @@ function postMessage(octokit, slack) {
         const threadTs = (0, core_1.getInput)('thread_ts');
         if (!threadTs) {
             (0, core_1.info)('Posting summary message');
-            const message = yield (0, summary_1.getSummaryMessage)(octokit);
+            const message = yield (0, getSummaryMessage_1.getSummaryMessage)(octokit);
             return slack.postMessage(message);
         }
         const status = (0, core_1.getInput)('status', { required: true });
         const now = new Date();
-        const stageMessage = yield (0, stage_1.getStageMessage)({ octokit, status, now });
+        const stageMessage = yield (0, getStageMessage_1.getStageMessage)({ octokit, status, now });
         (0, core_1.info)(`Posting stage message in thread: ${threadTs}`);
         yield slack.postMessage(Object.assign(Object.assign({}, stageMessage), { thread_ts: threadTs }));
         const conclusion = 'true' === (0, core_1.getInput)('conclusion');
         if (conclusion || !(0, types_1.isSuccessful)(status)) {
             (0, core_1.info)(`Updating summary message: ${status}`);
-            const message = yield (0, summary_1.getSummaryMessage)(octokit, { status, threadTs, now });
+            const message = yield (0, getSummaryMessage_1.getSummaryMessage)(octokit, { status, threadTs, now });
             yield slack.updateMessage(Object.assign(Object.assign({}, message), { ts: threadTs }));
         }
     });
@@ -584,9 +638,19 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.SlackClient = void 0;
 const web_api_1 = __nccwpck_require__(431);
 class SlackClient {
-    constructor({ token, channel }) {
+    constructor({ token, channel, fallbackAuthor }) {
         this.web = new web_api_1.WebClient(token);
         this.channel = channel;
+        // this.fallbackAuthor = fallbackAuthor
+    }
+    getUsers() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { members } = yield this.web.users.list();
+            if (!members) {
+                throw new Error('Error fetching users');
+            }
+            return members;
+        });
     }
     /**
      * @returns message timestamp ID

@@ -1,7 +1,7 @@
 import {context} from '@actions/github'
 import {intervalToDuration} from 'date-fns'
 import {bold} from '../slack/mrkdwn'
-import {getContextBlock} from './context'
+import {getContextBlock} from './getContextBlock'
 import {createMessage, emojiFromStatus} from './message'
 import {
   OctokitClient,

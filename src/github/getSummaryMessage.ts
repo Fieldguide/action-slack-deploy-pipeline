@@ -3,7 +3,7 @@ import {intervalToDuration} from 'date-fns'
 import {bold, emoji, link} from '../slack/mrkdwn'
 import {Link} from '../slack/types'
 import {dateFromTs} from '../slack/utils'
-import {getContextBlock} from './context'
+import {getContextBlock} from './getContextBlock'
 import {createMessage, emojiFromStatus} from './message'
 import {JobStatus, Message, OctokitClient, Text} from './types'
 import {

@@ -36,7 +36,7 @@
     "semi": "off",
     "@typescript-eslint/semi": ["error", "never"],
     "@typescript-eslint/type-annotation-spacing": "error",
-    "filenames/match-regex": ["error", "^[a-z0-9-]+(.d|.config|.test)?$"]
+    "filenames/match-regex": "off"
   },
   "env": {
     "node": true,
