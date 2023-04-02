@@ -33,6 +33,7 @@ function getMessageAuthor(octokit, slack) {
             });
         }
         catch (error) {
+            console.error(error);
             throw error;
         }
     });

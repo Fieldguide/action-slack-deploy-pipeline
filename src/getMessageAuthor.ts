@@ -23,6 +23,7 @@ export async function getMessageAuthor(
       return githubEmails.some(({email}) => email === slackUser.email)
     })
   } catch (error) {
+    console.error(error)
     throw error
   }
 }
