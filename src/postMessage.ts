@@ -3,6 +3,13 @@ import {getStageMessage} from './github/getStageMessage'
 import {getSummaryMessage} from './github/getSummaryMessage'
 import {OctokitClient, isSuccessful} from './github/types'
 import {SlackClient} from './slack/client'
+import {MessageAuthor} from './slack/types'
+
+interface Dependencies {
+  octokit: OctokitClient
+  slack: SlackClient
+  author: MessageAuthor | null
+}
 
 /**
  * Post an initial summary message or progress reply when `thread_ts` input is set.
@@ -11,17 +18,18 @@ import {SlackClient} from './slack/client'
  *
  * @returns message timestamp ID
  */
-export async function postMessage(
-  octokit: OctokitClient,
-  slack: SlackClient
-): Promise<string | null> {
+export async function postMessage({
+  octokit,
+  slack,
+  author
+}: Dependencies): Promise<string | null> {
   const threadTs = getInput('thread_ts')
 
   if (!threadTs) {
     info('Posting summary message')
     const message = await getSummaryMessage(octokit)
 
-    return slack.postMessage(message)
+    return slack.postMessage({...message, ...author})
   }
 
   const status = getInput('status', {required: true})
@@ -31,6 +39,7 @@ export async function postMessage(
   info(`Posting stage message in thread: ${threadTs}`)
   await slack.postMessage({
     ...stageMessage,
+    ...author,
     thread_ts: threadTs
   })
 

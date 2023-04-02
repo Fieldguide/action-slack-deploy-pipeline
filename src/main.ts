@@ -11,9 +11,8 @@ async function run(): Promise<void> {
     const octokit = createOctokitClient()
     const slack = createSlackClient()
 
-    await getMessageAuthor(octokit, slack)
-
-    const ts = await postMessage(octokit, slack)
+    const author = await getMessageAuthor(octokit, slack)
+    const ts = await postMessage({octokit, slack, author})
 
     if (ts) {
       setOutput('ts', ts)

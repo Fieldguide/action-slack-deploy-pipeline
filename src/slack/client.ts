@@ -1,33 +1,31 @@
 import {WebClient} from '@slack/web-api'
 import {isMissingScopeError} from './errors'
 import type {
-  MessageAuthor,
+  Member,
   PostMessageArguments,
-  UpdateMessageArguments,
-  User
+  UpdateMessageArguments
 } from './types'
 
 interface Dependencies {
   token: string
   channel: string
-  fallbackAuthor?: MessageAuthor
 }
 
 export class SlackClient {
   private readonly web: WebClient
   private readonly channel: string
-  private readonly fallbackAuthor?: MessageAuthor
 
-  constructor({token, channel, fallbackAuthor}: Dependencies) {
+  constructor({token, channel}: Dependencies) {
     this.web = new WebClient(token)
     this.channel = channel
-    // this.fallbackAuthor = fallbackAuthor
   }
 
   /**
+   * Return the set of non-bot users.
+   *
    * @returns `null` if the bot token is missing the required OAuth scope
    */
-  async getUsers(): Promise<User[] | null> {
+  async getRealUsers(): Promise<Member[] | null> {
     try {
       const {members} = await this.web.users.list()
 
@@ -35,7 +33,12 @@ export class SlackClient {
         throw new Error('Error fetching users')
       }
 
-      return members
+      return members.filter(({id, is_bot}) => {
+        return (
+          'USLACKBOT' !== id && // USLACKBOT is a special user ID for @SlackBot
+          !is_bot
+        )
+      })
     } catch (error) {
       if (isMissingScopeError(error)) {
         return null

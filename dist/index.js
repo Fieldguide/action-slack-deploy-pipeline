@@ -23,31 +23,39 @@ const webhook_1 = __nccwpck_require__(4464);
 const input_1 = __nccwpck_require__(8657);
 function getMessageAuthor(octokit, slack) {
     return __awaiter(this, void 0, void 0, function* () {
+        (0, core_1.startGroup)('Getting message author');
         try {
-            const githubSender = (0, webhook_1.senderFromPayload)(github_1.context.payload);
-            const slackUsers = yield slack.getUsers();
-            console.log({ slackUsers });
+            (0, core_1.info)('Fetching Slack users');
+            const slackUsers = yield slack.getRealUsers();
             if (!slackUsers) {
-                (0, core_1.warning)(`${input_1.EnvironmentVariable.SlackBotToken} does not include "users:read" OAuth scope, and the message author will fallback to a GitHub username.`);
-                return githubSender
-                    ? {
-                        username: githubSender.login,
-                        icon_url: githubSender.avatar_url
-                    }
-                    : null;
+                throw new Error(`${input_1.EnvironmentVariable.SlackBotToken} does not include "users:read" OAuth scope.`);
             }
             const githubUser = yield getGitHubUser(octokit);
-            console.log({ githubUser });
-            const githubEmails = (yield octokit.rest.users.listEmailsForAuthenticatedUser()).data;
-            console.log({ githubEmails });
-            const slackUserByEmail = slackUsers.find(slackUser => {
-                return githubEmails.some(({ email }) => email === slackUser.email);
+            (0, core_1.info)(`Finding Slack user by name: ${githubUser.name}`);
+            const slackUser = slackUsers.find((user) => {
+                var _a;
+                return Boolean(((_a = user.profile) === null || _a === void 0 ? void 0 : _a.real_name) === githubUser.name &&
+                    user.profile.display_name &&
+                    user.profile.image_48);
             });
-            return null;
+            if (!slackUser) {
+                throw new Error(`Unable to match GitHub user "${githubUser.name}" to Slack user by name.`);
+            }
+            return {
+                username: slackUser.profile.display_name,
+                icon_url: slackUser.profile.image_48
+            };
         }
-        catch (error) {
-            console.error(error);
-            throw error;
+        catch (err) {
+            const message = err instanceof Error ? err.message : String(err);
+            (0, core_1.warning)(`${message} The message author will fallback to a GitHub username.`);
+            if ((0, core_1.isDebug)() && err instanceof Error && err.stack) {
+                (0, core_1.warning)(err.stack);
+            }
+            return authorFromGitHubContext();
+        }
+        finally {
+            (0, core_1.endGroup)();
         }
     });
 }
@@ -56,13 +64,24 @@ function getGitHubUser(octokit) {
     return __awaiter(this, void 0, void 0, function* () {
         const sender = (0, webhook_1.senderFromPayload)(github_1.context.payload);
         if (!sender) {
-            return null;
+            throw new Error('Unexpected GitHub sender payload.');
         }
+        (0, core_1.info)(`Fetching GitHub user: ${sender.login}`);
         const { data } = yield octokit.rest.users.getByUsername({
             username: sender.login
         });
         return data;
     });
+}
+function authorFromGitHubContext() {
+    const sender = (0, webhook_1.senderFromPayload)(github_1.context.payload);
+    if (!sender) {
+        return null;
+    }
+    return {
+        username: sender.login,
+        icon_url: sender.avatar_url
+    };
 }
 
 
@@ -559,8 +578,8 @@ function run() {
         try {
             const octokit = createOctokitClient();
             const slack = createSlackClient();
-            yield (0, getMessageAuthor_1.getMessageAuthor)(octokit, slack);
-            const ts = yield (0, postMessage_1.postMessage)(octokit, slack);
+            const author = yield (0, getMessageAuthor_1.getMessageAuthor)(octokit, slack);
+            const ts = yield (0, postMessage_1.postMessage)({ octokit, slack, author });
             if (ts) {
                 (0, core_1.setOutput)('ts', ts);
             }
@@ -614,19 +633,19 @@ const types_1 = __nccwpck_require__(305);
  *
  * @returns message timestamp ID
  */
-function postMessage(octokit, slack) {
+function postMessage({ octokit, slack, author }) {
     return __awaiter(this, void 0, void 0, function* () {
         const threadTs = (0, core_1.getInput)('thread_ts');
         if (!threadTs) {
             (0, core_1.info)('Posting summary message');
             const message = yield (0, getSummaryMessage_1.getSummaryMessage)(octokit);
-            return slack.postMessage(message);
+            return slack.postMessage(Object.assign(Object.assign({}, message), author));
         }
         const status = (0, core_1.getInput)('status', { required: true });
         const now = new Date();
         const stageMessage = yield (0, getStageMessage_1.getStageMessage)({ octokit, status, now });
         (0, core_1.info)(`Posting stage message in thread: ${threadTs}`);
-        yield slack.postMessage(Object.assign(Object.assign({}, stageMessage), { thread_ts: threadTs }));
+        yield slack.postMessage(Object.assign(Object.assign(Object.assign({}, stageMessage), author), { thread_ts: threadTs }));
         const conclusion = 'true' === (0, core_1.getInput)('conclusion');
         if (conclusion || !(0, types_1.isSuccessful)(status)) {
             (0, core_1.info)(`Updating summary message: ${status}`);
@@ -660,22 +679,26 @@ exports.SlackClient = void 0;
 const web_api_1 = __nccwpck_require__(431);
 const errors_1 = __nccwpck_require__(1299);
 class SlackClient {
-    constructor({ token, channel, fallbackAuthor }) {
+    constructor({ token, channel }) {
         this.web = new web_api_1.WebClient(token);
         this.channel = channel;
-        // this.fallbackAuthor = fallbackAuthor
     }
     /**
+     * Return the set of non-bot users.
+     *
      * @returns `null` if the bot token is missing the required OAuth scope
      */
-    getUsers() {
+    getRealUsers() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { members } = yield this.web.users.list();
                 if (!members) {
                     throw new Error('Error fetching users');
                 }
-                return members;
+                return members.filter(({ id, is_bot }) => {
+                    return ('USLACKBOT' !== id && // USLACKBOT is a special user ID for @SlackBot
+                        !is_bot);
+                });
             }
             catch (error) {
                 if ((0, errors_1.isMissingScopeError)(error)) {

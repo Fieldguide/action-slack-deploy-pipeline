@@ -1,5 +1,11 @@
 {
-  "cSpell.words": ["endregion", "Fieldguide", "mrkdwn", "namoscato"],
+  "cSpell.words": [
+    "endregion",
+    "Fieldguide",
+    "mrkdwn",
+    "namoscato",
+    "USLACKBOT"
+  ],
   "files.exclude": {
     "dist": true,
     "lib": true

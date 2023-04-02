@@ -66,7 +66,7 @@ describe('postMessage', () => {
         }
       }
 
-      ts = await postMessage(octokit, slack)
+      ts = await postMessage({octokit, slack, author: null})
     })
 
     it('should post slack message', () => {
@@ -122,7 +122,7 @@ describe('postMessage', () => {
         }
       })) as any
 
-      ts = await postMessage(octokit, slack)
+      ts = await postMessage({octokit, slack, author: null})
     })
 
     it('should fetch commit', () => {
@@ -181,7 +181,7 @@ describe('postMessage', () => {
         }
       })) as any
 
-      ts = await postMessage(octokit, slack)
+      ts = await postMessage({octokit, slack, author: null})
     })
 
     it('should fetch commit', () => {
@@ -265,7 +265,7 @@ describe('postMessage', () => {
       beforeEach(async () => {
         process.env.INPUT_STATUS = 'success'
 
-        ts = await postMessage(octokit, slack)
+        ts = await postMessage({octokit, slack, author: null})
       })
 
       it('should fetch workflow run jobs', () => {
@@ -318,7 +318,7 @@ describe('postMessage', () => {
       })
 
       it('should not return timestamp ID', () => {
-        expect(ts).toBeUndefined()
+        expect(ts).toBe(null)
       })
     })
 
@@ -326,7 +326,7 @@ describe('postMessage', () => {
       beforeEach(async () => {
         process.env.INPUT_STATUS = 'cancelled'
 
-        ts = await postMessage(octokit, slack)
+        ts = await postMessage({octokit, slack, author: null})
       })
 
       it('should post slack message', () => {
@@ -386,7 +386,7 @@ describe('postMessage', () => {
         process.env.INPUT_STATUS = 'success'
         process.env.INPUT_CONCLUSION = 'true'
 
-        ts = await postMessage(octokit, slack)
+        ts = await postMessage({octokit, slack, author: null})
       })
 
       it('should post slack message', () => {
@@ -429,7 +429,7 @@ describe('postMessage', () => {
         process.env.INPUT_STATUS = 'failure'
         process.env.INPUT_CONCLUSION = 'true'
 
-        ts = await postMessage(octokit, slack)
+        ts = await postMessage({octokit, slack, author: null})
       })
 
       it('should post slack message', () => {
@@ -481,7 +481,7 @@ describe('postMessage', () => {
 
         process.env.INPUT_STATUS = 'success'
 
-        ts = await postMessage(octokit, slack)
+        ts = await postMessage({octokit, slack, author: null})
       })
 
       it('should post slack message', () => {
@@ -515,7 +515,7 @@ describe('postMessage', () => {
 
         process.env.INPUT_STATUS = 'success'
 
-        ts = await postMessage(octokit, slack)
+        ts = await postMessage({octokit, slack, author: null})
       })
 
       it('should post slack message', () => {
@@ -551,7 +551,7 @@ describe('postMessage', () => {
       github.context.eventName = 'issues'
 
       try {
-        await postMessage(octokit, slack)
+        await postMessage({octokit, slack, author: null})
       } catch (err) {
         error = err as Error
       }

@@ -4,15 +4,23 @@ import type {
   UsersListResponse
 } from '@slack/web-api'
 
-type Member = NonNullable<UsersListResponse['members']>[0]
+export type Member = NonNullable<UsersListResponse['members']>[0]
 
-export interface User extends Member {
-  /**
-   * The `users:read.email` OAuth scope is required to access this field.
-   *
-   * @see https://api.slack.com/methods/users.list#email-addresses
-   */
-  email?: string
+export interface MemberWithProfile extends Member {
+  profile: Member['profile'] & {
+    display_name: string
+    image_48: string
+  }
+}
+
+/**
+ * @see https://api.slack.com/methods/chat.postMessage#authorship
+ */
+export interface MessageAuthor {
+  /** bot's user name */
+  username: string
+  /** URL to an image to use as the icon for this message */
+  icon_url: string
 }
 
 export interface Link {
@@ -46,14 +54,4 @@ type RemoveIndex<T> = {
     : number extends K
     ? never
     : K]: T[K]
-}
-
-/**
- * @see https://api.slack.com/methods/chat.postMessage#authorship
- */
-export interface MessageAuthor {
-  /** bot's user name */
-  username: string
-  /** URL to an image to use as the icon for this message */
-  icon_url: string
 }
