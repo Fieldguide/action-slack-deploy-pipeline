@@ -42,6 +42,7 @@ function getMessageAuthor(octokit, slack) {
                 throw new Error(`Unable to match GitHub user "${githubUser.name}" to Slack user by name.`);
             }
             return {
+                slack_user_id: slackUser.id,
                 username: slackUser.profile.display_name,
                 icon_url: slackUser.profile.image_48
             };
@@ -188,12 +189,12 @@ const types_1 = __nccwpck_require__(305);
 /**
  * Return a progressed stage message, posted via threaded reply.
  */
-function getStageMessage({ octokit, status, now }) {
+function getStageMessage({ octokit, status, now, author }) {
     return __awaiter(this, void 0, void 0, function* () {
         const text = getText(status);
         const duration = yield computeDuration(octokit, now);
         const contextBlock = (0, getContextBlock_1.getContextBlock)(duration);
-        return Object.assign(Object.assign({}, (0, message_1.createMessage)(text, contextBlock)), { reply_broadcast: !(0, types_1.isSuccessful)(status) });
+        return Object.assign(Object.assign({}, (0, message_1.createMessage)({ text, contextBlock, author })), { reply_broadcast: !(0, types_1.isSuccessful)(status) });
     });
 }
 exports.getStageMessage = getStageMessage;
@@ -291,9 +292,10 @@ const webhook_1 = __nccwpck_require__(4464);
 /**
  * Return the initial summary message.
  */
-function getSummaryMessage(octokit, options) {
+function getSummaryMessage({ octokit, options, author }) {
+    var _a;
     return __awaiter(this, void 0, void 0, function* () {
-        const text = yield getText(octokit, options === null || options === void 0 ? void 0 : options.status);
+        const text = yield getText(octokit, (_a = options === null || options === void 0 ? void 0 : options.status) !== null && _a !== void 0 ? _a : null, author);
         const duration = options
             ? (0, date_fns_1.intervalToDuration)({
                 start: (0, utils_1.dateFromTs)(options.threadTs),
@@ -301,13 +303,13 @@ function getSummaryMessage(octokit, options) {
             })
             : undefined;
         const contextBlock = (0, getContextBlock_1.getContextBlock)(duration);
-        return (0, message_1.createMessage)(text, contextBlock);
+        return (0, message_1.createMessage)({ text, contextBlock, author });
     });
 }
 exports.getSummaryMessage = getSummaryMessage;
-function getText(octokit, status) {
+function getText(octokit, status, author) {
     return __awaiter(this, void 0, void 0, function* () {
-        const summarySentence = getSummarySentence(status);
+        const summarySentence = getSummarySentence(status, author);
         const eventLink = yield getEventLink(octokit);
         const mrkdwn = [
             status ? (0, message_1.emojiFromStatus)(status) : (0, mrkdwn_1.emoji)('black_square_button'),
@@ -320,12 +322,18 @@ function getText(octokit, status) {
         };
     });
 }
-function getSummarySentence(status) {
-    const verb = status ? verbFromStatus(status) : 'Deploying';
+function getSummarySentence(status, author) {
+    const subject = { plain: '', mrkdwn: '' };
+    let verb = status ? verbFromStatus(status) : 'Deploying';
+    if (author === null || author === void 0 ? void 0 : author.slack_user_id) {
+        subject.plain = author.username;
+        subject.mrkdwn = `<@${author.slack_user_id}>`;
+        verb = status ? ` ${verb.toLowerCase()}` : ` is ${verb.toLowerCase()}`;
+    }
     const { repo } = github.context.repo;
     return {
-        plain: `${verb} ${repo}`,
-        mrkdwn: `${verb} ${(0, mrkdwn_1.bold)(repo)}`
+        plain: `${subject.plain}${verb} ${repo}`,
+        mrkdwn: `${subject.mrkdwn}${verb} ${(0, mrkdwn_1.bold)(repo)}`
     };
 }
 function verbFromStatus(status) {
@@ -387,15 +395,12 @@ function getEventLinkText(message) {
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.emojiFromStatus = exports.createMessage = void 0;
-const github_1 = __nccwpck_require__(5438);
 const mrkdwn_1 = __nccwpck_require__(8699);
 const types_1 = __nccwpck_require__(305);
-const webhook_1 = __nccwpck_require__(4464);
-function createMessage(text, contextBlock) {
-    const sender = (0, webhook_1.senderFromPayload)(github_1.context.payload);
+function createMessage({ text, contextBlock, author }) {
     return {
-        icon_url: sender === null || sender === void 0 ? void 0 : sender.avatar_url,
-        username: sender ? `${sender.login} (via GitHub)` : undefined,
+        icon_url: author === null || author === void 0 ? void 0 : author.icon_url,
+        username: (author === null || author === void 0 ? void 0 : author.username) ? `${author.username} (via GitHub)` : undefined,
         unfurl_links: false,
         text: text.plain,
         blocks: [
@@ -638,18 +643,22 @@ function postMessage({ octokit, slack, author }) {
         const threadTs = (0, core_1.getInput)('thread_ts');
         if (!threadTs) {
             (0, core_1.info)('Posting summary message');
-            const message = yield (0, getSummaryMessage_1.getSummaryMessage)(octokit);
-            return slack.postMessage(Object.assign(Object.assign({}, message), author));
+            const message = yield (0, getSummaryMessage_1.getSummaryMessage)({ octokit, author });
+            return slack.postMessage(message);
         }
         const status = (0, core_1.getInput)('status', { required: true });
         const now = new Date();
-        const stageMessage = yield (0, getStageMessage_1.getStageMessage)({ octokit, status, now });
+        const stageMessage = yield (0, getStageMessage_1.getStageMessage)({ octokit, status, now, author });
         (0, core_1.info)(`Posting stage message in thread: ${threadTs}`);
-        yield slack.postMessage(Object.assign(Object.assign(Object.assign({}, stageMessage), author), { thread_ts: threadTs }));
+        yield slack.postMessage(Object.assign(Object.assign({}, stageMessage), { thread_ts: threadTs }));
         const conclusion = 'true' === (0, core_1.getInput)('conclusion');
         if (conclusion || !(0, types_1.isSuccessful)(status)) {
             (0, core_1.info)(`Updating summary message: ${status}`);
-            const message = yield (0, getSummaryMessage_1.getSummaryMessage)(octokit, { status, threadTs, now });
+            const message = yield (0, getSummaryMessage_1.getSummaryMessage)({
+                octokit,
+                options: { status, threadTs, now },
+                author
+            });
             yield slack.updateMessage(Object.assign(Object.assign({}, message), { ts: threadTs }));
         }
         return null;

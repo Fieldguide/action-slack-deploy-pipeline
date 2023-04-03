@@ -1,15 +1,22 @@
-import {context} from '@actions/github'
 import {ContextBlock} from '@slack/web-api'
 import {emoji} from '../slack/mrkdwn'
+import {MessageAuthor} from '../slack/types'
 import {JobStatus, Message, Text} from './types'
-import {senderFromPayload} from './webhook'
 
-export function createMessage(text: Text, contextBlock: ContextBlock): Message {
-  const sender = senderFromPayload(context.payload)
+interface Dependencies {
+  text: Text
+  contextBlock: ContextBlock
+  author: MessageAuthor | null
+}
 
+export function createMessage({
+  text,
+  contextBlock,
+  author
+}: Dependencies): Message {
   return {
-    icon_url: sender?.avatar_url,
-    username: sender ? `${sender.login} (via GitHub)` : undefined,
+    icon_url: author?.icon_url,
+    username: author?.username ? `${author.username} (via GitHub)` : undefined,
     unfurl_links: false,
     text: text.plain,
     blocks: [

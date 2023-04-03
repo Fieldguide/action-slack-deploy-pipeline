@@ -58,15 +58,17 @@ describe('postMessage', () => {
           head: {
             ref: 'my-pr'
           }
-        },
-        sender: {
-          type: 'user',
-          login: 'namoscato',
-          avatar_url: 'github.com/namoscato'
         }
       }
 
-      ts = await postMessage({octokit, slack, author: null})
+      ts = await postMessage({
+        octokit,
+        slack,
+        author: {
+          username: 'namoscato',
+          icon_url: 'github.com/namoscato'
+        }
+      })
     })
 
     it('should post slack message', () => {
@@ -122,7 +124,15 @@ describe('postMessage', () => {
         }
       })) as any
 
-      ts = await postMessage({octokit, slack, author: null})
+      ts = await postMessage({
+        octokit,
+        slack,
+        author: {
+          slack_user_id: 'U123',
+          username: 'Nick',
+          icon_url: 'slack.com/nick'
+        }
+      })
     })
 
     it('should fetch commit', () => {
@@ -136,16 +146,16 @@ describe('postMessage', () => {
     it('should post slack message', () => {
       expect(slack.postMessage).toHaveBeenCalledTimes(1)
       expect(slack.postMessage).toHaveBeenCalledWith({
-        icon_url: 'github.com/namoscato',
-        username: 'namoscato (via GitHub)',
+        icon_url: 'slack.com/nick',
+        username: 'Nick (via GitHub)',
         unfurl_links: false,
-        text: 'Deploying action-testing: COMMIT-MESSAGE',
+        text: 'Nick is deploying action-testing: COMMIT-MESSAGE',
         blocks: [
           {
             type: 'section',
             text: {
               type: 'mrkdwn',
-              text: ':black_square_button: Deploying *action-testing*: <github.com/commit|COMMIT-MESSAGE>'
+              text: ':black_square_button: <@U123> is deploying *action-testing*: <github.com/commit|COMMIT-MESSAGE>'
             }
           },
           {
@@ -225,11 +235,6 @@ describe('postMessage', () => {
           message:
             'COMMIT-MESSAGE\n\nCo-authored-by: Nick <namoscato@users.noreply.github.com>',
           url: 'github.com/commit'
-        },
-        sender: {
-          type: 'user',
-          login: 'namoscato',
-          avatar_url: 'github.com/namoscato'
         }
       }
 
@@ -265,7 +270,14 @@ describe('postMessage', () => {
       beforeEach(async () => {
         process.env.INPUT_STATUS = 'success'
 
-        ts = await postMessage({octokit, slack, author: null})
+        ts = await postMessage({
+          octokit,
+          slack,
+          author: {
+            username: 'namoscato',
+            icon_url: 'github.com/namoscato'
+          }
+        })
       })
 
       it('should fetch workflow run jobs', () => {
@@ -386,7 +398,15 @@ describe('postMessage', () => {
         process.env.INPUT_STATUS = 'success'
         process.env.INPUT_CONCLUSION = 'true'
 
-        ts = await postMessage({octokit, slack, author: null})
+        ts = await postMessage({
+          octokit,
+          slack,
+          author: {
+            slack_user_id: 'U123',
+            username: 'Nick',
+            icon_url: 'slack.com/nick'
+          }
+        })
       })
 
       it('should post slack message', () => {
@@ -401,8 +421,15 @@ describe('postMessage', () => {
       it('should update summary message', () => {
         expect(slack.updateMessage).toHaveBeenCalledWith(
           expect.objectContaining({
-            text: 'Deployed action-testing: COMMIT-MESSAGE',
-            blocks: expect.arrayContaining([
+            text: 'Nick deployed action-testing: COMMIT-MESSAGE',
+            blocks: [
+              {
+                type: 'section',
+                text: {
+                  type: 'mrkdwn',
+                  text: ':white_check_mark: <@U123> deployed *action-testing*: <github.com/commit|COMMIT-MESSAGE>'
+                }
+              },
               {
                 type: 'context',
                 elements: [
@@ -417,7 +444,7 @@ describe('postMessage', () => {
                   }
                 ]
               }
-            ]),
+            ],
             ts: '1662768000' // 2022-09-10T00:00:00.000Z
           })
         )

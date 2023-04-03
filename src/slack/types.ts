@@ -17,6 +17,8 @@ export interface MemberWithProfile extends Member {
  * @see https://api.slack.com/methods/chat.postMessage#authorship
  */
 export interface MessageAuthor {
+  /** Slack workspace user identifier */
+  slack_user_id?: string
   /** bot's user name */
   username: string
   /** URL to an image to use as the icon for this message */

@@ -40,6 +40,7 @@ export async function getMessageAuthor(
     }
 
     return {
+      slack_user_id: slackUser.id,
       username: slackUser.profile.display_name,
       icon_url: slackUser.profile.image_48
     }
