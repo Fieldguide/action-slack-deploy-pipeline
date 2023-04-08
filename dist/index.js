@@ -689,12 +689,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.SlackClient = void 0;
+const core_1 = __nccwpck_require__(2186);
 const web_api_1 = __nccwpck_require__(431);
 const errors_1 = __nccwpck_require__(1299);
 class SlackClient {
     constructor({ token, channel }) {
-        this.web = new web_api_1.WebClient(token);
         this.channel = channel;
+        this.web = new web_api_1.WebClient(token, {
+            logLevel: (0, core_1.isDebug)() ? web_api_1.LogLevel.DEBUG : web_api_1.LogLevel.INFO
+        });
+        this.logRateLimits();
     }
     /**
      * Return the set of non-bot users.
@@ -736,6 +740,14 @@ class SlackClient {
     updateMessage(options) {
         return __awaiter(this, void 0, void 0, function* () {
             yield this.web.chat.update(Object.assign(Object.assign({}, options), { channel: this.channel }));
+        });
+    }
+    /**
+     * @see https://slack.dev/node-slack-sdk/web-api#rate-limits
+     */
+    logRateLimits() {
+        this.web.on(web_api_1.WebClientEvent.RATE_LIMITED, numSeconds => {
+            (0, core_1.warning)(`Slack API call failed due to rate limiting. Retrying in ${numSeconds} seconds.`);
         });
     }
 }

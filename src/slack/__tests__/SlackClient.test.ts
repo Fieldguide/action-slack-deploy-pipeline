@@ -9,11 +9,16 @@ jest.mock('@slack/web-api', () => ({
   ErrorCode: {
     PlatformError: 'slack_webapi_platform_error'
   },
+  LogLevel: {},
   WebClient: class MockWebClient {
+    on(): void {
+      // noop
+    }
     users = {
       list: listUsers
     }
-  }
+  },
+  WebClientEvent: {}
 }))
 
 describe('SlackClient', () => {

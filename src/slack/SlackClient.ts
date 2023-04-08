@@ -1,4 +1,5 @@
-import {WebClient} from '@slack/web-api'
+import {isDebug, warning} from '@actions/core'
+import {LogLevel, WebClient, WebClientEvent} from '@slack/web-api'
 import {isMissingScopeError} from './errors'
 import type {
   Member,
@@ -16,8 +17,12 @@ export class SlackClient {
   private readonly channel: string
 
   constructor({token, channel}: Dependencies) {
-    this.web = new WebClient(token)
     this.channel = channel
+
+    this.web = new WebClient(token, {
+      logLevel: isDebug() ? LogLevel.DEBUG : LogLevel.INFO
+    })
+    this.logRateLimits()
   }
 
   /**
@@ -66,5 +71,16 @@ export class SlackClient {
 
   async updateMessage(options: UpdateMessageArguments): Promise<void> {
     await this.web.chat.update({...options, channel: this.channel})
+  }
+
+  /**
+   * @see https://slack.dev/node-slack-sdk/web-api#rate-limits
+   */
+  private logRateLimits(): void {
+    this.web.on(WebClientEvent.RATE_LIMITED, numSeconds => {
+      warning(
+        `Slack API call failed due to rate limiting. Retrying in ${numSeconds} seconds.`
+      )
+    })
   }
 }
