@@ -4,7 +4,7 @@ import {getMessageAuthor} from './getMessageAuthor'
 import {OctokitClient} from './github/types'
 import {EnvironmentVariable, getEnv} from './input'
 import {postMessage} from './postMessage'
-import {SlackClient} from './slack/client'
+import {SlackClient} from './slack/SlackClient'
 
 async function run(): Promise<void> {
   try {

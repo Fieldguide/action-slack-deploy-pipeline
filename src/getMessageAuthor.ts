@@ -3,7 +3,7 @@ import {context} from '@actions/github'
 import {OctokitClient, User} from './github/types'
 import {senderFromPayload} from './github/webhook'
 import {EnvironmentVariable} from './input'
-import {SlackClient} from './slack/client'
+import {SlackClient} from './slack/SlackClient'
 import {MemberWithProfile, MessageAuthor} from './slack/types'
 
 export async function getMessageAuthor(
@@ -25,24 +25,34 @@ export async function getMessageAuthor(
     const githubUser = await getGitHubUser(octokit)
 
     info(`Finding Slack user by name: ${githubUser.name}`)
-    const slackUser = slackUsers.find((user): user is MemberWithProfile => {
-      return Boolean(
-        user.profile?.real_name === githubUser.name &&
-          user.profile.display_name &&
-          user.profile.image_48
-      )
-    })
+    const matchingSlackUsers = slackUsers.filter(
+      (user): user is MemberWithProfile => {
+        return Boolean(
+          user.profile?.real_name === githubUser.name &&
+            user.profile.display_name &&
+            user.profile.image_48
+        )
+      }
+    )
 
-    if (!slackUser) {
+    const matchingSlackUser = matchingSlackUsers[0]
+
+    if (!matchingSlackUser) {
       throw new Error(
         `Unable to match GitHub user "${githubUser.name}" to Slack user by name.`
       )
     }
 
+    if (matchingSlackUsers.length > 1) {
+      throw new Error(
+        `${matchingSlackUsers.length} Slack users match GitHub user name "${githubUser.name}".`
+      )
+    }
+
     return {
-      slack_user_id: slackUser.id,
-      username: slackUser.profile.display_name,
-      icon_url: slackUser.profile.image_48
+      slack_user_id: matchingSlackUser.id,
+      username: matchingSlackUser.profile.display_name,
+      icon_url: matchingSlackUser.profile.image_48
     }
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)

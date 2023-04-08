@@ -4,7 +4,7 @@ import {afterAll, beforeEach, describe, expect, it, jest} from '@jest/globals'
 import {EVENT_NAME_IMAGE_MAP} from '../github/getContextBlock'
 import {OctokitClient} from '../github/types'
 import {postMessage} from '../postMessage'
-import {SlackClient} from '../slack/client'
+import {SlackClient} from '../slack/SlackClient'
 
 describe('postMessage', () => {
   let octokit: OctokitClient
@@ -20,12 +20,12 @@ describe('postMessage', () => {
         actions: {},
         repos: {}
       }
-    } as any
+    } as unknown as OctokitClient
 
     slack = {
       postMessage: jest.fn(async () => 'TS'),
       updateMessage: jest.fn(async () => undefined)
-    } as any
+    } as unknown as SlackClient
 
     jest.resetModules()
 

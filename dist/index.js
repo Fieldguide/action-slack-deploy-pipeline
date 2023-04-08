@@ -32,19 +32,23 @@ function getMessageAuthor(octokit, slack) {
             }
             const githubUser = yield getGitHubUser(octokit);
             (0, core_1.info)(`Finding Slack user by name: ${githubUser.name}`);
-            const slackUser = slackUsers.find((user) => {
+            const matchingSlackUsers = slackUsers.filter((user) => {
                 var _a;
                 return Boolean(((_a = user.profile) === null || _a === void 0 ? void 0 : _a.real_name) === githubUser.name &&
                     user.profile.display_name &&
                     user.profile.image_48);
             });
-            if (!slackUser) {
+            const matchingSlackUser = matchingSlackUsers[0];
+            if (!matchingSlackUser) {
                 throw new Error(`Unable to match GitHub user "${githubUser.name}" to Slack user by name.`);
             }
+            if (matchingSlackUsers.length > 1) {
+                throw new Error(`${matchingSlackUsers.length} Slack users match GitHub user name "${githubUser.name}".`);
+            }
             return {
-                slack_user_id: slackUser.id,
-                username: slackUser.profile.display_name,
-                icon_url: slackUser.profile.image_48
+                slack_user_id: matchingSlackUser.id,
+                username: matchingSlackUser.profile.display_name,
+                icon_url: matchingSlackUser.profile.image_48
             };
         }
         catch (err) {
@@ -577,7 +581,7 @@ const github_1 = __nccwpck_require__(5438);
 const getMessageAuthor_1 = __nccwpck_require__(4262);
 const input_1 = __nccwpck_require__(8657);
 const postMessage_1 = __nccwpck_require__(7965);
-const client_1 = __nccwpck_require__(6593);
+const SlackClient_1 = __nccwpck_require__(6231);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -600,7 +604,7 @@ function run() {
 function createSlackClient() {
     const token = (0, input_1.getEnv)(input_1.EnvironmentVariable.SlackBotToken);
     const channel = (0, input_1.getEnv)(input_1.EnvironmentVariable.SlackChannel);
-    return new client_1.SlackClient({ token, channel });
+    return new SlackClient_1.SlackClient({ token, channel });
 }
 function createOctokitClient() {
     const token = (0, core_1.getInput)('github_token', { required: true });
@@ -669,7 +673,7 @@ exports.postMessage = postMessage;
 
 /***/ }),
 
-/***/ 6593:
+/***/ 6231:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
