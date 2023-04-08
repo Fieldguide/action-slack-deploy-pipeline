@@ -9,7 +9,7 @@ export const SUPPORTED_EVENT_NAMES = [
   'workflow_dispatch'
 ] as const
 
-export type SupportedEventName = typeof SUPPORTED_EVENT_NAMES[number]
+export type SupportedEventName = (typeof SUPPORTED_EVENT_NAMES)[number]
 
 export type GitHubContext = Omit<typeof context, 'payload'>
 
