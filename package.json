@@ -5,14 +5,13 @@
   "description": "Post GitHub Action deploy workflow progress notifications to Slack",
   "main": "lib/main.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && ncc build --source-map --license licenses.txt",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint . --ext .ts",
-    "package": "ncc build --source-map --license licenses.txt",
     "test": "jest --watch",
     "test:ci": "jest",
-    "all": "npm run build && npm run format:check && npm run lint && npm run package && npm run test:ci"
+    "all": "npm run build && npm run format:check && npm run lint && npm run test:ci"
   },
   "repository": {
     "type": "git",

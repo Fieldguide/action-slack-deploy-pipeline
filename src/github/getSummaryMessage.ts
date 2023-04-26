@@ -1,18 +1,18 @@
 import * as github from '@actions/github'
 import {intervalToDuration} from 'date-fns'
 import {bold, emoji, link} from '../slack/mrkdwn'
-import {Link} from '../slack/types'
+import {Link, MessageAuthor} from '../slack/types'
 import {dateFromTs} from '../slack/utils'
-import {getContextBlock} from './context'
+import {getContextBlock} from './getContextBlock'
 import {createMessage, emojiFromStatus} from './message'
 import {JobStatus, Message, OctokitClient, Text} from './types'
 import {
+  SupportedContext,
   assertUnsupportedEvent,
   isPullRequestEvent,
   isPushEvent,
   isScheduleEvent,
-  isWorkflowDispatchEvent,
-  SupportedContext
+  isWorkflowDispatchEvent
 } from './webhook'
 
 interface Options {
@@ -21,14 +21,21 @@ interface Options {
   now: Date
 }
 
+interface Dependencies {
+  octokit: OctokitClient
+  options?: Options
+  author: MessageAuthor | null
+}
+
 /**
  * Return the initial summary message.
  */
-export async function getSummaryMessage(
-  octokit: OctokitClient,
-  options?: Options
-): Promise<Message> {
-  const text = await getText(octokit, options?.status)
+export async function getSummaryMessage({
+  octokit,
+  options,
+  author
+}: Dependencies): Promise<Message> {
+  const text = await getText(octokit, options?.status ?? null, author)
 
   const duration = options
     ? intervalToDuration({
@@ -39,11 +46,15 @@ export async function getSummaryMessage(
 
   const contextBlock = getContextBlock(duration)
 
-  return createMessage(text, contextBlock)
+  return createMessage({text, contextBlock, author})
 }
 
-async function getText(octokit: OctokitClient, status?: string): Promise<Text> {
-  const summarySentence = getSummarySentence(status)
+async function getText(
+  octokit: OctokitClient,
+  status: string | null,
+  author: MessageAuthor | null
+): Promise<Text> {
+  const summarySentence = getSummarySentence(status, author)
   const eventLink = await getEventLink(octokit)
 
   const mrkdwn = [
@@ -58,13 +69,25 @@ async function getText(octokit: OctokitClient, status?: string): Promise<Text> {
   }
 }
 
-function getSummarySentence(status?: string): Text {
-  const verb = status ? verbFromStatus(status) : 'Deploying'
+function getSummarySentence(
+  status: string | null,
+  author: MessageAuthor | null
+): Text {
+  const subject: Text = {plain: '', mrkdwn: ''}
+  let verb = status ? verbFromStatus(status) : 'Deploying'
+
+  if (author?.slack_user_id) {
+    subject.plain = author.username
+    subject.mrkdwn = `<@${author.slack_user_id}>`
+
+    verb = status ? ` ${verb.toLowerCase()}` : ` is ${verb.toLowerCase()}`
+  }
+
   const {repo} = github.context.repo
 
   return {
-    plain: `${verb} ${repo}`,
-    mrkdwn: `${verb} ${bold(repo)}`
+    plain: `${subject.plain}${verb} ${repo}`,
+    mrkdwn: `${subject.mrkdwn}${verb} ${bold(repo)}`
   }
 }
 

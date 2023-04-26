@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as github from '@actions/github'
 import {afterAll, beforeEach, describe, expect, it, jest} from '@jest/globals'
-import {EVENT_NAME_IMAGE_MAP} from '../github/context'
+import {EVENT_NAME_IMAGE_MAP} from '../github/getContextBlock'
 import {OctokitClient} from '../github/types'
-import {postMessage} from '../message'
-import {SlackClient} from '../slack/client'
+import {postMessage} from '../postMessage'
+import {SlackClient} from '../slack/SlackClient'
 
 describe('postMessage', () => {
   let octokit: OctokitClient
   let slack: SlackClient
-  let ts: string | undefined
+  let ts: string | null
 
   const OLD_CONTEXT = github.context
   const OLD_ENV = process.env
@@ -20,12 +20,12 @@ describe('postMessage', () => {
         actions: {},
         repos: {}
       }
-    } as any
+    } as unknown as OctokitClient
 
     slack = {
       postMessage: jest.fn(async () => 'TS'),
       updateMessage: jest.fn(async () => undefined)
-    } as any
+    } as unknown as SlackClient
 
     jest.resetModules()
 
@@ -58,15 +58,17 @@ describe('postMessage', () => {
           head: {
             ref: 'my-pr'
           }
-        },
-        sender: {
-          type: 'user',
-          login: 'namoscato',
-          avatar_url: 'github.com/namoscato'
         }
       }
 
-      ts = await postMessage(octokit, slack)
+      ts = await postMessage({
+        octokit,
+        slack,
+        author: {
+          username: 'namoscato',
+          icon_url: 'github.com/namoscato'
+        }
+      })
     })
 
     it('should post slack message', () => {
@@ -122,7 +124,15 @@ describe('postMessage', () => {
         }
       })) as any
 
-      ts = await postMessage(octokit, slack)
+      ts = await postMessage({
+        octokit,
+        slack,
+        author: {
+          slack_user_id: 'U123',
+          username: 'Nick',
+          icon_url: 'slack.com/nick'
+        }
+      })
     })
 
     it('should fetch commit', () => {
@@ -136,16 +146,16 @@ describe('postMessage', () => {
     it('should post slack message', () => {
       expect(slack.postMessage).toHaveBeenCalledTimes(1)
       expect(slack.postMessage).toHaveBeenCalledWith({
-        icon_url: 'github.com/namoscato',
-        username: 'namoscato (via GitHub)',
+        icon_url: 'slack.com/nick',
+        username: 'Nick (via GitHub)',
         unfurl_links: false,
-        text: 'Deploying action-testing: COMMIT-MESSAGE',
+        text: 'Nick is deploying action-testing: COMMIT-MESSAGE',
         blocks: [
           {
             type: 'section',
             text: {
               type: 'mrkdwn',
-              text: ':black_square_button: Deploying *action-testing*: <github.com/commit|COMMIT-MESSAGE>'
+              text: ':black_square_button: <@U123> is deploying *action-testing*: <github.com/commit|COMMIT-MESSAGE>'
             }
           },
           {
@@ -181,7 +191,7 @@ describe('postMessage', () => {
         }
       })) as any
 
-      ts = await postMessage(octokit, slack)
+      ts = await postMessage({octokit, slack, author: null})
     })
 
     it('should fetch commit', () => {
@@ -225,11 +235,6 @@ describe('postMessage', () => {
           message:
             'COMMIT-MESSAGE\n\nCo-authored-by: Nick <namoscato@users.noreply.github.com>',
           url: 'github.com/commit'
-        },
-        sender: {
-          type: 'user',
-          login: 'namoscato',
-          avatar_url: 'github.com/namoscato'
         }
       }
 
@@ -265,7 +270,14 @@ describe('postMessage', () => {
       beforeEach(async () => {
         process.env.INPUT_STATUS = 'success'
 
-        ts = await postMessage(octokit, slack)
+        ts = await postMessage({
+          octokit,
+          slack,
+          author: {
+            username: 'namoscato',
+            icon_url: 'github.com/namoscato'
+          }
+        })
       })
 
       it('should fetch workflow run jobs', () => {
@@ -318,7 +330,7 @@ describe('postMessage', () => {
       })
 
       it('should not return timestamp ID', () => {
-        expect(ts).toBeUndefined()
+        expect(ts).toBe(null)
       })
     })
 
@@ -326,7 +338,7 @@ describe('postMessage', () => {
       beforeEach(async () => {
         process.env.INPUT_STATUS = 'cancelled'
 
-        ts = await postMessage(octokit, slack)
+        ts = await postMessage({octokit, slack, author: null})
       })
 
       it('should post slack message', () => {
@@ -386,7 +398,15 @@ describe('postMessage', () => {
         process.env.INPUT_STATUS = 'success'
         process.env.INPUT_CONCLUSION = 'true'
 
-        ts = await postMessage(octokit, slack)
+        ts = await postMessage({
+          octokit,
+          slack,
+          author: {
+            slack_user_id: 'U123',
+            username: 'Nick',
+            icon_url: 'slack.com/nick'
+          }
+        })
       })
 
       it('should post slack message', () => {
@@ -401,8 +421,15 @@ describe('postMessage', () => {
       it('should update summary message', () => {
         expect(slack.updateMessage).toHaveBeenCalledWith(
           expect.objectContaining({
-            text: 'Deployed action-testing: COMMIT-MESSAGE',
-            blocks: expect.arrayContaining([
+            text: 'Nick deployed action-testing: COMMIT-MESSAGE',
+            blocks: [
+              {
+                type: 'section',
+                text: {
+                  type: 'mrkdwn',
+                  text: ':white_check_mark: <@U123> deployed *action-testing*: <github.com/commit|COMMIT-MESSAGE>'
+                }
+              },
               {
                 type: 'context',
                 elements: [
@@ -417,7 +444,7 @@ describe('postMessage', () => {
                   }
                 ]
               }
-            ]),
+            ],
             ts: '1662768000' // 2022-09-10T00:00:00.000Z
           })
         )
@@ -429,7 +456,7 @@ describe('postMessage', () => {
         process.env.INPUT_STATUS = 'failure'
         process.env.INPUT_CONCLUSION = 'true'
 
-        ts = await postMessage(octokit, slack)
+        ts = await postMessage({octokit, slack, author: null})
       })
 
       it('should post slack message', () => {
@@ -481,7 +508,7 @@ describe('postMessage', () => {
 
         process.env.INPUT_STATUS = 'success'
 
-        ts = await postMessage(octokit, slack)
+        ts = await postMessage({octokit, slack, author: null})
       })
 
       it('should post slack message', () => {
@@ -515,7 +542,7 @@ describe('postMessage', () => {
 
         process.env.INPUT_STATUS = 'success'
 
-        ts = await postMessage(octokit, slack)
+        ts = await postMessage({octokit, slack, author: null})
       })
 
       it('should post slack message', () => {
@@ -551,7 +578,7 @@ describe('postMessage', () => {
       github.context.eventName = 'issues'
 
       try {
-        await postMessage(octokit, slack)
+        await postMessage({octokit, slack, author: null})
       } catch (err) {
         error = err as Error
       }

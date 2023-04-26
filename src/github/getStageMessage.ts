@@ -1,21 +1,23 @@
 import {context} from '@actions/github'
 import {intervalToDuration} from 'date-fns'
 import {bold} from '../slack/mrkdwn'
-import {getContextBlock} from './context'
+import {MessageAuthor} from '../slack/types'
+import {getContextBlock} from './getContextBlock'
 import {createMessage, emojiFromStatus} from './message'
 import {
-  OctokitClient,
-  isCompletedJobStep,
-  isSuccessful,
   JobStatus,
   Message,
-  Text
+  OctokitClient,
+  Text,
+  isCompletedJobStep,
+  isSuccessful
 } from './types'
 
-interface Options {
+interface Dependencies {
   octokit: OctokitClient
   status: string
   now: Date
+  author: MessageAuthor | null
 }
 
 /**
@@ -24,15 +26,16 @@ interface Options {
 export async function getStageMessage({
   octokit,
   status,
-  now
-}: Options): Promise<Message> {
+  now,
+  author
+}: Dependencies): Promise<Message> {
   const text = getText(status)
 
   const duration = await computeDuration(octokit, now)
   const contextBlock = getContextBlock(duration)
 
   return {
-    ...createMessage(text, contextBlock),
+    ...createMessage({text, contextBlock, author}),
     reply_broadcast: !isSuccessful(status)
   }
 }
