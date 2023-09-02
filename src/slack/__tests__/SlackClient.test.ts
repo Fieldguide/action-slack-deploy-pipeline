@@ -88,7 +88,10 @@ describe('SlackClient', () => {
 class SlackCodedError extends Error implements CodedError {
   data: unknown
 
-  constructor(readonly code: ErrorCode, error: string) {
+  constructor(
+    readonly code: ErrorCode,
+    error: string
+  ) {
     super(error)
 
     this.data = {ok: false, error}
