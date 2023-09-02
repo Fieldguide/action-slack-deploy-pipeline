@@ -1,826 +1,5 @@
-require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
+/******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
-
-/***/ 74262:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getMessageAuthor = void 0;
-const core_1 = __nccwpck_require__(42186);
-const github_1 = __nccwpck_require__(95438);
-const webhook_1 = __nccwpck_require__(84464);
-const input_1 = __nccwpck_require__(98657);
-function getMessageAuthor(octokit, slack) {
-    return __awaiter(this, void 0, void 0, function* () {
-        (0, core_1.startGroup)('Getting message author');
-        try {
-            (0, core_1.info)('Fetching Slack users');
-            const slackUsers = yield slack.getRealUsers();
-            if (!slackUsers) {
-                throw new Error(`${input_1.EnvironmentVariable.SlackBotToken} does not include "users:read" OAuth scope.`);
-            }
-            const githubUser = yield getGitHubUser(octokit);
-            (0, core_1.info)(`Finding Slack user by name: ${githubUser.name}`);
-            const matchingSlackUsers = slackUsers.filter((user) => {
-                var _a;
-                return Boolean(((_a = user.profile) === null || _a === void 0 ? void 0 : _a.real_name) === githubUser.name &&
-                    user.profile.display_name &&
-                    user.profile.image_48);
-            });
-            const matchingSlackUser = matchingSlackUsers[0];
-            if (!matchingSlackUser) {
-                throw new Error(`Unable to match GitHub user "${githubUser.name}" to Slack user by name.`);
-            }
-            if (matchingSlackUsers.length > 1) {
-                throw new Error(`${matchingSlackUsers.length} Slack users match GitHub user name "${githubUser.name}".`);
-            }
-            return {
-                slack_user_id: matchingSlackUser.id,
-                username: matchingSlackUser.profile.display_name,
-                icon_url: matchingSlackUser.profile.image_48
-            };
-        }
-        catch (err) {
-            const message = err instanceof Error ? err.message : String(err);
-            (0, core_1.warning)(`${message} The message author will fallback to a GitHub username.`);
-            if ((0, core_1.isDebug)() && err instanceof Error && err.stack) {
-                (0, core_1.warning)(err.stack);
-            }
-            return authorFromGitHubContext();
-        }
-        finally {
-            (0, core_1.endGroup)();
-        }
-    });
-}
-exports.getMessageAuthor = getMessageAuthor;
-function getGitHubUser(octokit) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const sender = (0, webhook_1.senderFromPayload)(github_1.context.payload);
-        if (!sender) {
-            throw new Error('Unexpected GitHub sender payload.');
-        }
-        (0, core_1.info)(`Fetching GitHub user: ${sender.login}`);
-        const { data } = yield octokit.rest.users.getByUsername({
-            username: sender.login
-        });
-        return data;
-    });
-}
-function authorFromGitHubContext() {
-    const sender = (0, webhook_1.senderFromPayload)(github_1.context.payload);
-    if (!sender) {
-        return null;
-    }
-    return {
-        username: sender.login,
-        icon_url: sender.avatar_url
-    };
-}
-
-
-/***/ }),
-
-/***/ 52009:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getContextBlock = exports.EVENT_NAME_IMAGE_MAP = void 0;
-const github_1 = __nccwpck_require__(95438);
-const date_fns_1 = __nccwpck_require__(73314); // eslint-disable-line import/named
-const mrkdwn_1 = __nccwpck_require__(18699);
-const webhook_1 = __nccwpck_require__(84464);
-exports.EVENT_NAME_IMAGE_MAP = {
-    pull_request: 'https://user-images.githubusercontent.com/847532/193414326-5aaf5449-0c81-4a66-9b19-4e5e6baeee9e.png',
-    push: 'https://user-images.githubusercontent.com/847532/193413878-d5fcd559-401d-4954-a44c-36de5d6a7adf.png',
-    schedule: 'https://user-images.githubusercontent.com/847532/193414289-3b185a3b-aee8-40f9-99fe-0615d255c8dd.png',
-    workflow_dispatch: 'https://user-images.githubusercontent.com/847532/197601879-3bc8bf73-87c0-4216-8de7-c55d34993ef1.png'
-};
-function getContextBlock(duration) {
-    const textParts = [(0, mrkdwn_1.link)(getWorkflow()), getRef()];
-    if (duration) {
-        textParts.push((0, date_fns_1.formatDuration)(duration) || '0 seconds');
-    }
-    return {
-        type: 'context',
-        elements: [
-            Object.assign({ type: 'image' }, getImage()),
-            {
-                type: 'mrkdwn',
-                text: textParts.join('  ∙  ')
-            }
-        ]
-    };
-}
-exports.getContextBlock = getContextBlock;
-function getImage() {
-    if (!(0, webhook_1.isSupportedEvent)(github_1.context)) {
-        throw new webhook_1.UnsupportedEventError(github_1.context);
-    }
-    return {
-        alt_text: `${github_1.context.eventName} event`,
-        image_url: exports.EVENT_NAME_IMAGE_MAP[github_1.context.eventName]
-    };
-}
-/**
- * Return a link to the current workflow name.
- */
-function getWorkflow() {
-    const text = github_1.context.workflow;
-    if ((0, webhook_1.isPullRequestEvent)(github_1.context)) {
-        return {
-            text,
-            url: `${github_1.context.payload.pull_request.html_url}/checks`
-        };
-    }
-    return {
-        text,
-        url: `${getCommitUrl()}/checks`
-    };
-}
-/**
- * Return the pull request head branch or short commit hash.
- */
-function getRef() {
-    if ((0, webhook_1.isPullRequestEvent)(github_1.context)) {
-        return github_1.context.payload.pull_request.head.ref;
-    }
-    return github_1.context.sha.substring(0, 7);
-}
-function getCommitUrl() {
-    const { owner, repo } = github_1.context.repo;
-    return `https://github.com/${owner}/${repo}/commit/${github_1.context.sha}`;
-}
-
-
-/***/ }),
-
-/***/ 79966:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getStageMessage = void 0;
-const github_1 = __nccwpck_require__(95438);
-const date_fns_1 = __nccwpck_require__(73314);
-const mrkdwn_1 = __nccwpck_require__(18699);
-const getContextBlock_1 = __nccwpck_require__(52009);
-const message_1 = __nccwpck_require__(68700);
-const types_1 = __nccwpck_require__(50305);
-/**
- * Return a progressed stage message, posted via threaded reply.
- */
-function getStageMessage({ octokit, status, now, author }) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const text = getText(status);
-        const duration = yield computeDuration(octokit, now);
-        const contextBlock = (0, getContextBlock_1.getContextBlock)(duration);
-        return Object.assign(Object.assign({}, (0, message_1.createMessage)({ text, contextBlock, author })), { reply_broadcast: !(0, types_1.isSuccessful)(status) });
-    });
-}
-exports.getStageMessage = getStageMessage;
-function getText(status) {
-    const verb = verbFromStatus(status);
-    const predicate = github_1.context.job;
-    const mrkdwn = [(0, message_1.emojiFromStatus)(status), verb, (0, mrkdwn_1.bold)(predicate)].join(' ');
-    return {
-        plain: `${verb} ${predicate}`,
-        mrkdwn
-    };
-}
-/**
- * Return past tense verb for the specified job `status`.
- */
-function verbFromStatus(status) {
-    switch (status) {
-        case types_1.JobStatus.Success:
-            return 'Finished';
-        case types_1.JobStatus.Failure:
-            return 'Failed';
-        case types_1.JobStatus.Cancelled:
-            return 'Cancelled';
-        default:
-            throw new Error(`Unexpected status ${status}`);
-    }
-}
-function computeDuration(octokit, now) {
-    var _a, _b;
-    return __awaiter(this, void 0, void 0, function* () {
-        const { data } = yield octokit.rest.actions.listJobsForWorkflowRun(Object.assign(Object.assign({}, github_1.context.repo), { run_id: github_1.context.runId }));
-        const currentJob = data.jobs.find(({ name }) => name === github_1.context.job);
-        const slackRegex = /[^A-Za-z]slack[^A-Za-z]/i;
-        const lastCompletedSlackStep = (_a = currentJob === null || currentJob === void 0 ? void 0 : currentJob.steps) === null || _a === void 0 ? void 0 : _a.filter(types_1.isCompletedJobStep).filter(({ name }) => slackRegex.test(` ${name} `)).pop();
-        const start = (_b = lastCompletedSlackStep === null || lastCompletedSlackStep === void 0 ? void 0 : lastCompletedSlackStep.completed_at) !== null && _b !== void 0 ? _b : currentJob === null || currentJob === void 0 ? void 0 : currentJob.started_at;
-        if (start) {
-            return (0, date_fns_1.intervalToDuration)({
-                start: new Date(start),
-                end: now
-            });
-        }
-    });
-}
-
-
-/***/ }),
-
-/***/ 96919:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getSummaryMessage = void 0;
-const github = __importStar(__nccwpck_require__(95438));
-const date_fns_1 = __nccwpck_require__(73314);
-const mrkdwn_1 = __nccwpck_require__(18699);
-const utils_1 = __nccwpck_require__(14047);
-const getContextBlock_1 = __nccwpck_require__(52009);
-const message_1 = __nccwpck_require__(68700);
-const types_1 = __nccwpck_require__(50305);
-const webhook_1 = __nccwpck_require__(84464);
-/**
- * Return the initial summary message.
- */
-function getSummaryMessage({ octokit, options, author }) {
-    var _a;
-    return __awaiter(this, void 0, void 0, function* () {
-        const text = yield getText(octokit, (_a = options === null || options === void 0 ? void 0 : options.status) !== null && _a !== void 0 ? _a : null, author);
-        const duration = options
-            ? (0, date_fns_1.intervalToDuration)({
-                start: (0, utils_1.dateFromTs)(options.threadTs),
-                end: options.now
-            })
-            : undefined;
-        const contextBlock = (0, getContextBlock_1.getContextBlock)(duration);
-        return (0, message_1.createMessage)({ text, contextBlock, author });
-    });
-}
-exports.getSummaryMessage = getSummaryMessage;
-function getText(octokit, status, author) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const summarySentence = getSummarySentence(status, author);
-        const eventLink = yield getEventLink(octokit);
-        const mrkdwn = [
-            status ? (0, message_1.emojiFromStatus)(status) : (0, mrkdwn_1.emoji)('black_square_button'),
-            `${summarySentence.mrkdwn}:`,
-            (0, mrkdwn_1.link)(eventLink)
-        ].join(' ');
-        return {
-            plain: `${summarySentence.plain}: ${eventLink.text}`,
-            mrkdwn
-        };
-    });
-}
-function getSummarySentence(status, author) {
-    const subject = { plain: '', mrkdwn: '' };
-    let verb = status ? verbFromStatus(status) : 'Deploying';
-    if (author === null || author === void 0 ? void 0 : author.slack_user_id) {
-        subject.plain = author.username;
-        subject.mrkdwn = `<@${author.slack_user_id}>`;
-        verb = status ? ` ${verb.toLowerCase()}` : ` is ${verb.toLowerCase()}`;
-    }
-    const { repo } = github.context.repo;
-    return {
-        plain: `${subject.plain}${verb} ${repo}`,
-        mrkdwn: `${subject.mrkdwn}${verb} ${(0, mrkdwn_1.bold)(repo)}`
-    };
-}
-function verbFromStatus(status) {
-    switch (status) {
-        case types_1.JobStatus.Success:
-            return 'Deployed';
-        case types_1.JobStatus.Failure:
-            return 'Failed deploying';
-        case types_1.JobStatus.Cancelled:
-            return 'Cancelled deploying';
-        default:
-            throw new Error(`Unexpected status ${status}`);
-    }
-}
-function getEventLink(octokit) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const context = github.context;
-        if ((0, webhook_1.isPullRequestEvent)(context)) {
-            const pullRequest = context.payload.pull_request;
-            return {
-                text: getEventLinkText(`${pullRequest.title} (#${pullRequest.number})`),
-                url: pullRequest.html_url
-            };
-        }
-        if ((0, webhook_1.isPushEvent)(context)) {
-            const commit = context.payload.head_commit;
-            if (!commit) {
-                throw new Error('Unexpected push event payload (undefined head_commit)');
-            }
-            return {
-                text: getEventLinkText(commit.message),
-                url: commit.url
-            };
-        }
-        if ((0, webhook_1.isScheduleEvent)(context) || (0, webhook_1.isWorkflowDispatchEvent)(context)) {
-            const commit = (yield octokit.rest.repos.getCommit(Object.assign(Object.assign({}, context.repo), { ref: context.sha }))).data.commit;
-            return {
-                text: getEventLinkText(commit.message),
-                url: commit.url
-            };
-        }
-        (0, webhook_1.assertUnsupportedEvent)(context);
-    });
-}
-/**
- * Return the first `message` line, i.e. omitting the commit description.
- */
-function getEventLinkText(message) {
-    return message.split('\n', 1)[0];
-}
-
-
-/***/ }),
-
-/***/ 68700:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.emojiFromStatus = exports.createMessage = void 0;
-const mrkdwn_1 = __nccwpck_require__(18699);
-const types_1 = __nccwpck_require__(50305);
-function createMessage({ text, contextBlock, author }) {
-    return {
-        icon_url: author === null || author === void 0 ? void 0 : author.icon_url,
-        username: (author === null || author === void 0 ? void 0 : author.username) ? `${author.username} (via GitHub)` : undefined,
-        unfurl_links: false,
-        text: text.plain,
-        blocks: [
-            {
-                type: 'section',
-                text: {
-                    type: 'mrkdwn',
-                    text: text.mrkdwn
-                }
-            },
-            contextBlock
-        ]
-    };
-}
-exports.createMessage = createMessage;
-function emojiFromStatus(status) {
-    switch (status) {
-        case types_1.JobStatus.Success:
-            return (0, mrkdwn_1.emoji)('white_check_mark');
-        case types_1.JobStatus.Failure:
-            return (0, mrkdwn_1.emoji)('x');
-        case types_1.JobStatus.Cancelled:
-            return (0, mrkdwn_1.emoji)('no_entry_sign');
-        default:
-            throw new Error(`Unexpected status ${status}`);
-    }
-}
-exports.emojiFromStatus = emojiFromStatus;
-
-
-/***/ }),
-
-/***/ 50305:
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.isCompletedJobStep = exports.isSuccessful = exports.JobStatus = void 0;
-/**
- * @see https://docs.github.com/en/actions/learn-github-actions/contexts#job-context
- */
-var JobStatus;
-(function (JobStatus) {
-    JobStatus["Success"] = "success";
-    JobStatus["Failure"] = "failure";
-    JobStatus["Cancelled"] = "cancelled";
-})(JobStatus = exports.JobStatus || (exports.JobStatus = {}));
-function isSuccessful(status) {
-    return JobStatus.Success === status;
-}
-exports.isSuccessful = isSuccessful;
-function isCompletedJobStep(step) {
-    return Boolean(step.completed_at) && 'skipped' !== step.conclusion;
-}
-exports.isCompletedJobStep = isCompletedJobStep;
-
-
-/***/ }),
-
-/***/ 84464:
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.senderFromPayload = exports.assertUnsupportedEvent = exports.UnsupportedEventError = exports.isSupportedEvent = exports.isWorkflowDispatchEvent = exports.isScheduleEvent = exports.isPushEvent = exports.isPullRequestEvent = exports.SUPPORTED_EVENT_NAMES = void 0;
-exports.SUPPORTED_EVENT_NAMES = [
-    'pull_request',
-    'push',
-    'schedule',
-    'workflow_dispatch'
-];
-/**
- * @see https://docs.github.com/en/developers/webhooks-and-events/webhooks/webhook-events-and-payloads#pull_request
- */
-function isPullRequestEvent(context) {
-    return 'pull_request' === context.eventName;
-}
-exports.isPullRequestEvent = isPullRequestEvent;
-/**
- * @see https://docs.github.com/en/developers/webhooks-and-events/webhooks/webhook-events-and-payloads#push
- */
-function isPushEvent(context) {
-    return 'push' === context.eventName;
-}
-exports.isPushEvent = isPushEvent;
-/**
- * @see https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule
- */
-function isScheduleEvent(context) {
-    return 'schedule' === context.eventName;
-}
-exports.isScheduleEvent = isScheduleEvent;
-/**
- * @see https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch
- */
-function isWorkflowDispatchEvent(context) {
-    return 'workflow_dispatch' === context.eventName;
-}
-exports.isWorkflowDispatchEvent = isWorkflowDispatchEvent;
-function isSupportedEvent(context) {
-    return exports.SUPPORTED_EVENT_NAMES.includes(context.eventName);
-}
-exports.isSupportedEvent = isSupportedEvent;
-class UnsupportedEventError extends Error {
-    constructor(context) {
-        const supportedEvents = exports.SUPPORTED_EVENT_NAMES.join(', ');
-        super(`Unsupported "${context.eventName}" event (currently supported events include: ${supportedEvents})`);
-    }
-}
-exports.UnsupportedEventError = UnsupportedEventError;
-function assertUnsupportedEvent(context) {
-    throw new UnsupportedEventError(context);
-}
-exports.assertUnsupportedEvent = assertUnsupportedEvent;
-function senderFromPayload({ sender }) {
-    if ((sender === null || sender === void 0 ? void 0 : sender.login) && sender.avatar_url) {
-        return sender;
-    }
-}
-exports.senderFromPayload = senderFromPayload;
-
-
-/***/ }),
-
-/***/ 98657:
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getEnv = exports.EnvironmentVariable = void 0;
-var EnvironmentVariable;
-(function (EnvironmentVariable) {
-    EnvironmentVariable["SlackBotToken"] = "SLACK_DEPLOY_BOT_TOKEN";
-    EnvironmentVariable["SlackChannel"] = "SLACK_DEPLOY_CHANNEL";
-})(EnvironmentVariable = exports.EnvironmentVariable || (exports.EnvironmentVariable = {}));
-/**
- * Get the value of a required environment variable.
- *
- * The value is trimmed of whitespace.
- */
-function getEnv(name) {
-    var _a;
-    const env = String((_a = process.env[name]) !== null && _a !== void 0 ? _a : '').trim();
-    if (!env) {
-        throw new Error(`${name} environment variable required`);
-    }
-    return env;
-}
-exports.getEnv = getEnv;
-
-
-/***/ }),
-
-/***/ 3109:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const core_1 = __nccwpck_require__(42186);
-const github_1 = __nccwpck_require__(95438);
-const getMessageAuthor_1 = __nccwpck_require__(74262);
-const input_1 = __nccwpck_require__(98657);
-const postMessage_1 = __nccwpck_require__(37965);
-const SlackClient_1 = __nccwpck_require__(15515);
-function run() {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            const octokit = createOctokitClient();
-            const slack = createSlackClient();
-            const author = yield (0, getMessageAuthor_1.getMessageAuthor)(octokit, slack);
-            const ts = yield (0, postMessage_1.postMessage)({ octokit, slack, author });
-            if (ts) {
-                (0, core_1.setOutput)('ts', ts);
-            }
-        }
-        catch (err) {
-            (0, core_1.setFailed)(err instanceof Error ? err : String(err));
-            if ((0, core_1.isDebug)() && err instanceof Error && err.stack) {
-                (0, core_1.error)(err.stack);
-            }
-        }
-    });
-}
-function createSlackClient() {
-    const token = (0, input_1.getEnv)(input_1.EnvironmentVariable.SlackBotToken);
-    const channel = (0, input_1.getEnv)(input_1.EnvironmentVariable.SlackChannel);
-    return new SlackClient_1.SlackClient({ token, channel });
-}
-function createOctokitClient() {
-    const token = (0, core_1.getInput)('github_token', { required: true });
-    return (0, github_1.getOctokit)(token);
-}
-run();
-
-
-/***/ }),
-
-/***/ 37965:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.postMessage = void 0;
-const core_1 = __nccwpck_require__(42186);
-const getStageMessage_1 = __nccwpck_require__(79966);
-const getSummaryMessage_1 = __nccwpck_require__(96919);
-const types_1 = __nccwpck_require__(50305);
-/**
- * Post an initial summary message or progress reply when `thread_ts` input is set.
- *
- * Conditionally updates initial message when `conclusion` is set or stage is unsuccessful.
- *
- * @returns message timestamp ID
- */
-function postMessage({ octokit, slack, author }) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const threadTs = (0, core_1.getInput)('thread_ts');
-        if (!threadTs) {
-            (0, core_1.info)('Posting summary message');
-            const message = yield (0, getSummaryMessage_1.getSummaryMessage)({ octokit, author });
-            return slack.postMessage(message);
-        }
-        const status = (0, core_1.getInput)('status', { required: true });
-        const now = new Date();
-        const stageMessage = yield (0, getStageMessage_1.getStageMessage)({ octokit, status, now, author });
-        (0, core_1.info)(`Posting stage message in thread: ${threadTs}`);
-        yield slack.postMessage(Object.assign(Object.assign({}, stageMessage), { thread_ts: threadTs }));
-        const conclusion = 'true' === (0, core_1.getInput)('conclusion');
-        if (conclusion || !(0, types_1.isSuccessful)(status)) {
-            (0, core_1.info)(`Updating summary message: ${status}`);
-            const message = yield (0, getSummaryMessage_1.getSummaryMessage)({
-                octokit,
-                options: { status, threadTs, now },
-                author
-            });
-            yield slack.updateMessage(Object.assign(Object.assign({}, message), { ts: threadTs }));
-        }
-        return null;
-    });
-}
-exports.postMessage = postMessage;
-
-
-/***/ }),
-
-/***/ 15515:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.SlackClient = void 0;
-const core_1 = __nccwpck_require__(42186);
-const web_api_1 = __nccwpck_require__(60431);
-const errors_1 = __nccwpck_require__(81299);
-class SlackClient {
-    constructor({ token, channel }) {
-        this.channel = channel;
-        this.web = new web_api_1.WebClient(token, {
-            logLevel: (0, core_1.isDebug)() ? web_api_1.LogLevel.DEBUG : web_api_1.LogLevel.INFO
-        });
-        this.logRateLimits();
-    }
-    /**
-     * Return the set of non-bot users.
-     *
-     * @returns `null` if the bot token is missing the required OAuth scope
-     */
-    getRealUsers() {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const { members } = yield this.web.users.list();
-                if (!members) {
-                    throw new Error('Error fetching users');
-                }
-                return members.filter(({ id, is_bot }) => {
-                    return ('USLACKBOT' !== id && // USLACKBOT is a special user ID for @SlackBot
-                        !is_bot);
-                });
-            }
-            catch (error) {
-                if ((0, errors_1.isMissingScopeError)(error)) {
-                    return null;
-                }
-                throw error;
-            }
-        });
-    }
-    /**
-     * @returns message timestamp ID
-     */
-    postMessage(options) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const { ts } = yield this.web.chat.postMessage(Object.assign(Object.assign({}, options), { channel: this.channel }));
-            if (!ts) {
-                throw new Error('Response timestamp ID undefined');
-            }
-            return ts;
-        });
-    }
-    updateMessage(options) {
-        return __awaiter(this, void 0, void 0, function* () {
-            yield this.web.chat.update(Object.assign(Object.assign({}, options), { channel: this.channel }));
-        });
-    }
-    /**
-     * @see https://slack.dev/node-slack-sdk/web-api#rate-limits
-     */
-    logRateLimits() {
-        this.web.on(web_api_1.WebClientEvent.RATE_LIMITED, numSeconds => {
-            (0, core_1.warning)(`Slack API call failed due to rate limiting. Retrying in ${numSeconds} seconds.`);
-        });
-    }
-}
-exports.SlackClient = SlackClient;
-
-
-/***/ }),
-
-/***/ 81299:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.isCodedError = exports.isMissingScopeError = void 0;
-const web_api_1 = __nccwpck_require__(60431);
-function isMissingScopeError(error) {
-    return (isCodedError(error) &&
-        web_api_1.ErrorCode.PlatformError === error.code &&
-        'missing_scope' === error.data.error);
-}
-exports.isMissingScopeError = isMissingScopeError;
-function isCodedError(error) {
-    return (error instanceof Error && 'string' === typeof error.code);
-}
-exports.isCodedError = isCodedError;
-
-
-/***/ }),
-
-/***/ 18699:
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.link = exports.emoji = exports.bold = void 0;
-function bold(text) {
-    return `*${text}*`;
-}
-exports.bold = bold;
-function emoji(name) {
-    return `:${name}:`;
-}
-exports.emoji = emoji;
-/**
- * @see https://api.slack.com/reference/surfaces/formatting#linking-urls
- */
-function link({ text, url }) {
-    return `<${url}|${text}>`;
-}
-exports.link = link;
-
-
-/***/ }),
-
-/***/ 14047:
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.dateFromTs = void 0;
-/**
- * Convert the Slack message timestamp ID to a Date object.
- */
-function dateFromTs(ts) {
-    return new Date(1000 * Number(ts));
-}
-exports.dateFromTs = dateFromTs;
-
-
-/***/ }),
 
 /***/ 87351:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
@@ -41869,6 +41048,827 @@ function wrappy (fn, cb) {
 
 /***/ }),
 
+/***/ 65656:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getMessageAuthor = void 0;
+const core_1 = __nccwpck_require__(42186);
+const github_1 = __nccwpck_require__(95438);
+const webhook_1 = __nccwpck_require__(50302);
+const input_1 = __nccwpck_require__(6747);
+function getMessageAuthor(octokit, slack) {
+    return __awaiter(this, void 0, void 0, function* () {
+        (0, core_1.startGroup)('Getting message author');
+        try {
+            (0, core_1.info)('Fetching Slack users');
+            const slackUsers = yield slack.getRealUsers();
+            if (!slackUsers) {
+                throw new Error(`${input_1.EnvironmentVariable.SlackBotToken} does not include "users:read" OAuth scope.`);
+            }
+            const githubUser = yield getGitHubUser(octokit);
+            (0, core_1.info)(`Finding Slack user by name: ${githubUser.name}`);
+            const matchingSlackUsers = slackUsers.filter((user) => {
+                var _a;
+                return Boolean(((_a = user.profile) === null || _a === void 0 ? void 0 : _a.real_name) === githubUser.name &&
+                    user.profile.display_name &&
+                    user.profile.image_48);
+            });
+            const matchingSlackUser = matchingSlackUsers[0];
+            if (!matchingSlackUser) {
+                throw new Error(`Unable to match GitHub user "${githubUser.name}" to Slack user by name.`);
+            }
+            if (matchingSlackUsers.length > 1) {
+                throw new Error(`${matchingSlackUsers.length} Slack users match GitHub user name "${githubUser.name}".`);
+            }
+            return {
+                slack_user_id: matchingSlackUser.id,
+                username: matchingSlackUser.profile.display_name,
+                icon_url: matchingSlackUser.profile.image_48
+            };
+        }
+        catch (err) {
+            const message = err instanceof Error ? err.message : String(err);
+            (0, core_1.warning)(`${message} The message author will fallback to a GitHub username.`);
+            if ((0, core_1.isDebug)() && err instanceof Error && err.stack) {
+                (0, core_1.warning)(err.stack);
+            }
+            return authorFromGitHubContext();
+        }
+        finally {
+            (0, core_1.endGroup)();
+        }
+    });
+}
+exports.getMessageAuthor = getMessageAuthor;
+function getGitHubUser(octokit) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const sender = (0, webhook_1.senderFromPayload)(github_1.context.payload);
+        if (!sender) {
+            throw new Error('Unexpected GitHub sender payload.');
+        }
+        (0, core_1.info)(`Fetching GitHub user: ${sender.login}`);
+        const { data } = yield octokit.rest.users.getByUsername({
+            username: sender.login
+        });
+        return data;
+    });
+}
+function authorFromGitHubContext() {
+    const sender = (0, webhook_1.senderFromPayload)(github_1.context.payload);
+    if (!sender) {
+        return null;
+    }
+    return {
+        username: sender.login,
+        icon_url: sender.avatar_url
+    };
+}
+
+
+/***/ }),
+
+/***/ 23831:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getContextBlock = exports.EVENT_NAME_IMAGE_MAP = void 0;
+const github_1 = __nccwpck_require__(95438);
+const date_fns_1 = __nccwpck_require__(73314); // eslint-disable-line import/named
+const mrkdwn_1 = __nccwpck_require__(36817);
+const webhook_1 = __nccwpck_require__(50302);
+exports.EVENT_NAME_IMAGE_MAP = {
+    pull_request: 'https://user-images.githubusercontent.com/847532/193414326-5aaf5449-0c81-4a66-9b19-4e5e6baeee9e.png',
+    push: 'https://user-images.githubusercontent.com/847532/193413878-d5fcd559-401d-4954-a44c-36de5d6a7adf.png',
+    schedule: 'https://user-images.githubusercontent.com/847532/193414289-3b185a3b-aee8-40f9-99fe-0615d255c8dd.png',
+    workflow_dispatch: 'https://user-images.githubusercontent.com/847532/197601879-3bc8bf73-87c0-4216-8de7-c55d34993ef1.png'
+};
+function getContextBlock(duration) {
+    const textParts = [(0, mrkdwn_1.link)(getWorkflow()), getRef()];
+    if (duration) {
+        textParts.push((0, date_fns_1.formatDuration)(duration) || '0 seconds');
+    }
+    return {
+        type: 'context',
+        elements: [
+            Object.assign({ type: 'image' }, getImage()),
+            {
+                type: 'mrkdwn',
+                text: textParts.join('  ∙  ')
+            }
+        ]
+    };
+}
+exports.getContextBlock = getContextBlock;
+function getImage() {
+    if (!(0, webhook_1.isSupportedEvent)(github_1.context)) {
+        throw new webhook_1.UnsupportedEventError(github_1.context);
+    }
+    return {
+        alt_text: `${github_1.context.eventName} event`,
+        image_url: exports.EVENT_NAME_IMAGE_MAP[github_1.context.eventName]
+    };
+}
+/**
+ * Return a link to the current workflow name.
+ */
+function getWorkflow() {
+    const text = github_1.context.workflow;
+    if ((0, webhook_1.isPullRequestEvent)(github_1.context)) {
+        return {
+            text,
+            url: `${github_1.context.payload.pull_request.html_url}/checks`
+        };
+    }
+    return {
+        text,
+        url: `${getCommitUrl()}/checks`
+    };
+}
+/**
+ * Return the pull request head branch or short commit hash.
+ */
+function getRef() {
+    if ((0, webhook_1.isPullRequestEvent)(github_1.context)) {
+        return github_1.context.payload.pull_request.head.ref;
+    }
+    return github_1.context.sha.substring(0, 7);
+}
+function getCommitUrl() {
+    const { owner, repo } = github_1.context.repo;
+    return `https://github.com/${owner}/${repo}/commit/${github_1.context.sha}`;
+}
+
+
+/***/ }),
+
+/***/ 41384:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getStageMessage = void 0;
+const github_1 = __nccwpck_require__(95438);
+const date_fns_1 = __nccwpck_require__(73314);
+const mrkdwn_1 = __nccwpck_require__(36817);
+const getContextBlock_1 = __nccwpck_require__(23831);
+const message_1 = __nccwpck_require__(84144);
+const types_1 = __nccwpck_require__(18768);
+/**
+ * Return a progressed stage message, posted via threaded reply.
+ */
+function getStageMessage({ octokit, status, now, author }) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const text = getText(status);
+        const duration = yield computeDuration(octokit, now);
+        const contextBlock = (0, getContextBlock_1.getContextBlock)(duration);
+        return Object.assign(Object.assign({}, (0, message_1.createMessage)({ text, contextBlock, author })), { reply_broadcast: !(0, types_1.isSuccessful)(status) });
+    });
+}
+exports.getStageMessage = getStageMessage;
+function getText(status) {
+    const verb = verbFromStatus(status);
+    const predicate = github_1.context.job;
+    const mrkdwn = [(0, message_1.emojiFromStatus)(status), verb, (0, mrkdwn_1.bold)(predicate)].join(' ');
+    return {
+        plain: `${verb} ${predicate}`,
+        mrkdwn
+    };
+}
+/**
+ * Return past tense verb for the specified job `status`.
+ */
+function verbFromStatus(status) {
+    switch (status) {
+        case types_1.JobStatus.Success:
+            return 'Finished';
+        case types_1.JobStatus.Failure:
+            return 'Failed';
+        case types_1.JobStatus.Cancelled:
+            return 'Cancelled';
+        default:
+            throw new Error(`Unexpected status ${status}`);
+    }
+}
+function computeDuration(octokit, now) {
+    var _a, _b;
+    return __awaiter(this, void 0, void 0, function* () {
+        const { data } = yield octokit.rest.actions.listJobsForWorkflowRun(Object.assign(Object.assign({}, github_1.context.repo), { run_id: github_1.context.runId }));
+        const currentJob = data.jobs.find(({ name }) => name === github_1.context.job);
+        const slackRegex = /[^A-Za-z]slack[^A-Za-z]/i;
+        const lastCompletedSlackStep = (_a = currentJob === null || currentJob === void 0 ? void 0 : currentJob.steps) === null || _a === void 0 ? void 0 : _a.filter(types_1.isCompletedJobStep).filter(({ name }) => slackRegex.test(` ${name} `)).pop();
+        const start = (_b = lastCompletedSlackStep === null || lastCompletedSlackStep === void 0 ? void 0 : lastCompletedSlackStep.completed_at) !== null && _b !== void 0 ? _b : currentJob === null || currentJob === void 0 ? void 0 : currentJob.started_at;
+        if (start) {
+            return (0, date_fns_1.intervalToDuration)({
+                start: new Date(start),
+                end: now
+            });
+        }
+    });
+}
+
+
+/***/ }),
+
+/***/ 17728:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getSummaryMessage = void 0;
+const github = __importStar(__nccwpck_require__(95438));
+const date_fns_1 = __nccwpck_require__(73314);
+const mrkdwn_1 = __nccwpck_require__(36817);
+const utils_1 = __nccwpck_require__(61939);
+const getContextBlock_1 = __nccwpck_require__(23831);
+const message_1 = __nccwpck_require__(84144);
+const types_1 = __nccwpck_require__(18768);
+const webhook_1 = __nccwpck_require__(50302);
+/**
+ * Return the initial summary message.
+ */
+function getSummaryMessage({ octokit, options, author }) {
+    var _a;
+    return __awaiter(this, void 0, void 0, function* () {
+        const text = yield getText(octokit, (_a = options === null || options === void 0 ? void 0 : options.status) !== null && _a !== void 0 ? _a : null, author);
+        const duration = options
+            ? (0, date_fns_1.intervalToDuration)({
+                start: (0, utils_1.dateFromTs)(options.threadTs),
+                end: options.now
+            })
+            : undefined;
+        const contextBlock = (0, getContextBlock_1.getContextBlock)(duration);
+        return (0, message_1.createMessage)({ text, contextBlock, author });
+    });
+}
+exports.getSummaryMessage = getSummaryMessage;
+function getText(octokit, status, author) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const summarySentence = getSummarySentence(status, author);
+        const eventLink = yield getEventLink(octokit);
+        const mrkdwn = [
+            status ? (0, message_1.emojiFromStatus)(status) : (0, mrkdwn_1.emoji)('black_square_button'),
+            `${summarySentence.mrkdwn}:`,
+            (0, mrkdwn_1.link)(eventLink)
+        ].join(' ');
+        return {
+            plain: `${summarySentence.plain}: ${eventLink.text}`,
+            mrkdwn
+        };
+    });
+}
+function getSummarySentence(status, author) {
+    const subject = { plain: '', mrkdwn: '' };
+    let verb = status ? verbFromStatus(status) : 'Deploying';
+    if (author === null || author === void 0 ? void 0 : author.slack_user_id) {
+        subject.plain = author.username;
+        subject.mrkdwn = `<@${author.slack_user_id}>`;
+        verb = status ? ` ${verb.toLowerCase()}` : ` is ${verb.toLowerCase()}`;
+    }
+    const { repo } = github.context.repo;
+    return {
+        plain: `${subject.plain}${verb} ${repo}`,
+        mrkdwn: `${subject.mrkdwn}${verb} ${(0, mrkdwn_1.bold)(repo)}`
+    };
+}
+function verbFromStatus(status) {
+    switch (status) {
+        case types_1.JobStatus.Success:
+            return 'Deployed';
+        case types_1.JobStatus.Failure:
+            return 'Failed deploying';
+        case types_1.JobStatus.Cancelled:
+            return 'Cancelled deploying';
+        default:
+            throw new Error(`Unexpected status ${status}`);
+    }
+}
+function getEventLink(octokit) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const context = github.context;
+        if ((0, webhook_1.isPullRequestEvent)(context)) {
+            const pullRequest = context.payload.pull_request;
+            return {
+                text: getEventLinkText(`${pullRequest.title} (#${pullRequest.number})`),
+                url: pullRequest.html_url
+            };
+        }
+        if ((0, webhook_1.isPushEvent)(context)) {
+            const commit = context.payload.head_commit;
+            if (!commit) {
+                throw new Error('Unexpected push event payload (undefined head_commit)');
+            }
+            return {
+                text: getEventLinkText(commit.message),
+                url: commit.url
+            };
+        }
+        if ((0, webhook_1.isScheduleEvent)(context) || (0, webhook_1.isWorkflowDispatchEvent)(context)) {
+            const commit = (yield octokit.rest.repos.getCommit(Object.assign(Object.assign({}, context.repo), { ref: context.sha }))).data.commit;
+            return {
+                text: getEventLinkText(commit.message),
+                url: commit.url
+            };
+        }
+        (0, webhook_1.assertUnsupportedEvent)(context);
+    });
+}
+/**
+ * Return the first `message` line, i.e. omitting the commit description.
+ */
+function getEventLinkText(message) {
+    return message.split('\n', 1)[0];
+}
+
+
+/***/ }),
+
+/***/ 84144:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.emojiFromStatus = exports.createMessage = void 0;
+const mrkdwn_1 = __nccwpck_require__(36817);
+const types_1 = __nccwpck_require__(18768);
+function createMessage({ text, contextBlock, author }) {
+    return {
+        icon_url: author === null || author === void 0 ? void 0 : author.icon_url,
+        username: (author === null || author === void 0 ? void 0 : author.username) ? `${author.username} (via GitHub)` : undefined,
+        unfurl_links: false,
+        text: text.plain,
+        blocks: [
+            {
+                type: 'section',
+                text: {
+                    type: 'mrkdwn',
+                    text: text.mrkdwn
+                }
+            },
+            contextBlock
+        ]
+    };
+}
+exports.createMessage = createMessage;
+function emojiFromStatus(status) {
+    switch (status) {
+        case types_1.JobStatus.Success:
+            return (0, mrkdwn_1.emoji)('white_check_mark');
+        case types_1.JobStatus.Failure:
+            return (0, mrkdwn_1.emoji)('x');
+        case types_1.JobStatus.Cancelled:
+            return (0, mrkdwn_1.emoji)('no_entry_sign');
+        default:
+            throw new Error(`Unexpected status ${status}`);
+    }
+}
+exports.emojiFromStatus = emojiFromStatus;
+
+
+/***/ }),
+
+/***/ 18768:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.isCompletedJobStep = exports.isSuccessful = exports.JobStatus = void 0;
+/**
+ * @see https://docs.github.com/en/actions/learn-github-actions/contexts#job-context
+ */
+var JobStatus;
+(function (JobStatus) {
+    JobStatus["Success"] = "success";
+    JobStatus["Failure"] = "failure";
+    JobStatus["Cancelled"] = "cancelled";
+})(JobStatus = exports.JobStatus || (exports.JobStatus = {}));
+function isSuccessful(status) {
+    return JobStatus.Success === status;
+}
+exports.isSuccessful = isSuccessful;
+function isCompletedJobStep(step) {
+    return Boolean(step.completed_at) && 'skipped' !== step.conclusion;
+}
+exports.isCompletedJobStep = isCompletedJobStep;
+
+
+/***/ }),
+
+/***/ 50302:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.senderFromPayload = exports.assertUnsupportedEvent = exports.UnsupportedEventError = exports.isSupportedEvent = exports.isWorkflowDispatchEvent = exports.isScheduleEvent = exports.isPushEvent = exports.isPullRequestEvent = exports.SUPPORTED_EVENT_NAMES = void 0;
+exports.SUPPORTED_EVENT_NAMES = [
+    'pull_request',
+    'push',
+    'schedule',
+    'workflow_dispatch'
+];
+/**
+ * @see https://docs.github.com/en/developers/webhooks-and-events/webhooks/webhook-events-and-payloads#pull_request
+ */
+function isPullRequestEvent(context) {
+    return 'pull_request' === context.eventName;
+}
+exports.isPullRequestEvent = isPullRequestEvent;
+/**
+ * @see https://docs.github.com/en/developers/webhooks-and-events/webhooks/webhook-events-and-payloads#push
+ */
+function isPushEvent(context) {
+    return 'push' === context.eventName;
+}
+exports.isPushEvent = isPushEvent;
+/**
+ * @see https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule
+ */
+function isScheduleEvent(context) {
+    return 'schedule' === context.eventName;
+}
+exports.isScheduleEvent = isScheduleEvent;
+/**
+ * @see https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch
+ */
+function isWorkflowDispatchEvent(context) {
+    return 'workflow_dispatch' === context.eventName;
+}
+exports.isWorkflowDispatchEvent = isWorkflowDispatchEvent;
+function isSupportedEvent(context) {
+    return exports.SUPPORTED_EVENT_NAMES.includes(context.eventName);
+}
+exports.isSupportedEvent = isSupportedEvent;
+class UnsupportedEventError extends Error {
+    constructor(context) {
+        const supportedEvents = exports.SUPPORTED_EVENT_NAMES.join(', ');
+        super(`Unsupported "${context.eventName}" event (currently supported events include: ${supportedEvents})`);
+    }
+}
+exports.UnsupportedEventError = UnsupportedEventError;
+function assertUnsupportedEvent(context) {
+    throw new UnsupportedEventError(context);
+}
+exports.assertUnsupportedEvent = assertUnsupportedEvent;
+function senderFromPayload({ sender }) {
+    if ((sender === null || sender === void 0 ? void 0 : sender.login) && sender.avatar_url) {
+        return sender;
+    }
+}
+exports.senderFromPayload = senderFromPayload;
+
+
+/***/ }),
+
+/***/ 6747:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getEnv = exports.EnvironmentVariable = void 0;
+var EnvironmentVariable;
+(function (EnvironmentVariable) {
+    EnvironmentVariable["SlackBotToken"] = "SLACK_DEPLOY_BOT_TOKEN";
+    EnvironmentVariable["SlackChannel"] = "SLACK_DEPLOY_CHANNEL";
+})(EnvironmentVariable = exports.EnvironmentVariable || (exports.EnvironmentVariable = {}));
+/**
+ * Get the value of a required environment variable.
+ *
+ * The value is trimmed of whitespace.
+ */
+function getEnv(name) {
+    var _a;
+    const env = String((_a = process.env[name]) !== null && _a !== void 0 ? _a : '').trim();
+    if (!env) {
+        throw new Error(`${name} environment variable required`);
+    }
+    return env;
+}
+exports.getEnv = getEnv;
+
+
+/***/ }),
+
+/***/ 70399:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const core_1 = __nccwpck_require__(42186);
+const github_1 = __nccwpck_require__(95438);
+const getMessageAuthor_1 = __nccwpck_require__(65656);
+const input_1 = __nccwpck_require__(6747);
+const postMessage_1 = __nccwpck_require__(49717);
+const SlackClient_1 = __nccwpck_require__(11667);
+function run() {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const octokit = createOctokitClient();
+            const slack = createSlackClient();
+            const author = yield (0, getMessageAuthor_1.getMessageAuthor)(octokit, slack);
+            const ts = yield (0, postMessage_1.postMessage)({ octokit, slack, author });
+            if (ts) {
+                (0, core_1.setOutput)('ts', ts);
+            }
+        }
+        catch (err) {
+            (0, core_1.setFailed)(err instanceof Error ? err : String(err));
+            if ((0, core_1.isDebug)() && err instanceof Error && err.stack) {
+                (0, core_1.error)(err.stack);
+            }
+        }
+    });
+}
+function createSlackClient() {
+    const token = (0, input_1.getEnv)(input_1.EnvironmentVariable.SlackBotToken);
+    const channel = (0, input_1.getEnv)(input_1.EnvironmentVariable.SlackChannel);
+    return new SlackClient_1.SlackClient({ token, channel });
+}
+function createOctokitClient() {
+    const token = (0, core_1.getInput)('github_token', { required: true });
+    return (0, github_1.getOctokit)(token);
+}
+run();
+
+
+/***/ }),
+
+/***/ 49717:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.postMessage = void 0;
+const core_1 = __nccwpck_require__(42186);
+const getStageMessage_1 = __nccwpck_require__(41384);
+const getSummaryMessage_1 = __nccwpck_require__(17728);
+const types_1 = __nccwpck_require__(18768);
+/**
+ * Post an initial summary message or progress reply when `thread_ts` input is set.
+ *
+ * Conditionally updates initial message when `conclusion` is set or stage is unsuccessful.
+ *
+ * @returns message timestamp ID
+ */
+function postMessage({ octokit, slack, author }) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const threadTs = (0, core_1.getInput)('thread_ts');
+        if (!threadTs) {
+            (0, core_1.info)('Posting summary message');
+            const message = yield (0, getSummaryMessage_1.getSummaryMessage)({ octokit, author });
+            return slack.postMessage(message);
+        }
+        const status = (0, core_1.getInput)('status', { required: true });
+        const now = new Date();
+        const stageMessage = yield (0, getStageMessage_1.getStageMessage)({ octokit, status, now, author });
+        (0, core_1.info)(`Posting stage message in thread: ${threadTs}`);
+        yield slack.postMessage(Object.assign(Object.assign({}, stageMessage), { thread_ts: threadTs }));
+        const conclusion = 'true' === (0, core_1.getInput)('conclusion');
+        if (conclusion || !(0, types_1.isSuccessful)(status)) {
+            (0, core_1.info)(`Updating summary message: ${status}`);
+            const message = yield (0, getSummaryMessage_1.getSummaryMessage)({
+                octokit,
+                options: { status, threadTs, now },
+                author
+            });
+            yield slack.updateMessage(Object.assign(Object.assign({}, message), { ts: threadTs }));
+        }
+        return null;
+    });
+}
+exports.postMessage = postMessage;
+
+
+/***/ }),
+
+/***/ 11667:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.SlackClient = void 0;
+const core_1 = __nccwpck_require__(42186);
+const web_api_1 = __nccwpck_require__(60431);
+const errors_1 = __nccwpck_require__(70035);
+class SlackClient {
+    constructor({ token, channel }) {
+        this.channel = channel;
+        this.web = new web_api_1.WebClient(token, {
+            logLevel: (0, core_1.isDebug)() ? web_api_1.LogLevel.DEBUG : web_api_1.LogLevel.INFO
+        });
+        this.logRateLimits();
+    }
+    /**
+     * Return the set of non-bot users.
+     *
+     * @returns `null` if the bot token is missing the required OAuth scope
+     */
+    getRealUsers() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { members } = yield this.web.users.list();
+                if (!members) {
+                    throw new Error('Error fetching users');
+                }
+                return members.filter(({ id, is_bot }) => {
+                    return ('USLACKBOT' !== id && // USLACKBOT is a special user ID for @SlackBot
+                        !is_bot);
+                });
+            }
+            catch (error) {
+                if ((0, errors_1.isMissingScopeError)(error)) {
+                    return null;
+                }
+                throw error;
+            }
+        });
+    }
+    /**
+     * @returns message timestamp ID
+     */
+    postMessage(options) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { ts } = yield this.web.chat.postMessage(Object.assign(Object.assign({}, options), { channel: this.channel }));
+            if (!ts) {
+                throw new Error('Response timestamp ID undefined');
+            }
+            return ts;
+        });
+    }
+    updateMessage(options) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.web.chat.update(Object.assign(Object.assign({}, options), { channel: this.channel }));
+        });
+    }
+    /**
+     * @see https://slack.dev/node-slack-sdk/web-api#rate-limits
+     */
+    logRateLimits() {
+        this.web.on(web_api_1.WebClientEvent.RATE_LIMITED, numSeconds => {
+            (0, core_1.warning)(`Slack API call failed due to rate limiting. Retrying in ${numSeconds} seconds.`);
+        });
+    }
+}
+exports.SlackClient = SlackClient;
+
+
+/***/ }),
+
+/***/ 70035:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.isCodedError = exports.isMissingScopeError = void 0;
+const web_api_1 = __nccwpck_require__(60431);
+function isMissingScopeError(error) {
+    return (isCodedError(error) &&
+        web_api_1.ErrorCode.PlatformError === error.code &&
+        'missing_scope' === error.data.error);
+}
+exports.isMissingScopeError = isMissingScopeError;
+function isCodedError(error) {
+    return (error instanceof Error && 'string' === typeof error.code);
+}
+exports.isCodedError = isCodedError;
+
+
+/***/ }),
+
+/***/ 36817:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.link = exports.emoji = exports.bold = void 0;
+function bold(text) {
+    return `*${text}*`;
+}
+exports.bold = bold;
+function emoji(name) {
+    return `:${name}:`;
+}
+exports.emoji = emoji;
+/**
+ * @see https://api.slack.com/reference/surfaces/formatting#linking-urls
+ */
+function link({ text, url }) {
+    return `<${url}|${text}>`;
+}
+exports.link = link;
+
+
+/***/ }),
+
+/***/ 61939:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.dateFromTs = void 0;
+/**
+ * Convert the Slack message timestamp ID to a Date object.
+ */
+function dateFromTs(ts) {
+    return new Date(1000 * Number(ts));
+}
+exports.dateFromTs = dateFromTs;
+
+
+/***/ }),
+
 /***/ 22877:
 /***/ ((module) => {
 
@@ -42407,9 +42407,8 @@ module.exports = JSON.parse('[[[0,44],"disallowed_STD3_valid"],[[45,46],"valid"]
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module is referenced by other modules so it can't be inlined
-/******/ 	var __webpack_exports__ = __nccwpck_require__(3109);
+/******/ 	var __webpack_exports__ = __nccwpck_require__(70399);
 /******/ 	module.exports = __webpack_exports__;
 /******/ 	
 /******/ })()
 ;
-//# sourceMappingURL=index.js.map
