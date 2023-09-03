@@ -1,21 +1,16 @@
 {
   "name": "action-slack-deploy-pipeline",
-  "version": "0.1.0",
-  "private": true,
   "description": "Post GitHub Action deploy workflow progress notifications to Slack",
-  "main": "lib/main.js",
-  "scripts": {
-    "build": "tsc && ncc build --source-map --license licenses.txt",
-    "format:write": "prettier --write .",
-    "format:check": "prettier --check .",
-    "lint": "eslint . --ext .ts",
-    "test": "jest --watch",
-    "test:ci": "jest",
-    "all": "npm run build && npm run format:check && npm run lint && npm run test:ci"
-  },
+  "version": "0.0.0",
+  "author": "Nick Amoscato <nick@amoscato.com>",
+  "private": true,
+  "homepage": "https://github.com/marketplace/actions/slack-deploy-pipeline-notifications",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Fieldguide/action-slack-deploy-pipeline.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Fieldguide/action-slack-deploy-pipeline/issues"
   },
   "keywords": [
     "actions",
@@ -26,7 +21,23 @@
     "notifications",
     "progress"
   ],
-  "author": "Nick Amoscato <nick@amoscato.com>",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "engines": {
+    "node": ">=16"
+  },
+  "scripts": {
+    "dev": "npm run package -- --watch",
+    "bundle": "npm run format:write && npm run package",
+    "format:write": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint . --ext .ts",
+    "package": "ncc build src/main.ts --license licenses.txt",
+    "test": "jest --watch",
+    "test:ci": "jest",
+    "all": "npm run format:check && npm run lint && npm run test:ci && npm run package"
+  },
   "license": "MIT",
   "dependencies": {
     "@actions/core": "^1.10.0",

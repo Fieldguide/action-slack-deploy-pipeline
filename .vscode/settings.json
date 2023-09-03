@@ -7,7 +7,7 @@
     "USLACKBOT"
   ],
   "files.exclude": {
-    "dist": true,
-    "lib": true
-  }
+    "dist": true
+  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode"
 }
