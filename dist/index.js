@@ -41154,6 +41154,7 @@ exports.EVENT_NAME_IMAGE_MAP = {
     pull_request: 'https://user-images.githubusercontent.com/847532/193414326-5aaf5449-0c81-4a66-9b19-4e5e6baeee9e.png',
     push: 'https://user-images.githubusercontent.com/847532/193413878-d5fcd559-401d-4954-a44c-36de5d6a7adf.png',
     schedule: 'https://user-images.githubusercontent.com/847532/193414289-3b185a3b-aee8-40f9-99fe-0615d255c8dd.png',
+    release: 'https://user-images.githubusercontent.com/847532/265212273-b8c1036a-26b0-4196-bb11-0cbcb85d57c0.png',
     workflow_dispatch: 'https://user-images.githubusercontent.com/847532/197601879-3bc8bf73-87c0-4216-8de7-c55d34993ef1.png'
 };
 function getContextBlock(duration) {
@@ -41191,6 +41192,13 @@ function getWorkflow() {
         return {
             text,
             url: `${github_1.context.payload.pull_request.html_url}/checks`
+        };
+    }
+    if ((0, webhook_1.isReleaseEvent)(github_1.context)) {
+        const { owner, repo } = github_1.context.repo;
+        return {
+            text,
+            url: `https://github.com/${owner}/${repo}/actions`
         };
     }
     return {
@@ -41419,6 +41427,12 @@ function getEventLink(octokit) {
                 url: commit.url
             };
         }
+        if ((0, webhook_1.isReleaseEvent)(context)) {
+            return {
+                text: context.payload.release.name,
+                url: context.payload.release.html_url
+            };
+        }
         if ((0, webhook_1.isScheduleEvent)(context) || (0, webhook_1.isWorkflowDispatchEvent)(context)) {
             const commit = (yield octokit.rest.repos.getCommit(Object.assign(Object.assign({}, context.repo), { ref: context.sha }))).data.commit;
             return {
@@ -41518,10 +41532,11 @@ exports.isCompletedJobStep = isCompletedJobStep;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.senderFromPayload = exports.assertUnsupportedEvent = exports.UnsupportedEventError = exports.isSupportedEvent = exports.isWorkflowDispatchEvent = exports.isScheduleEvent = exports.isPushEvent = exports.isPullRequestEvent = exports.SUPPORTED_EVENT_NAMES = void 0;
+exports.senderFromPayload = exports.assertUnsupportedEvent = exports.UnsupportedEventError = exports.isSupportedEvent = exports.isWorkflowDispatchEvent = exports.isScheduleEvent = exports.isReleaseEvent = exports.isPushEvent = exports.isPullRequestEvent = exports.SUPPORTED_EVENT_NAMES = void 0;
 exports.SUPPORTED_EVENT_NAMES = [
     'pull_request',
     'push',
+    'release',
     'schedule',
     'workflow_dispatch'
 ];
@@ -41539,6 +41554,13 @@ function isPushEvent(context) {
     return 'push' === context.eventName;
 }
 exports.isPushEvent = isPushEvent;
+/**
+ * @see https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#release
+ */
+function isReleaseEvent(context) {
+    return 'release' === context.eventName;
+}
+exports.isReleaseEvent = isReleaseEvent;
 /**
  * @see https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule
  */

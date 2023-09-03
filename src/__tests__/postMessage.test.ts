@@ -586,7 +586,7 @@ describe('postMessage', () => {
 
     it('should throw error', () => {
       expect(error.message).toBe(
-        'Unsupported "issues" event (currently supported events include: pull_request, push, schedule, workflow_dispatch)'
+        'Unsupported "issues" event (currently supported events include: pull_request, push, release, schedule, workflow_dispatch)'
       )
     })
   })

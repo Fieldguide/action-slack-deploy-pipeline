@@ -11,6 +11,7 @@ import {
   assertUnsupportedEvent,
   isPullRequestEvent,
   isPushEvent,
+  isReleaseEvent,
   isScheduleEvent,
   isWorkflowDispatchEvent
 } from './webhook'
@@ -126,6 +127,13 @@ async function getEventLink(octokit: OctokitClient): Promise<Link> {
     return {
       text: getEventLinkText(commit.message),
       url: commit.url
+    }
+  }
+
+  if (isReleaseEvent(context)) {
+    return {
+      text: context.payload.release.name,
+      url: context.payload.release.html_url
     }
   }
 
