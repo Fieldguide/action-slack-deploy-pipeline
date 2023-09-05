@@ -109,6 +109,52 @@ describe('postMessage', () => {
     })
   })
 
+  describe('first summary release event', () => {
+    beforeEach(async () => {
+      github.context.eventName = 'release'
+      github.context.sha = '05b16c3beb3a07dceaf6cf964d0be9eccbc026e8'
+      github.context.payload = {
+        release: {
+          name: '1.2.3',
+          html_url: 'github.com/release'
+        }
+      }
+
+      ts = await postMessage({octokit, slack, author: null})
+    })
+
+    it('should post slack message', () => {
+      expect(slack.postMessage).toHaveBeenCalledWith(
+        expect.objectContaining({
+          text: 'Deploying action-testing: 1.2.3',
+          blocks: [
+            {
+              type: 'section',
+              text: {
+                type: 'mrkdwn',
+                text: ':black_square_button: Deploying *action-testing*: <github.com/release|1.2.3>'
+              }
+            },
+            {
+              type: 'context',
+              elements: [
+                {
+                  type: 'image',
+                  alt_text: 'release event',
+                  image_url: EVENT_NAME_IMAGE_MAP['release']
+                },
+                {
+                  type: 'mrkdwn',
+                  text: '<https://github.com/namoscato/action-testing/actions|Deploy App>  ∙  05b16c3'
+                }
+              ]
+            }
+          ]
+        })
+      )
+    })
+  })
+
   describe('first summary schedule event', () => {
     beforeEach(async () => {
       github.context.eventName = 'schedule'
@@ -586,7 +632,7 @@ describe('postMessage', () => {
 
     it('should throw error', () => {
       expect(error.message).toBe(
-        'Unsupported "issues" event (currently supported events include: pull_request, push, schedule, workflow_dispatch)'
+        'Unsupported "issues" event (currently supported events include: pull_request, push, release, schedule, workflow_dispatch)'
       )
     })
   })

@@ -1,10 +1,17 @@
 import type {context} from '@actions/github'
 import type {WebhookPayload} from '@actions/github/lib/interfaces'
-import type {PullRequestEvent, PushEvent, User} from '@octokit/webhooks-types'
+import type {
+  PullRequestEvent,
+  PushEvent,
+  ReleaseEvent,
+  User,
+  WorkflowDispatchEvent
+} from '@octokit/webhooks-types'
 
 export const SUPPORTED_EVENT_NAMES = [
   'pull_request',
   'push',
+  'release',
   'schedule',
   'workflow_dispatch'
 ] as const
@@ -23,13 +30,11 @@ export interface ScheduleEvent {
   schedule: string
 }
 
-export interface WorkflowDispatchEvent {
-  workflow: string
-}
-
 export type PullRequestContext = Context<'pull_request', PullRequestEvent>
 
 export type PushContext = Context<'push', PushEvent>
+
+export type ReleaseContext = Context<'release', ReleaseEvent>
 
 export type ScheduleContext = Context<'schedule', ScheduleEvent>
 
@@ -41,6 +46,7 @@ export type WorkflowDispatchContext = Context<
 export type SupportedContext =
   | PullRequestContext
   | PushContext
+  | ReleaseContext
   | ScheduleContext
   | WorkflowDispatchContext
 
@@ -58,6 +64,15 @@ export function isPullRequestEvent(
  */
 export function isPushEvent(context: GitHubContext): context is PushContext {
   return 'push' === context.eventName
+}
+
+/**
+ * @see https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#release
+ */
+export function isReleaseEvent(
+  context: GitHubContext
+): context is ReleaseContext {
+  return 'release' === context.eventName
 }
 
 /**
