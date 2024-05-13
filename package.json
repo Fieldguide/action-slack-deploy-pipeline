@@ -47,7 +47,7 @@
     "date-fns": "^2.30.0"
   },
   "devDependencies": {
-    "@types/node": "^16.18.23",
+    "@types/node": "^20.12.11",
     "@typescript-eslint/parser": "^5.57.1",
     "@vercel/ncc": "^0.36.1",
     "eslint": "^8.38.0",
