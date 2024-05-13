@@ -4,6 +4,16 @@ updates:
     directory: /
     schedule:
       interval: monthly
+    groups:
+      eslint:
+        patterns:
+          - '@typescript-eslint/*'
+          - 'eslint'
+          - 'eslint-*'
+      jest:
+        patterns:
+          - 'jest'
+          - 'ts-jest'
 
   - package-ecosystem: npm
     directory: /
