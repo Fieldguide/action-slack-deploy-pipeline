@@ -52,7 +52,7 @@ jobs:
     steps:
       # 2. Post summary message at the beginning of your workflow
       - name: Post to Slack
-        uses: Fieldguide/action-slack-deploy-pipeline@v1
+        uses: Fieldguide/action-slack-deploy-pipeline@v2
         id: slack
 
       - name: Deploy to staging
@@ -60,7 +60,7 @@ jobs:
 
       # 3. Post threaded stage updates throughout
       - name: Post to Slack
-        uses: Fieldguide/action-slack-deploy-pipeline@v1
+        uses: Fieldguide/action-slack-deploy-pipeline@v2
         if: always()
         with:
           thread_ts: ${{ steps.slack.outputs.ts }}
@@ -75,7 +75,7 @@ jobs:
 
       # 4. Post last "conclusion" stage
       - name: Post to Slack
-        uses: Fieldguide/action-slack-deploy-pipeline@v1
+        uses: Fieldguide/action-slack-deploy-pipeline@v2
         if: always()
         with:
           thread_ts: ${{ needs.staging.outputs.slack_ts }}
