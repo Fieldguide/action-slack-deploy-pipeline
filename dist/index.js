@@ -60933,8 +60933,8 @@ const types_1 = __nccwpck_require__(18768);
 /**
  * Return a progressed stage message, posted via threaded reply.
  */
-function getStageMessage({ octokit, status, now, author }) {
-    return __awaiter(this, void 0, void 0, function* () {
+function getStageMessage(_a) {
+    return __awaiter(this, arguments, void 0, function* ({ octokit, status, now, author }) {
         const text = getText(status);
         const duration = yield computeDuration(octokit, now);
         const contextBlock = (0, getContextBlock_1.getContextBlock)(duration);
@@ -60967,8 +60967,8 @@ function verbFromStatus(status) {
     }
 }
 function computeDuration(octokit, now) {
-    var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
+        var _a, _b;
         const { data } = yield octokit.rest.actions.listJobsForWorkflowRun(Object.assign(Object.assign({}, github_1.context.repo), { run_id: github_1.context.runId }));
         const currentJob = data.jobs.find(({ name }) => name === github_1.context.job);
         const slackRegex = /[^A-Za-z]slack[^A-Za-z]/i;
@@ -61036,10 +61036,10 @@ const webhook_1 = __nccwpck_require__(50302);
 /**
  * Return the initial summary message.
  */
-function getSummaryMessage({ octokit, options, author }) {
-    var _a;
-    return __awaiter(this, void 0, void 0, function* () {
-        const text = yield getText(octokit, (_a = options === null || options === void 0 ? void 0 : options.status) !== null && _a !== void 0 ? _a : null, author);
+function getSummaryMessage(_a) {
+    return __awaiter(this, arguments, void 0, function* ({ octokit, options, author }) {
+        var _b;
+        const text = yield getText(octokit, (_b = options === null || options === void 0 ? void 0 : options.status) !== null && _b !== void 0 ? _b : null, author);
         const duration = options
             ? (0, date_fns_1.intervalToDuration)({
                 start: (0, utils_1.dateFromTs)(options.threadTs),
@@ -61198,7 +61198,7 @@ var JobStatus;
     JobStatus["Success"] = "success";
     JobStatus["Failure"] = "failure";
     JobStatus["Cancelled"] = "cancelled";
-})(JobStatus = exports.JobStatus || (exports.JobStatus = {}));
+})(JobStatus || (exports.JobStatus = JobStatus = {}));
 function isSuccessful(status) {
     return JobStatus.Success === status;
 }
@@ -61296,7 +61296,7 @@ var EnvironmentVariable;
 (function (EnvironmentVariable) {
     EnvironmentVariable["SlackBotToken"] = "SLACK_DEPLOY_BOT_TOKEN";
     EnvironmentVariable["SlackChannel"] = "SLACK_DEPLOY_CHANNEL";
-})(EnvironmentVariable = exports.EnvironmentVariable || (exports.EnvironmentVariable = {}));
+})(EnvironmentVariable || (exports.EnvironmentVariable = EnvironmentVariable = {}));
 /**
  * Get the value of a required environment variable.
  *
@@ -61396,8 +61396,8 @@ const types_1 = __nccwpck_require__(18768);
  *
  * @returns message timestamp ID
  */
-function postMessage({ octokit, slack, author }) {
-    return __awaiter(this, void 0, void 0, function* () {
+function postMessage(_a) {
+    return __awaiter(this, arguments, void 0, function* ({ octokit, slack, author }) {
         const threadTs = (0, core_1.getInput)('thread_ts');
         if (!threadTs) {
             (0, core_1.info)('Posting summary message');
