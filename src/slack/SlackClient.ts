@@ -32,7 +32,7 @@ export class SlackClient {
    */
   async getRealUsers(): Promise<Member[] | null> {
     try {
-      const {members} = await this.web.users.list()
+      const {members} = await this.web.users.list({})
 
       if (!members) {
         throw new Error('Error fetching users')

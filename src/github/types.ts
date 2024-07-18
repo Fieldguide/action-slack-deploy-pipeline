@@ -1,7 +1,6 @@
 import type {GitHub} from '@actions/github/lib/utils'
 import type {Endpoints} from '@octokit/types'
 import type {KnownBlock} from '@slack/web-api'
-import type {PostMessageArguments} from '../slack/types'
 
 export type OctokitClient = InstanceType<typeof GitHub>
 
@@ -10,9 +9,16 @@ export interface Text {
   mrkdwn: string
 }
 
-export interface Message extends PostMessageArguments {
+export interface Message {
+  icon_url: string | undefined
+  username: string | undefined
+  unfurl_links: boolean
   text: string
   blocks: KnownBlock[]
+}
+
+export interface StageMessage extends Message {
+  successful: boolean
 }
 
 /**

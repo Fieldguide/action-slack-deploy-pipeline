@@ -6,8 +6,8 @@ import {getContextBlock} from './getContextBlock'
 import {createMessage, emojiFromStatus} from './message'
 import {
   JobStatus,
-  Message,
   OctokitClient,
+  StageMessage,
   Text,
   isCompletedJobStep,
   isSuccessful
@@ -28,7 +28,7 @@ export async function getStageMessage({
   status,
   now,
   author
-}: Dependencies): Promise<Message> {
+}: Dependencies): Promise<StageMessage> {
   const text = getText(status)
 
   const duration = await computeDuration(octokit, now)
@@ -36,7 +36,7 @@ export async function getStageMessage({
 
   return {
     ...createMessage({text, contextBlock, author}),
-    reply_broadcast: !isSuccessful(status)
+    successful: isSuccessful(status)
   }
 }
 

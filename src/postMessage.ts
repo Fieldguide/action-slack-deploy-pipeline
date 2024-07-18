@@ -34,11 +34,17 @@ export async function postMessage({
 
   const status = getInput('status', {required: true})
   const now = new Date()
-  const stageMessage = await getStageMessage({octokit, status, now, author})
+  const {successful, ...stageMessage} = await getStageMessage({
+    octokit,
+    status,
+    now,
+    author
+  })
 
   info(`Posting stage message in thread: ${threadTs}`)
   await slack.postMessage({
     ...stageMessage,
+    reply_broadcast: !successful,
     thread_ts: threadTs
   })
 
@@ -46,14 +52,14 @@ export async function postMessage({
 
   if (conclusion || !isSuccessful(status)) {
     info(`Updating summary message: ${status}`)
-    const message = await getSummaryMessage({
+    const summaryMessage = await getSummaryMessage({
       octokit,
       options: {status, threadTs, now},
       author
     })
 
     await slack.updateMessage({
-      ...message,
+      ...summaryMessage,
       ts: threadTs
     })
   }
