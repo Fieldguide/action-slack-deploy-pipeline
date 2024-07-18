@@ -59500,18 +59500,18 @@ function postMessage(_a) {
             status,
             now,
             author
-        }), { successful } = _b, message = __rest(_b, ["successful"]);
+        }), { successful } = _b, stageMessage = __rest(_b, ["successful"]);
         (0, core_1.info)(`Posting stage message in thread: ${threadTs}`);
-        yield slack.postMessage(Object.assign(Object.assign({}, message), { reply_broadcast: !successful, thread_ts: threadTs }));
+        yield slack.postMessage(Object.assign(Object.assign({}, stageMessage), { reply_broadcast: !successful, thread_ts: threadTs }));
         const conclusion = 'true' === (0, core_1.getInput)('conclusion');
         if (conclusion || !(0, types_1.isSuccessful)(status)) {
             (0, core_1.info)(`Updating summary message: ${status}`);
-            const message = yield (0, getSummaryMessage_1.getSummaryMessage)({
+            const summaryMessage = yield (0, getSummaryMessage_1.getSummaryMessage)({
                 octokit,
                 options: { status, threadTs, now },
                 author
             });
-            yield slack.updateMessage(Object.assign(Object.assign({}, message), { ts: threadTs }));
+            yield slack.updateMessage(Object.assign(Object.assign({}, summaryMessage), { ts: threadTs }));
         }
         return null;
     });
