@@ -31,7 +31,12 @@ export interface Image {
   image_url: string
 }
 
-export type PostMessageArguments = MessageArguments & ReplyInThread
+export interface PostThreadedMessageArguments extends MessageArguments {
+  /** Provide another message's `ts` value to post this message in a thread. */
+  thread_ts: string
+  /** Denotes the stage message status. */
+  successful: boolean
+}
 
 export interface UpdateMessageArguments extends MessageArguments {
   /** Timestamp of the message. */
@@ -39,7 +44,7 @@ export interface UpdateMessageArguments extends MessageArguments {
 }
 
 /** Stricter and compatible with `ChatPostMessageArguments` / `ChatUpdateArguments` */
-interface MessageArguments {
+export interface MessageArguments {
   /** URL to an image to use as the icon for this message */
   icon_url: string | undefined
   /** Set your bot's username */
@@ -50,19 +55,4 @@ interface MessageArguments {
   text: string
   /** An array of structured Blocks. */
   blocks: KnownBlock[]
-}
-
-/** Copied from `@slack/web-api` source types */
-type ReplyInThread = WithinThreadReply | BroadcastedThreadReply
-
-interface WithinThreadReply extends Partial<ThreadTS> {
-  reply_broadcast?: false
-}
-
-interface BroadcastedThreadReply extends ThreadTS {
-  reply_broadcast: true
-}
-
-interface ThreadTS {
-  thread_ts: string
 }

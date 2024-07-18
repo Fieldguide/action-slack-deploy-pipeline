@@ -3,21 +3,25 @@ import {LogLevel, WebClient, WebClientEvent} from '@slack/web-api'
 import {isMissingScopeError} from './errors'
 import type {
   Member,
-  PostMessageArguments,
+  MessageArguments,
+  PostThreadedMessageArguments,
   UpdateMessageArguments
 } from './types'
 
 interface Dependencies {
   token: string
-  channel: string
+  channelPrimary: string
+  channelUnsuccessful: string | undefined
 }
 
 export class SlackClient {
   private readonly web: WebClient
-  private readonly channel: string
+  private readonly channelPrimary: string
+  private readonly channelUnsuccessful: string | null
 
-  constructor({token, channel}: Dependencies) {
-    this.channel = channel
+  constructor({token, channelPrimary, channelUnsuccessful}: Dependencies) {
+    this.channelPrimary = channelPrimary
+    this.channelUnsuccessful = channelUnsuccessful ?? null
 
     this.web = new WebClient(token, {
       logLevel: isDebug() ? LogLevel.DEBUG : LogLevel.INFO
@@ -56,10 +60,10 @@ export class SlackClient {
   /**
    * @returns message timestamp ID
    */
-  async postMessage(options: PostMessageArguments): Promise<string> {
+  async postMessage(options: MessageArguments): Promise<string> {
     const {ts} = await this.web.chat.postMessage({
       ...options,
-      channel: this.channel
+      channel: this.channelPrimary
     })
 
     if (!ts) {
@@ -69,8 +73,44 @@ export class SlackClient {
     return ts
   }
 
+  async postThreadedMessage({
+    successful,
+    thread_ts,
+    ...options
+  }: PostThreadedMessageArguments): Promise<void> {
+    if (successful) {
+      // always post successful messages in primary channel thread
+      await this.web.chat.postMessage({
+        ...options,
+        channel: this.channelPrimary,
+        thread_ts
+      })
+    } else if (this.channelUnsuccessful) {
+      // post to unsuccessful channel
+      await this.web.chat.postMessage({
+        ...options,
+        channel: this.channelUnsuccessful
+      })
+
+      // and primary channel thread
+      await this.web.chat.postMessage({
+        ...options,
+        channel: this.channelPrimary,
+        thread_ts
+      })
+    } else {
+      // broadcast unsuccessful message to primary channel
+      await this.web.chat.postMessage({
+        ...options,
+        channel: this.channelPrimary,
+        thread_ts,
+        reply_broadcast: true
+      })
+    }
+  }
+
   async updateMessage(options: UpdateMessageArguments): Promise<void> {
-    await this.web.chat.update({...options, channel: this.channel})
+    await this.web.chat.update({...options, channel: this.channelPrimary})
   }
 
   /**
