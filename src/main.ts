@@ -31,14 +31,12 @@ async function run(): Promise<void> {
 function createSlackClient(): SlackClient {
   const token = getRequiredEnv(EnvironmentVariable.SlackBotToken)
   const channelPrimary = getRequiredEnv(EnvironmentVariable.SlackChannelPrimary)
-  const channelUnsuccessful = getEnv(
-    EnvironmentVariable.SlackChannelUnsuccessful
-  )
+  const channelUnsuccessful = getEnv(EnvironmentVariable.SlackChannelErrors)
 
   return new SlackClient({
     token,
     channelPrimary,
-    channelUnsuccessful
+    channelErrors: channelUnsuccessful
   })
 }
 

@@ -11,17 +11,17 @@ import type {
 interface Dependencies {
   token: string
   channelPrimary: string
-  channelUnsuccessful: string | undefined
+  channelErrors: string | undefined
 }
 
 export class SlackClient {
   private readonly web: WebClient
   private readonly channelPrimary: string
-  private readonly channelUnsuccessful: string | null
+  private readonly channelErrors: string | null
 
-  constructor({token, channelPrimary, channelUnsuccessful}: Dependencies) {
+  constructor({token, channelPrimary, channelErrors}: Dependencies) {
     this.channelPrimary = channelPrimary
-    this.channelUnsuccessful = channelUnsuccessful ?? null
+    this.channelErrors = channelErrors ?? null
 
     this.web = new WebClient(token, {
       logLevel: isDebug() ? LogLevel.DEBUG : LogLevel.INFO
@@ -85,11 +85,11 @@ export class SlackClient {
         channel: this.channelPrimary,
         thread_ts
       })
-    } else if (this.channelUnsuccessful) {
-      // post to unsuccessful channel
+    } else if (this.channelErrors) {
+      // post to error channel
       await this.web.chat.postMessage({
         ...options,
-        channel: this.channelUnsuccessful
+        channel: this.channelErrors
       })
 
       // and primary channel thread
@@ -99,7 +99,7 @@ export class SlackClient {
         thread_ts
       })
     } else {
-      // broadcast unsuccessful message to primary channel
+      // broadcast error message to primary channel
       await this.web.chat.postMessage({
         ...options,
         channel: this.channelPrimary,
