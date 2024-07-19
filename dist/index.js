@@ -59374,7 +59374,7 @@ var EnvironmentVariable;
 (function (EnvironmentVariable) {
     EnvironmentVariable["SlackBotToken"] = "SLACK_DEPLOY_BOT_TOKEN";
     EnvironmentVariable["SlackChannelPrimary"] = "SLACK_DEPLOY_CHANNEL";
-    EnvironmentVariable["SlackChannelUnsuccessful"] = "SLACK_DEPLOY_CHANNEL_UNSUCCESSFUL";
+    EnvironmentVariable["SlackChannelErrors"] = "SLACK_DEPLOY_CHANNEL_ERRORS";
 })(EnvironmentVariable || (exports.EnvironmentVariable = EnvironmentVariable = {}));
 /**
  * Get the value of an environment variable.
@@ -59445,11 +59445,11 @@ function run() {
 function createSlackClient() {
     const token = (0, input_1.getRequiredEnv)(input_1.EnvironmentVariable.SlackBotToken);
     const channelPrimary = (0, input_1.getRequiredEnv)(input_1.EnvironmentVariable.SlackChannelPrimary);
-    const channelUnsuccessful = (0, input_1.getEnv)(input_1.EnvironmentVariable.SlackChannelUnsuccessful);
+    const channelUnsuccessful = (0, input_1.getEnv)(input_1.EnvironmentVariable.SlackChannelErrors);
     return new SlackClient_1.SlackClient({
         token,
         channelPrimary,
-        channelUnsuccessful
+        channelErrors: channelUnsuccessful
     });
 }
 function createOctokitClient() {
@@ -59554,9 +59554,9 @@ const core_1 = __nccwpck_require__(42186);
 const web_api_1 = __nccwpck_require__(60431);
 const errors_1 = __nccwpck_require__(70035);
 class SlackClient {
-    constructor({ token, channelPrimary, channelUnsuccessful }) {
+    constructor({ token, channelPrimary, channelErrors }) {
         this.channelPrimary = channelPrimary;
-        this.channelUnsuccessful = channelUnsuccessful !== null && channelUnsuccessful !== void 0 ? channelUnsuccessful : null;
+        this.channelErrors = channelErrors !== null && channelErrors !== void 0 ? channelErrors : null;
         this.web = new web_api_1.WebClient(token, {
             logLevel: (0, core_1.isDebug)() ? web_api_1.LogLevel.DEBUG : web_api_1.LogLevel.INFO
         });
@@ -59606,14 +59606,14 @@ class SlackClient {
                 // always post successful messages in primary channel thread
                 yield this.web.chat.postMessage(Object.assign(Object.assign({}, options), { channel: this.channelPrimary, thread_ts }));
             }
-            else if (this.channelUnsuccessful) {
-                // post to unsuccessful channel
-                yield this.web.chat.postMessage(Object.assign(Object.assign({}, options), { channel: this.channelUnsuccessful }));
+            else if (this.channelErrors) {
+                // post to error channel
+                yield this.web.chat.postMessage(Object.assign(Object.assign({}, options), { channel: this.channelErrors }));
                 // and primary channel thread
                 yield this.web.chat.postMessage(Object.assign(Object.assign({}, options), { channel: this.channelPrimary, thread_ts }));
             }
             else {
-                // broadcast unsuccessful message to primary channel
+                // broadcast error message to primary channel
                 yield this.web.chat.postMessage(Object.assign(Object.assign({}, options), { channel: this.channelPrimary, thread_ts, reply_broadcast: true }));
             }
         });
