@@ -1,6 +1,6 @@
 import type {GitHub} from '@actions/github/lib/utils'
 import type {Endpoints} from '@octokit/types'
-import {MessageArguments} from '../slack/types'
+import {PostMessageArguments} from '../slack/types'
 
 export type OctokitClient = InstanceType<typeof GitHub>
 
@@ -9,7 +9,7 @@ export interface Text {
   mrkdwn: string
 }
 
-export interface StageMessage extends MessageArguments {
+export interface StageMessage extends PostMessageArguments {
   successful: boolean
 }
 

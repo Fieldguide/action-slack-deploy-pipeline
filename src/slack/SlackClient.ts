@@ -3,7 +3,7 @@ import {LogLevel, WebClient, WebClientEvent} from '@slack/web-api'
 import {isMissingScopeError} from './errors'
 import type {
   Member,
-  MessageArguments,
+  PostMessageArguments,
   PostThreadedMessageArguments,
   UpdateMessageArguments
 } from './types'
@@ -60,7 +60,7 @@ export class SlackClient {
   /**
    * @returns message timestamp ID
    */
-  async postMessage(options: MessageArguments): Promise<string> {
+  async postMessage(options: PostMessageArguments): Promise<string> {
     const {ts} = await this.web.chat.postMessage({
       ...options,
       channel: this.channelPrimary

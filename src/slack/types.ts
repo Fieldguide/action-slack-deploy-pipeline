@@ -31,20 +31,8 @@ export interface Image {
   image_url: string
 }
 
-export interface PostThreadedMessageArguments extends MessageArguments {
-  /** Provide another message's `ts` value to post this message in a thread. */
-  thread_ts: string
-  /** Denotes the stage message status. */
-  successful: boolean
-}
-
-export interface UpdateMessageArguments extends MessageArguments {
-  /** Timestamp of the message. */
-  ts: string
-}
-
 /** Stricter and compatible with `ChatPostMessageArguments` / `ChatUpdateArguments` */
-export interface MessageArguments {
+export interface PostMessageArguments {
   /** URL to an image to use as the icon for this message */
   icon_url: string | undefined
   /** Set your bot's username */
@@ -55,4 +43,16 @@ export interface MessageArguments {
   text: string
   /** An array of structured Blocks. */
   blocks: KnownBlock[]
+}
+
+export interface PostThreadedMessageArguments extends PostMessageArguments {
+  /** Provide another message's `ts` value to post this message in a thread. */
+  thread_ts: string
+  /** Denotes the stage message status. */
+  successful: boolean
+}
+
+export interface UpdateMessageArguments extends PostMessageArguments {
+  /** Timestamp of the message. */
+  ts: string
 }

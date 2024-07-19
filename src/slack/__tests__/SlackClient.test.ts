@@ -24,7 +24,8 @@ jest.mock('@slack/web-api', () => ({
 describe('SlackClient', () => {
   const client = new SlackClient({
     token: 'TOKEN',
-    channel: 'CHANNEL'
+    channelPrimary: 'CHANNEL',
+    channelUnsuccessful: undefined
   })
 
   describe('getRealUsers', () => {
