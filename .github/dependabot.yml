@@ -1,20 +1,12 @@
 version: 2
-updates:
-  - package-ecosystem: github-actions
-    directory: /
-    schedule:
-      interval: monthly
-    groups:
-      eslint:
-        patterns:
-          - '@typescript-eslint/*'
-          - 'eslint'
-          - 'eslint-*'
-      jest:
-        patterns:
-          - 'jest'
-          - 'ts-jest'
 
+updates:
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'monthly'
+    reviewers:
+      - 'Fieldguide/ci'
   - package-ecosystem: npm
     directory: /
     schedule:
