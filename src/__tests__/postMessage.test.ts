@@ -376,6 +376,10 @@ describe('postMessage', () => {
         expect(slack.updateMessage).not.toHaveBeenCalled()
       })
 
+      it('should not add error reaction', () => {
+        expect(slack.maybeAddErrorReaction).not.toHaveBeenCalledWith()
+      })
+
       it('should not return timestamp ID', () => {
         expect(ts).toBe(null)
       })
@@ -437,6 +441,12 @@ describe('postMessage', () => {
             ts: '1662768000' // 2022-09-10T00:00:00.000Z
           })
         )
+      })
+
+      it('should add error reaction', () => {
+        expect(slack.maybeAddErrorReaction).toHaveBeenCalledWith({
+          ts: '1662768000' // 2022-09-10T00:00:00.000Z
+        })
       })
     })
 

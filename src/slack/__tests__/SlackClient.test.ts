@@ -5,6 +5,7 @@ import {SlackClient} from '../SlackClient'
 import {Member} from '../types'
 
 const listUsers = jest.fn()
+const addReaction = jest.fn()
 
 jest.mock('@slack/web-api', () => ({
   ErrorCode: {
@@ -18,6 +19,9 @@ jest.mock('@slack/web-api', () => ({
     users = {
       list: listUsers
     }
+    reactions = {
+      add: addReaction
+    }
   },
   WebClientEvent: {}
 }))
@@ -26,7 +30,11 @@ describe('SlackClient', () => {
   const client = new SlackClient({
     token: 'TOKEN',
     channel: 'CHANNEL',
-    errorReaction: null
+    errorReaction: 'REACTION'
+  })
+
+  beforeEach(() => {
+    jest.resetAllMocks()
   })
 
   describe('getRealUsers', () => {
@@ -82,6 +90,48 @@ describe('SlackClient', () => {
 
       it('should filter real users', () => {
         expect(users).toStrictEqual([{id: 'U1'}, {id: 'U2', is_bot: false}])
+      })
+    })
+  })
+
+  describe('maybeAddErrorReaction', () => {
+    describe('missing scope error', () => {
+      beforeEach(async () => {
+        addReaction.mockImplementation(() => {
+          throw new SlackCodedError(ErrorCode.PlatformError, 'already_reacted')
+        })
+      })
+
+      it('should not throw error', async () => {
+        await client.maybeAddErrorReaction({ts: '123'})
+      })
+    })
+
+    describe('missing scope error', () => {
+      beforeEach(async () => {
+        addReaction.mockImplementation(() => {
+          throw new SlackCodedError(ErrorCode.PlatformError, 'missing_scope')
+        })
+      })
+
+      it('should throw error', () => {
+        expect(async () =>
+          client.maybeAddErrorReaction({ts: '123'})
+        ).rejects.toThrow(MissingScopeError)
+      })
+    })
+
+    describe('success', () => {
+      beforeEach(async () => {
+        await client.maybeAddErrorReaction({ts: '123'})
+      })
+
+      it('should add reaction', () => {
+        expect(addReaction).toHaveBeenCalledWith({
+          channel: 'CHANNEL',
+          name: 'REACTION',
+          timestamp: '123'
+        })
       })
     })
   })

@@ -99,6 +99,7 @@ export class SlackClient {
         'already_reacted' === error.data.error
       ) {
         info('Error reaction already added')
+
         return
       }
 
