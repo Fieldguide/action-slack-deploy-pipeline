@@ -13,6 +13,7 @@ Post [GitHub Action](https://github.com/features/actions) deploy workflow progre
 - Posts summary message at beginning of the deploy workflow, surfacing commit message and author
 - Maps GitHub commit author to Slack user by full name, mentioning them in the summary message
 - Threads intermediate stage completions, sending unexpected failures back to the channel
+- Adds summary message reaction to unsuccessful jobs (useful with [Reacji Channeler](https://reacji-channeler.builtbyslack.com/))
 - Updates summary message duration at conclusion of the workflow
 - Supports `pull_request`, `push`, `release`, `schedule`, and `workflow_dispatch` [event types](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows)
 
@@ -22,6 +23,7 @@ Post [GitHub Action](https://github.com/features/actions) deploy workflow progre
 1. Under **OAuth & Permissions**, add two Bot Token Scopes:
    1. [`chat:write`](https://api.slack.com/scopes/chat:write) to post messages
    1. [`chat:write.customize`](https://api.slack.com/scopes/chat:write.customize) to customize messages with GitHub commit author
+   1. [`reactions:write`](https://api.slack.com/scopes/reactions:write) to add summary message error reactions
    1. [`users:read`](https://api.slack.com/scopes/users:read) to map GitHub user to Slack user
 1. Install the app to your workspace
 1. Copy the app's **Bot User OAuth Token** from the **OAuth & Permissions** page
@@ -39,10 +41,11 @@ on:
     branches:
       - main
 
-# 1. Configure required environment variables
+# 1. Configure environment variables
 env:
-  SLACK_DEPLOY_BOT_TOKEN: ${{ secrets.SLACK_DEPLOY_BOT_TOKEN }}
-  SLACK_DEPLOY_CHANNEL: 'C040YVCUDRR' # replace with your Slack Channel ID
+  SLACK_DEPLOY_BOT_TOKEN: ${{ secrets.SLACK_DEPLOY_BOT_TOKEN }} # required
+  SLACK_DEPLOY_CHANNEL: 'C040YVCUDRR' # required - replace with your Slack Channel ID
+  SLACK_DEPLOY_ERROR_REACTION: 'x' # optional emoji name added as non-successful summary message reaction
 
 jobs:
   staging:
@@ -89,12 +92,11 @@ jobs:
 
 ## Environment Variables
 
-Both environment variables are _required_.
-
-| variable                 | description                |
-| ------------------------ | -------------------------- |
-| `SLACK_DEPLOY_BOT_TOKEN` | Slack Bot User OAuth Token |
-| `SLACK_DEPLOY_CHANNEL`   | Slack Channel ID           |
+| variable                      | description                             |
+| ----------------------------- | --------------------------------------- |
+| `SLACK_DEPLOY_BOT_TOKEN`      | **Required** Slack bot user OAuth token |
+| `SLACK_DEPLOY_CHANNEL`        | **Required** Slack channel ID           |
+| `SLACK_DEPLOY_ERROR_REACTION` | Optional Slack emoji name               |
 
 ## Inputs
 
