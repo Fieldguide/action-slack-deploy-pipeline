@@ -66,3 +66,8 @@ interface BroadcastedThreadReply extends ThreadTS {
 interface ThreadTS {
   thread_ts: string
 }
+
+export interface AddReactionArguments {
+  /** Timestamp of the message to add reaction to. */
+  ts: string
+}

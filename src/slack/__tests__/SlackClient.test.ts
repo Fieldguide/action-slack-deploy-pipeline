@@ -1,5 +1,6 @@
 import {beforeEach, describe, expect, it, jest} from '@jest/globals'
 import {CodedError, ErrorCode} from '@slack/web-api'
+import {MissingScopeError} from '../MissingScopeError'
 import {SlackClient} from '../SlackClient'
 import {Member} from '../types'
 
@@ -24,7 +25,8 @@ jest.mock('@slack/web-api', () => ({
 describe('SlackClient', () => {
   const client = new SlackClient({
     token: 'TOKEN',
-    channel: 'CHANNEL'
+    channel: 'CHANNEL',
+    errorReaction: null
   })
 
   describe('getRealUsers', () => {
@@ -53,12 +55,12 @@ describe('SlackClient', () => {
         listUsers.mockImplementation(() => {
           throw new SlackCodedError(ErrorCode.PlatformError, 'missing_scope')
         })
-
-        users = await client.getRealUsers()
       })
 
-      it('should return null', () => {
-        expect(users).toBeNull()
+      it('should throw error', () => {
+        expect(async () => client.getRealUsers()).rejects.toThrow(
+          MissingScopeError
+        )
       })
     })
 

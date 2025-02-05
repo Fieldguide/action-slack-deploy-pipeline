@@ -10,7 +10,7 @@ import {
   StageMessage,
   Text,
   isCompletedJobStep,
-  isSuccessful
+  isSuccessfulStatus
 } from './types'
 
 interface Dependencies {
@@ -36,7 +36,7 @@ export async function getStageMessage({
 
   return {
     ...createMessage({text, contextBlock, author}),
-    successful: isSuccessful(status)
+    successful: isSuccessfulStatus(status)
   }
 }
 

@@ -24,7 +24,8 @@ describe('postMessage', () => {
 
     slack = {
       postMessage: jest.fn(async () => 'TS'),
-      updateMessage: jest.fn(async () => undefined)
+      updateMessage: jest.fn(async () => undefined),
+      maybeAddErrorReaction: jest.fn(async () => undefined)
     } as unknown as SlackClient
 
     jest.resetModules()
