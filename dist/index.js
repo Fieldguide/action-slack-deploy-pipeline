@@ -59543,9 +59543,8 @@ exports.postMessage = postMessage;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.isMissingScopeError = exports.MissingScopeError = void 0;
-const web_api_1 = __nccwpck_require__(60431);
 const input_1 = __nccwpck_require__(6747);
-const isCodedError_1 = __nccwpck_require__(9574);
+const isCodedPlatformError_1 = __nccwpck_require__(78054);
 class MissingScopeError extends Error {
     static fromScope(scope) {
         return new MissingScopeError(`${input_1.EnvironmentVariable.SlackBotToken} does not include "${scope}" OAuth scope.`);
@@ -59553,9 +59552,7 @@ class MissingScopeError extends Error {
 }
 exports.MissingScopeError = MissingScopeError;
 function isMissingScopeError(error) {
-    return ((0, isCodedError_1.isCodedError)(error) &&
-        web_api_1.ErrorCode.PlatformError === error.code &&
-        'missing_scope' === error.data.error);
+    return (0, isCodedPlatformError_1.isCodedPlatformError)(error) && 'missing_scope' === error.data.error;
 }
 exports.isMissingScopeError = isMissingScopeError;
 
@@ -59581,6 +59578,7 @@ exports.SlackClient = void 0;
 const core_1 = __nccwpck_require__(42186);
 const web_api_1 = __nccwpck_require__(60431);
 const MissingScopeError_1 = __nccwpck_require__(1889);
+const isCodedPlatformError_1 = __nccwpck_require__(78054);
 class SlackClient {
     constructor({ token, channel, errorReaction }) {
         this.channel = channel;
@@ -59641,6 +59639,7 @@ class SlackClient {
                 return;
             }
             try {
+                (0, core_1.info)(`Adding error reaction: ${this.errorReaction}`);
                 yield this.web.reactions.add({
                     channel: this.channel,
                     name: this.errorReaction,
@@ -59648,7 +59647,11 @@ class SlackClient {
                 });
             }
             catch (error) {
-                (0, core_1.debug)(JSON.stringify(error, null, 2));
+                if ((0, isCodedPlatformError_1.isCodedPlatformError)(error) &&
+                    'already_reacted' === error.data.error) {
+                    (0, core_1.info)('Error reaction already added');
+                    return;
+                }
                 if ((0, MissingScopeError_1.isMissingScopeError)(error)) {
                     throw MissingScopeError_1.MissingScopeError.fromScope('reactions:write');
                 }
@@ -59714,17 +59717,21 @@ exports.dateFromTs = dateFromTs;
 
 /***/ }),
 
-/***/ 9574:
-/***/ ((__unused_webpack_module, exports) => {
+/***/ 78054:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.isCodedError = void 0;
+exports.isCodedPlatformError = void 0;
+const web_api_1 = __nccwpck_require__(60431);
+function isCodedPlatformError(error) {
+    return isCodedError(error) && web_api_1.ErrorCode.PlatformError === error.code;
+}
+exports.isCodedPlatformError = isCodedPlatformError;
 function isCodedError(error) {
     return (error instanceof Error && 'string' === typeof error.code);
 }
-exports.isCodedError = isCodedError;
 
 
 /***/ }),

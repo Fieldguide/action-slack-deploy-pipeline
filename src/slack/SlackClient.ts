@@ -1,4 +1,4 @@
-import {debug, isDebug, warning} from '@actions/core'
+import {info, isDebug, warning} from '@actions/core'
 import {LogLevel, WebClient, WebClientEvent} from '@slack/web-api'
 import {isMissingScopeError, MissingScopeError} from './MissingScopeError'
 import type {
@@ -7,6 +7,7 @@ import type {
   PostMessageArguments,
   UpdateMessageArguments
 } from './types'
+import {isCodedPlatformError} from './utils/isCodedPlatformError'
 
 interface Dependencies {
   token: string
@@ -86,13 +87,21 @@ export class SlackClient {
     }
 
     try {
+      info(`Adding error reaction: ${this.errorReaction}`)
       await this.web.reactions.add({
         channel: this.channel,
         name: this.errorReaction,
         timestamp: ts
       })
     } catch (error) {
-      debug(JSON.stringify(error, null, 2))
+      if (
+        isCodedPlatformError(error) &&
+        'already_reacted' === error.data.error
+      ) {
+        info('Error reaction already added')
+        return
+      }
+
       if (isMissingScopeError(error)) {
         throw MissingScopeError.fromScope('reactions:write')
       }

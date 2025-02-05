@@ -1,6 +1,5 @@
-import {ErrorCode, WebAPIPlatformError} from '@slack/web-api'
 import {EnvironmentVariable} from '../input'
-import {isCodedError} from './utils/isCodedError'
+import {isCodedPlatformError} from './utils/isCodedPlatformError'
 
 export class MissingScopeError extends Error {
   static fromScope(scope: string): MissingScopeError {
@@ -10,12 +9,6 @@ export class MissingScopeError extends Error {
   }
 }
 
-export function isMissingScopeError(
-  error: unknown
-): error is WebAPIPlatformError {
-  return (
-    isCodedError(error) &&
-    ErrorCode.PlatformError === error.code &&
-    'missing_scope' === (error as WebAPIPlatformError).data.error
-  )
+export function isMissingScopeError(error: unknown): boolean {
+  return isCodedPlatformError(error) && 'missing_scope' === error.data.error
 }
