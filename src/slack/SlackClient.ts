@@ -1,4 +1,4 @@
-import {isDebug, warning} from '@actions/core'
+import {debug, isDebug, warning} from '@actions/core'
 import {LogLevel, WebClient, WebClientEvent} from '@slack/web-api'
 import {isMissingScopeError, MissingScopeError} from './MissingScopeError'
 import type {
@@ -92,6 +92,7 @@ export class SlackClient {
         timestamp: ts
       })
     } catch (error) {
+      debug(JSON.stringify(error, null, 2))
       if (isMissingScopeError(error)) {
         throw MissingScopeError.fromScope('reactions:write')
       }

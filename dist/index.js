@@ -59102,7 +59102,7 @@ exports.getSummaryMessage = void 0;
 const github = __importStar(__nccwpck_require__(95438));
 const date_fns_1 = __nccwpck_require__(73314);
 const mrkdwn_1 = __nccwpck_require__(36817);
-const utils_1 = __nccwpck_require__(61939);
+const dateFromTs_1 = __nccwpck_require__(19694);
 const getContextBlock_1 = __nccwpck_require__(23831);
 const message_1 = __nccwpck_require__(84144);
 const types_1 = __nccwpck_require__(18768);
@@ -59116,7 +59116,7 @@ function getSummaryMessage(_a) {
         const text = yield getText(octokit, (_b = options === null || options === void 0 ? void 0 : options.status) !== null && _b !== void 0 ? _b : null, author);
         const duration = options
             ? (0, date_fns_1.intervalToDuration)({
-                start: (0, utils_1.dateFromTs)(options.threadTs),
+                start: (0, dateFromTs_1.dateFromTs)(options.threadTs),
                 end: options.now
             })
             : undefined;
@@ -59545,6 +59545,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.isMissingScopeError = exports.MissingScopeError = void 0;
 const web_api_1 = __nccwpck_require__(60431);
 const input_1 = __nccwpck_require__(6747);
+const isCodedError_1 = __nccwpck_require__(9574);
 class MissingScopeError extends Error {
     static fromScope(scope) {
         return new MissingScopeError(`${input_1.EnvironmentVariable.SlackBotToken} does not include "${scope}" OAuth scope.`);
@@ -59552,14 +59553,11 @@ class MissingScopeError extends Error {
 }
 exports.MissingScopeError = MissingScopeError;
 function isMissingScopeError(error) {
-    return (isCodedError(error) &&
+    return ((0, isCodedError_1.isCodedError)(error) &&
         web_api_1.ErrorCode.PlatformError === error.code &&
         'missing_scope' === error.data.error);
 }
 exports.isMissingScopeError = isMissingScopeError;
-function isCodedError(error) {
-    return (error instanceof Error && 'string' === typeof error.code);
-}
 
 
 /***/ }),
@@ -59650,6 +59648,7 @@ class SlackClient {
                 });
             }
             catch (error) {
+                (0, core_1.debug)(JSON.stringify(error, null, 2));
                 if ((0, MissingScopeError_1.isMissingScopeError)(error)) {
                     throw MissingScopeError_1.MissingScopeError.fromScope('reactions:write');
                 }
@@ -59697,7 +59696,7 @@ exports.link = link;
 
 /***/ }),
 
-/***/ 61939:
+/***/ 19694:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -59711,6 +59710,21 @@ function dateFromTs(ts) {
     return new Date(1000 * Number(ts));
 }
 exports.dateFromTs = dateFromTs;
+
+
+/***/ }),
+
+/***/ 9574:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.isCodedError = void 0;
+function isCodedError(error) {
+    return (error instanceof Error && 'string' === typeof error.code);
+}
+exports.isCodedError = isCodedError;
 
 
 /***/ }),
