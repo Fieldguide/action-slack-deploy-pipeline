@@ -30,7 +30,9 @@ export enum JobStatus {
   Cancelled = 'cancelled'
 }
 
-export function isSuccessful(status: string): status is JobStatus.Success {
+export function isSuccessfulStatus(
+  status: string
+): status is JobStatus.Success {
   return JobStatus.Success === status
 }
 

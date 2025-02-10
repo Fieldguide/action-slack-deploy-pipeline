@@ -1,7 +1,7 @@
 import {getInput, info} from '@actions/core'
 import {getStageMessage} from './github/getStageMessage'
 import {getSummaryMessage} from './github/getSummaryMessage'
-import {OctokitClient, isSuccessful} from './github/types'
+import {OctokitClient, isSuccessfulStatus} from './github/types'
 import {SlackClient} from './slack/SlackClient'
 import {MessageAuthor} from './slack/types'
 
@@ -48,9 +48,10 @@ export async function postMessage({
     thread_ts: threadTs
   })
 
-  const conclusion = 'true' === getInput('conclusion')
+  const isConclusion = 'true' === getInput('conclusion')
+  const isSuccessful = isSuccessfulStatus(status)
 
-  if (conclusion || !isSuccessful(status)) {
+  if (isConclusion || !isSuccessful) {
     info(`Updating summary message: ${status}`)
     const summaryMessage = await getSummaryMessage({
       octokit,
@@ -62,6 +63,10 @@ export async function postMessage({
       ...summaryMessage,
       ts: threadTs
     })
+  }
+
+  if (!isSuccessful) {
+    await slack.maybeAddErrorReaction({ts: threadTs})
   }
 
   return null

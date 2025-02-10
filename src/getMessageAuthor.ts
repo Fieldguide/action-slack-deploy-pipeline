@@ -2,7 +2,6 @@ import {endGroup, info, isDebug, startGroup, warning} from '@actions/core'
 import {context} from '@actions/github'
 import {OctokitClient, User} from './github/types'
 import {senderFromPayload} from './github/webhook'
-import {EnvironmentVariable} from './input'
 import {SlackClient} from './slack/SlackClient'
 import {MemberWithProfile, MessageAuthor} from './slack/types'
 
@@ -15,12 +14,6 @@ export async function getMessageAuthor(
   try {
     info('Fetching Slack users')
     const slackUsers = await slack.getRealUsers()
-
-    if (!slackUsers) {
-      throw new Error(
-        `${EnvironmentVariable.SlackBotToken} does not include "users:read" OAuth scope.`
-      )
-    }
 
     const githubUser = await getGitHubUser(octokit)
 

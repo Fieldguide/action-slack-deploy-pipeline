@@ -58830,16 +58830,12 @@ exports.getMessageAuthor = void 0;
 const core_1 = __nccwpck_require__(42186);
 const github_1 = __nccwpck_require__(95438);
 const webhook_1 = __nccwpck_require__(50302);
-const input_1 = __nccwpck_require__(6747);
 function getMessageAuthor(octokit, slack) {
     return __awaiter(this, void 0, void 0, function* () {
         (0, core_1.startGroup)('Getting message author');
         try {
             (0, core_1.info)('Fetching Slack users');
             const slackUsers = yield slack.getRealUsers();
-            if (!slackUsers) {
-                throw new Error(`${input_1.EnvironmentVariable.SlackBotToken} does not include "users:read" OAuth scope.`);
-            }
             const githubUser = yield getGitHubUser(octokit);
             (0, core_1.info)(`Finding Slack user by name: ${githubUser.name}`);
             const matchingSlackUsers = slackUsers.filter((user) => {
@@ -59016,7 +59012,7 @@ function getStageMessage(_a) {
         const text = getText(status);
         const duration = yield computeDuration(octokit, now);
         const contextBlock = (0, getContextBlock_1.getContextBlock)(duration);
-        return Object.assign(Object.assign({}, (0, message_1.createMessage)({ text, contextBlock, author })), { successful: (0, types_1.isSuccessful)(status) });
+        return Object.assign(Object.assign({}, (0, message_1.createMessage)({ text, contextBlock, author })), { successful: (0, types_1.isSuccessfulStatus)(status) });
     });
 }
 exports.getStageMessage = getStageMessage;
@@ -59106,7 +59102,7 @@ exports.getSummaryMessage = void 0;
 const github = __importStar(__nccwpck_require__(95438));
 const date_fns_1 = __nccwpck_require__(73314);
 const mrkdwn_1 = __nccwpck_require__(36817);
-const utils_1 = __nccwpck_require__(61939);
+const dateFromTs_1 = __nccwpck_require__(19694);
 const getContextBlock_1 = __nccwpck_require__(23831);
 const message_1 = __nccwpck_require__(84144);
 const types_1 = __nccwpck_require__(18768);
@@ -59120,7 +59116,7 @@ function getSummaryMessage(_a) {
         const text = yield getText(octokit, (_b = options === null || options === void 0 ? void 0 : options.status) !== null && _b !== void 0 ? _b : null, author);
         const duration = options
             ? (0, date_fns_1.intervalToDuration)({
-                start: (0, utils_1.dateFromTs)(options.threadTs),
+                start: (0, dateFromTs_1.dateFromTs)(options.threadTs),
                 end: options.now
             })
             : undefined;
@@ -59267,7 +59263,7 @@ exports.emojiFromStatus = emojiFromStatus;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.isCompletedJobStep = exports.isSuccessful = exports.JobStatus = void 0;
+exports.isCompletedJobStep = exports.isSuccessfulStatus = exports.JobStatus = void 0;
 /**
  * @see https://docs.github.com/en/actions/learn-github-actions/contexts#job-context
  */
@@ -59277,10 +59273,10 @@ var JobStatus;
     JobStatus["Failure"] = "failure";
     JobStatus["Cancelled"] = "cancelled";
 })(JobStatus || (exports.JobStatus = JobStatus = {}));
-function isSuccessful(status) {
+function isSuccessfulStatus(status) {
     return JobStatus.Success === status;
 }
-exports.isSuccessful = isSuccessful;
+exports.isSuccessfulStatus = isSuccessfulStatus;
 function isCompletedJobStep(step) {
     return Boolean(step.completed_at) && 'skipped' !== step.conclusion;
 }
@@ -59369,24 +59365,34 @@ exports.senderFromPayload = senderFromPayload;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getEnv = exports.EnvironmentVariable = void 0;
+exports.getEnv = exports.getRequiredEnv = exports.EnvironmentVariable = void 0;
 var EnvironmentVariable;
 (function (EnvironmentVariable) {
     EnvironmentVariable["SlackBotToken"] = "SLACK_DEPLOY_BOT_TOKEN";
     EnvironmentVariable["SlackChannel"] = "SLACK_DEPLOY_CHANNEL";
+    EnvironmentVariable["SlackErrorReaction"] = "SLACK_DEPLOY_ERROR_REACTION";
 })(EnvironmentVariable || (exports.EnvironmentVariable = EnvironmentVariable = {}));
 /**
  * Get the value of a required environment variable.
  *
  * The value is trimmed of whitespace.
  */
-function getEnv(name) {
-    var _a;
-    const env = String((_a = process.env[name]) !== null && _a !== void 0 ? _a : '').trim();
+function getRequiredEnv(name) {
+    const env = getEnv(name);
     if (!env) {
         throw new Error(`${name} environment variable required`);
     }
     return env;
+}
+exports.getRequiredEnv = getRequiredEnv;
+/**
+ * Get the value of an environment variable.
+ *
+ * The value is trimmed of whitespace.
+ */
+function getEnv(name) {
+    var _a;
+    return String((_a = process.env[name]) !== null && _a !== void 0 ? _a : '').trim() || null;
 }
 exports.getEnv = getEnv;
 
@@ -59434,9 +59440,14 @@ function run() {
     });
 }
 function createSlackClient() {
-    const token = (0, input_1.getEnv)(input_1.EnvironmentVariable.SlackBotToken);
-    const channel = (0, input_1.getEnv)(input_1.EnvironmentVariable.SlackChannel);
-    return new SlackClient_1.SlackClient({ token, channel });
+    const token = (0, input_1.getRequiredEnv)(input_1.EnvironmentVariable.SlackBotToken);
+    const channel = (0, input_1.getRequiredEnv)(input_1.EnvironmentVariable.SlackChannel);
+    const errorReaction = (0, input_1.getEnv)(input_1.EnvironmentVariable.SlackErrorReaction);
+    return new SlackClient_1.SlackClient({
+        token,
+        channel,
+        errorReaction
+    });
 }
 function createOctokitClient() {
     const token = (0, core_1.getInput)('github_token', { required: true });
@@ -59503,8 +59514,9 @@ function postMessage(_a) {
         }), { successful } = _b, stageMessage = __rest(_b, ["successful"]);
         (0, core_1.info)(`Posting stage message in thread: ${threadTs}`);
         yield slack.postMessage(Object.assign(Object.assign({}, stageMessage), { reply_broadcast: !successful, thread_ts: threadTs }));
-        const conclusion = 'true' === (0, core_1.getInput)('conclusion');
-        if (conclusion || !(0, types_1.isSuccessful)(status)) {
+        const isConclusion = 'true' === (0, core_1.getInput)('conclusion');
+        const isSuccessful = (0, types_1.isSuccessfulStatus)(status);
+        if (isConclusion || !isSuccessful) {
             (0, core_1.info)(`Updating summary message: ${status}`);
             const summaryMessage = yield (0, getSummaryMessage_1.getSummaryMessage)({
                 octokit,
@@ -59513,10 +59525,36 @@ function postMessage(_a) {
             });
             yield slack.updateMessage(Object.assign(Object.assign({}, summaryMessage), { ts: threadTs }));
         }
+        if (!isSuccessful) {
+            yield slack.maybeAddErrorReaction({ ts: threadTs });
+        }
         return null;
     });
 }
 exports.postMessage = postMessage;
+
+
+/***/ }),
+
+/***/ 1889:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.isMissingScopeError = exports.MissingScopeError = void 0;
+const input_1 = __nccwpck_require__(6747);
+const isCodedPlatformError_1 = __nccwpck_require__(78054);
+class MissingScopeError extends Error {
+    static fromScope(scope) {
+        return new MissingScopeError(`${input_1.EnvironmentVariable.SlackBotToken} does not include "${scope}" OAuth scope.`);
+    }
+}
+exports.MissingScopeError = MissingScopeError;
+function isMissingScopeError(error) {
+    return (0, isCodedPlatformError_1.isCodedPlatformError)(error) && 'missing_scope' === error.data.error;
+}
+exports.isMissingScopeError = isMissingScopeError;
 
 
 /***/ }),
@@ -59539,10 +59577,12 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.SlackClient = void 0;
 const core_1 = __nccwpck_require__(42186);
 const web_api_1 = __nccwpck_require__(60431);
-const errors_1 = __nccwpck_require__(70035);
+const MissingScopeError_1 = __nccwpck_require__(1889);
+const isCodedPlatformError_1 = __nccwpck_require__(78054);
 class SlackClient {
-    constructor({ token, channel }) {
+    constructor({ token, channel, errorReaction }) {
         this.channel = channel;
+        this.errorReaction = errorReaction;
         this.web = new web_api_1.WebClient(token, {
             logLevel: (0, core_1.isDebug)() ? web_api_1.LogLevel.DEBUG : web_api_1.LogLevel.INFO
         });
@@ -59551,7 +59591,7 @@ class SlackClient {
     /**
      * Return the set of non-bot users.
      *
-     * @returns `null` if the bot token is missing the required OAuth scope
+     * @throws {MissingScopeError} if the bot token is missing the required OAuth scope
      */
     getRealUsers() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -59566,8 +59606,8 @@ class SlackClient {
                 });
             }
             catch (error) {
-                if ((0, errors_1.isMissingScopeError)(error)) {
-                    return null;
+                if ((0, MissingScopeError_1.isMissingScopeError)(error)) {
+                    throw MissingScopeError_1.MissingScopeError.fromScope('users:read');
                 }
                 throw error;
             }
@@ -59591,6 +59631,35 @@ class SlackClient {
         });
     }
     /**
+     * @throws {MissingScopeError} if the bot token is missing the required OAuth scope
+     */
+    maybeAddErrorReaction(_a) {
+        return __awaiter(this, arguments, void 0, function* ({ ts }) {
+            if (!this.errorReaction) {
+                return;
+            }
+            try {
+                (0, core_1.info)(`Adding error reaction: ${this.errorReaction}`);
+                yield this.web.reactions.add({
+                    channel: this.channel,
+                    name: this.errorReaction,
+                    timestamp: ts
+                });
+            }
+            catch (error) {
+                if ((0, isCodedPlatformError_1.isCodedPlatformError)(error) &&
+                    'already_reacted' === error.data.error) {
+                    (0, core_1.info)('Error reaction already added');
+                    return;
+                }
+                if ((0, MissingScopeError_1.isMissingScopeError)(error)) {
+                    throw MissingScopeError_1.MissingScopeError.fromScope('reactions:write');
+                }
+                throw error;
+            }
+        });
+    }
+    /**
      * @see https://slack.dev/node-slack-sdk/web-api#rate-limits
      */
     logRateLimits() {
@@ -59600,28 +59669,6 @@ class SlackClient {
     }
 }
 exports.SlackClient = SlackClient;
-
-
-/***/ }),
-
-/***/ 70035:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.isCodedError = exports.isMissingScopeError = void 0;
-const web_api_1 = __nccwpck_require__(60431);
-function isMissingScopeError(error) {
-    return (isCodedError(error) &&
-        web_api_1.ErrorCode.PlatformError === error.code &&
-        'missing_scope' === error.data.error);
-}
-exports.isMissingScopeError = isMissingScopeError;
-function isCodedError(error) {
-    return (error instanceof Error && 'string' === typeof error.code);
-}
-exports.isCodedError = isCodedError;
 
 
 /***/ }),
@@ -59652,7 +59699,7 @@ exports.link = link;
 
 /***/ }),
 
-/***/ 61939:
+/***/ 19694:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -59666,6 +59713,25 @@ function dateFromTs(ts) {
     return new Date(1000 * Number(ts));
 }
 exports.dateFromTs = dateFromTs;
+
+
+/***/ }),
+
+/***/ 78054:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.isCodedPlatformError = void 0;
+const web_api_1 = __nccwpck_require__(60431);
+function isCodedPlatformError(error) {
+    return isCodedError(error) && web_api_1.ErrorCode.PlatformError === error.code;
+}
+exports.isCodedPlatformError = isCodedPlatformError;
+function isCodedError(error) {
+    return (error instanceof Error && 'string' === typeof error.code);
+}
 
 
 /***/ }),

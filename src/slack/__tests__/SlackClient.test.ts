@@ -1,9 +1,11 @@
 import {beforeEach, describe, expect, it, jest} from '@jest/globals'
 import {CodedError, ErrorCode} from '@slack/web-api'
+import {MissingScopeError} from '../MissingScopeError'
 import {SlackClient} from '../SlackClient'
 import {Member} from '../types'
 
 const listUsers = jest.fn()
+const addReaction = jest.fn()
 
 jest.mock('@slack/web-api', () => ({
   ErrorCode: {
@@ -17,6 +19,9 @@ jest.mock('@slack/web-api', () => ({
     users = {
       list: listUsers
     }
+    reactions = {
+      add: addReaction
+    }
   },
   WebClientEvent: {}
 }))
@@ -24,7 +29,12 @@ jest.mock('@slack/web-api', () => ({
 describe('SlackClient', () => {
   const client = new SlackClient({
     token: 'TOKEN',
-    channel: 'CHANNEL'
+    channel: 'CHANNEL',
+    errorReaction: 'REACTION'
+  })
+
+  beforeEach(() => {
+    jest.resetAllMocks()
   })
 
   describe('getRealUsers', () => {
@@ -53,12 +63,12 @@ describe('SlackClient', () => {
         listUsers.mockImplementation(() => {
           throw new SlackCodedError(ErrorCode.PlatformError, 'missing_scope')
         })
-
-        users = await client.getRealUsers()
       })
 
-      it('should return null', () => {
-        expect(users).toBeNull()
+      it('should throw error', () => {
+        expect(async () => client.getRealUsers()).rejects.toThrow(
+          MissingScopeError
+        )
       })
     })
 
@@ -80,6 +90,48 @@ describe('SlackClient', () => {
 
       it('should filter real users', () => {
         expect(users).toStrictEqual([{id: 'U1'}, {id: 'U2', is_bot: false}])
+      })
+    })
+  })
+
+  describe('maybeAddErrorReaction', () => {
+    describe('missing scope error', () => {
+      beforeEach(async () => {
+        addReaction.mockImplementation(() => {
+          throw new SlackCodedError(ErrorCode.PlatformError, 'already_reacted')
+        })
+      })
+
+      it('should not throw error', async () => {
+        await client.maybeAddErrorReaction({ts: '123'})
+      })
+    })
+
+    describe('missing scope error', () => {
+      beforeEach(async () => {
+        addReaction.mockImplementation(() => {
+          throw new SlackCodedError(ErrorCode.PlatformError, 'missing_scope')
+        })
+      })
+
+      it('should throw error', () => {
+        expect(async () =>
+          client.maybeAddErrorReaction({ts: '123'})
+        ).rejects.toThrow(MissingScopeError)
+      })
+    })
+
+    describe('success', () => {
+      beforeEach(async () => {
+        await client.maybeAddErrorReaction({ts: '123'})
+      })
+
+      it('should add reaction', () => {
+        expect(addReaction).toHaveBeenCalledWith({
+          channel: 'CHANNEL',
+          name: 'REACTION',
+          timestamp: '123'
+        })
       })
     })
   })

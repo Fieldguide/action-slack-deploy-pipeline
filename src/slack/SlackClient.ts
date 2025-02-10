@@ -1,23 +1,28 @@
-import {isDebug, warning} from '@actions/core'
+import {info, isDebug, warning} from '@actions/core'
 import {LogLevel, WebClient, WebClientEvent} from '@slack/web-api'
-import {isMissingScopeError} from './errors'
+import {isMissingScopeError, MissingScopeError} from './MissingScopeError'
 import type {
+  AddReactionArguments,
   Member,
   PostMessageArguments,
   UpdateMessageArguments
 } from './types'
+import {isCodedPlatformError} from './utils/isCodedPlatformError'
 
 interface Dependencies {
   token: string
   channel: string
+  errorReaction: string | null
 }
 
 export class SlackClient {
   private readonly web: WebClient
   private readonly channel: string
+  private readonly errorReaction: string | null
 
-  constructor({token, channel}: Dependencies) {
+  constructor({token, channel, errorReaction}: Dependencies) {
     this.channel = channel
+    this.errorReaction = errorReaction
 
     this.web = new WebClient(token, {
       logLevel: isDebug() ? LogLevel.DEBUG : LogLevel.INFO
@@ -28,9 +33,9 @@ export class SlackClient {
   /**
    * Return the set of non-bot users.
    *
-   * @returns `null` if the bot token is missing the required OAuth scope
+   * @throws {MissingScopeError} if the bot token is missing the required OAuth scope
    */
-  async getRealUsers(): Promise<Member[] | null> {
+  async getRealUsers(): Promise<Member[]> {
     try {
       const {members} = await this.web.users.list({})
 
@@ -46,7 +51,7 @@ export class SlackClient {
       })
     } catch (error) {
       if (isMissingScopeError(error)) {
-        return null
+        throw MissingScopeError.fromScope('users:read')
       }
 
       throw error
@@ -71,6 +76,39 @@ export class SlackClient {
 
   async updateMessage(options: UpdateMessageArguments): Promise<void> {
     await this.web.chat.update({...options, channel: this.channel})
+  }
+
+  /**
+   * @throws {MissingScopeError} if the bot token is missing the required OAuth scope
+   */
+  async maybeAddErrorReaction({ts}: AddReactionArguments): Promise<void> {
+    if (!this.errorReaction) {
+      return
+    }
+
+    try {
+      info(`Adding error reaction: ${this.errorReaction}`)
+      await this.web.reactions.add({
+        channel: this.channel,
+        name: this.errorReaction,
+        timestamp: ts
+      })
+    } catch (error) {
+      if (
+        isCodedPlatformError(error) &&
+        'already_reacted' === error.data.error
+      ) {
+        info('Error reaction already added')
+
+        return
+      }
+
+      if (isMissingScopeError(error)) {
+        throw MissingScopeError.fromScope('reactions:write')
+      }
+
+      throw error
+    }
   }
 
   /**
