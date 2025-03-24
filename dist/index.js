@@ -58830,9 +58830,34 @@ exports.getMessageAuthor = void 0;
 const core_1 = __nccwpck_require__(42186);
 const github_1 = __nccwpck_require__(95438);
 const webhook_1 = __nccwpck_require__(50302);
+const GH_MERGE_QUEUE_BOT_USERNAME = 'github-merge-queue[bot]';
 function getMessageAuthor(octokit, slack) {
     return __awaiter(this, void 0, void 0, function* () {
         (0, core_1.startGroup)('Getting message author');
+        const author = yield fetchAuthor(octokit, slack);
+        try {
+            if (author && GH_MERGE_QUEUE_BOT_USERNAME === author.username) {
+                (0, core_1.info)('Author is GH Merge Queue Bot User. Fetching actual author via PR info.');
+                return getSenderFromPRMerger(octokit);
+            }
+            return author;
+        }
+        catch (err) {
+            const message = err instanceof Error ? err.message : String(err);
+            (0, core_1.warning)(`${message}. Failed to fetch author via PR info, fallback to a GitHub username.`);
+            if ((0, core_1.isDebug)() && err instanceof Error && err.stack) {
+                (0, core_1.warning)(err.stack);
+            }
+            return author;
+        }
+        finally {
+            (0, core_1.endGroup)();
+        }
+    });
+}
+exports.getMessageAuthor = getMessageAuthor;
+function fetchAuthor(octokit, slack) {
+    return __awaiter(this, void 0, void 0, function* () {
         try {
             (0, core_1.info)('Fetching Slack users');
             const slackUsers = yield slack.getRealUsers();
@@ -58865,12 +58890,8 @@ function getMessageAuthor(octokit, slack) {
             }
             return authorFromGitHubContext();
         }
-        finally {
-            (0, core_1.endGroup)();
-        }
     });
 }
-exports.getMessageAuthor = getMessageAuthor;
 function getGitHubUser(octokit) {
     return __awaiter(this, void 0, void 0, function* () {
         const sender = (0, webhook_1.senderFromPayload)(github_1.context.payload);
@@ -58893,6 +58914,35 @@ function authorFromGitHubContext() {
         username: sender.login,
         icon_url: sender.avatar_url
     };
+}
+function getSenderFromPRMerger(octokit) {
+    return __awaiter(this, void 0, void 0, function* () {
+        var _a, _b;
+        const payload = github_1.context.payload;
+        const matches = ((_a = payload.head_commit) === null || _a === void 0 ? void 0 : _a.message).match(/\(#(\d+)\)$/);
+        if (!matches) {
+            throw new Error(`Failed to parse PR number from commit message: '${(_b = payload.head_commit) === null || _b === void 0 ? void 0 : _b.message}'.`);
+        }
+        const prNumber = Number(matches[1]);
+        if (isNaN(prNumber)) {
+            throw new Error(`Matched PR number is not a number: '${prNumber}'.`);
+        }
+        if (!payload.repository) {
+            throw new Error('WebhookPayload does not include repository information');
+        }
+        const mergedBy = (yield octokit.rest.pulls.get({
+            owner: payload.repository.organization,
+            repo: payload.repository.name,
+            pull_number: prNumber
+        })).data.merged_by;
+        if (!mergedBy) {
+            throw new Error('PR details does not include `merged_by` details.');
+        }
+        return {
+            username: mergedBy.login,
+            icon_url: mergedBy.avatar_url
+        };
+    });
 }
 
 
