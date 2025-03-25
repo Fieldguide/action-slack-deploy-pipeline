@@ -5,7 +5,7 @@ import {senderFromPayload} from './github/webhook'
 import {SlackClient} from './slack/SlackClient'
 import {MemberWithProfile, MessageAuthor} from './slack/types'
 
-const GH_MERGE_QUEUE_BOT_USERNAME = 'github-merge-queue[bot]'
+export const GH_MERGE_QUEUE_BOT_USERNAME = 'github-merge-queue[bot]'
 
 export async function getMessageAuthor(
   octokit: OctokitClient,
@@ -20,7 +20,7 @@ export async function getMessageAuthor(
       info(
         'Author is GH Merge Queue Bot User. Fetching actual author via PR info.'
       )
-      return getSenderFromPRMerger(octokit)
+      return await getSenderFromPRMerger(octokit)
     }
 
     return author
@@ -134,10 +134,6 @@ async function getSenderFromPRMerger(
   }
 
   const prNumber = Number(matches[1])
-
-  if (isNaN(prNumber)) {
-    throw new Error(`Matched PR number is not a number: '${prNumber}'.`)
-  }
 
   if (!payload.repository) {
     throw new Error('WebhookPayload does not include repository information')

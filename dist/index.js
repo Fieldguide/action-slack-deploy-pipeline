@@ -58826,19 +58826,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getMessageAuthor = void 0;
+exports.getMessageAuthor = exports.GH_MERGE_QUEUE_BOT_USERNAME = void 0;
 const core_1 = __nccwpck_require__(42186);
 const github_1 = __nccwpck_require__(95438);
 const webhook_1 = __nccwpck_require__(50302);
-const GH_MERGE_QUEUE_BOT_USERNAME = 'github-merge-queue[bot]';
+exports.GH_MERGE_QUEUE_BOT_USERNAME = 'github-merge-queue[bot]';
 function getMessageAuthor(octokit, slack) {
     return __awaiter(this, void 0, void 0, function* () {
         (0, core_1.startGroup)('Getting message author');
         const author = yield fetchAuthor(octokit, slack);
         try {
-            if (author && GH_MERGE_QUEUE_BOT_USERNAME === author.username) {
+            if (author && exports.GH_MERGE_QUEUE_BOT_USERNAME === author.username) {
                 (0, core_1.info)('Author is GH Merge Queue Bot User. Fetching actual author via PR info.');
-                return getSenderFromPRMerger(octokit);
+                return yield getSenderFromPRMerger(octokit);
             }
             return author;
         }
@@ -58924,9 +58924,6 @@ function getSenderFromPRMerger(octokit) {
             throw new Error(`Failed to parse PR number from commit message: '${(_b = payload.head_commit) === null || _b === void 0 ? void 0 : _b.message}'.`);
         }
         const prNumber = Number(matches[1]);
-        if (isNaN(prNumber)) {
-            throw new Error(`Matched PR number is not a number: '${prNumber}'.`);
-        }
         if (!payload.repository) {
             throw new Error('WebhookPayload does not include repository information');
         }
