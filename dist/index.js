@@ -58833,6 +58833,7 @@ const webhook_1 = __nccwpck_require__(50302);
 exports.GH_MERGE_QUEUE_BOT_USERNAME = 'github-merge-queue[bot]';
 function getMessageAuthor(octokit, slack) {
     return __awaiter(this, void 0, void 0, function* () {
+        (0, core_1.startGroup)('Getting message author');
         try {
             (0, core_1.info)('Fetching Slack users');
             const slackUsers = yield slack.getRealUsers();

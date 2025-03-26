@@ -1,4 +1,4 @@
-import {endGroup, info, isDebug, warning} from '@actions/core'
+import {endGroup, info, isDebug, startGroup, warning} from '@actions/core'
 import {context} from '@actions/github'
 import type {Commit} from '@octokit/webhooks-types'
 import {OctokitClient, User} from './github/types'
@@ -13,6 +13,8 @@ export async function getMessageAuthor(
   octokit: OctokitClient,
   slack: SlackClient
 ): Promise<MessageAuthor | null> {
+  startGroup('Getting message author')
+
   try {
     info('Fetching Slack users')
     const slackUsers = await slack.getRealUsers()
