@@ -58833,35 +58833,10 @@ const webhook_1 = __nccwpck_require__(50302);
 exports.GH_MERGE_QUEUE_BOT_USERNAME = 'github-merge-queue[bot]';
 function getMessageAuthor(octokit, slack) {
     return __awaiter(this, void 0, void 0, function* () {
-        (0, core_1.startGroup)('Getting message author');
-        const author = yield fetchAuthor(octokit, slack);
-        try {
-            if (author && exports.GH_MERGE_QUEUE_BOT_USERNAME === author.username) {
-                (0, core_1.info)('Author is GH Merge Queue Bot User. Fetching actual author via PR info.');
-                return yield getSenderFromPRMerger(octokit);
-            }
-            return author;
-        }
-        catch (err) {
-            const message = err instanceof Error ? err.message : String(err);
-            (0, core_1.warning)(`${message}. Failed to fetch author via PR info, fallback to a GitHub username.`);
-            if ((0, core_1.isDebug)() && err instanceof Error && err.stack) {
-                (0, core_1.warning)(err.stack);
-            }
-            return author;
-        }
-        finally {
-            (0, core_1.endGroup)();
-        }
-    });
-}
-exports.getMessageAuthor = getMessageAuthor;
-function fetchAuthor(octokit, slack) {
-    return __awaiter(this, void 0, void 0, function* () {
         try {
             (0, core_1.info)('Fetching Slack users');
             const slackUsers = yield slack.getRealUsers();
-            const githubUser = yield getGitHubUser(octokit);
+            const [githubUser, fallbackToGithubContextUser] = yield getGitHubUser(octokit);
             (0, core_1.info)(`Finding Slack user by name: ${githubUser.name}`);
             const matchingSlackUsers = slackUsers.filter((user) => {
                 var _a;
@@ -58870,6 +58845,12 @@ function fetchAuthor(octokit, slack) {
                     user.profile.image_48);
             });
             const matchingSlackUser = matchingSlackUsers[0];
+            if (!fallbackToGithubContextUser && !matchingSlackUser) {
+                return {
+                    username: githubUser.login,
+                    icon_url: githubUser.avatar_url
+                };
+            }
             if (!matchingSlackUser) {
                 throw new Error(`Unable to match GitHub user "${githubUser.name}" to Slack user by name.`);
             }
@@ -58890,19 +58871,27 @@ function fetchAuthor(octokit, slack) {
             }
             return authorFromGitHubContext();
         }
+        finally {
+            (0, core_1.endGroup)();
+        }
     });
 }
+exports.getMessageAuthor = getMessageAuthor;
 function getGitHubUser(octokit) {
     return __awaiter(this, void 0, void 0, function* () {
         const sender = (0, webhook_1.senderFromPayload)(github_1.context.payload);
         if (!sender) {
             throw new Error('Unexpected GitHub sender payload.');
         }
+        if (exports.GH_MERGE_QUEUE_BOT_USERNAME === sender.login) {
+            (0, core_1.info)('Author is GH Merge Queue Bot User. Fetching actual author via PR info.');
+            return [yield getGitHubPRMergerUser(octokit), false];
+        }
         (0, core_1.info)(`Fetching GitHub user: ${sender.login}`);
         const { data } = yield octokit.rest.users.getByUsername({
             username: sender.login
         });
-        return data;
+        return [data, true];
     });
 }
 function authorFromGitHubContext() {
@@ -58915,30 +58904,28 @@ function authorFromGitHubContext() {
         icon_url: sender.avatar_url
     };
 }
-function getSenderFromPRMerger(octokit) {
+function getGitHubPRMergerUser(octokit) {
     return __awaiter(this, void 0, void 0, function* () {
-        var _a, _b;
-        const payload = github_1.context.payload;
-        const matches = ((_a = payload.head_commit) === null || _a === void 0 ? void 0 : _a.message).match(/\(#(\d+)\)$/);
+        let commit = null;
+        if ((0, webhook_1.isPushEvent)(github_1.context)) {
+            commit = github_1.context.payload.head_commit;
+        }
+        else {
+            throw new Error(`Encountered Merge Queue Bot user in non push event: '${github_1.context.eventName}'.`);
+        }
+        if (!commit) {
+            throw new Error('Unexpected push event payload (undefined head_commit).');
+        }
+        const matches = commit.message.match(/\(#(\d+)\)$/);
         if (!matches) {
-            throw new Error(`Failed to parse PR number from commit message: '${(_b = payload.head_commit) === null || _b === void 0 ? void 0 : _b.message}'.`);
+            throw new Error(`Failed to parse PR number from commit message: '${commit.message}'.`);
         }
         const prNumber = Number(matches[1]);
-        if (!payload.repository) {
-            throw new Error('WebhookPayload does not include repository information');
-        }
-        const mergedBy = (yield octokit.rest.pulls.get({
-            owner: payload.repository.organization,
-            repo: payload.repository.name,
-            pull_number: prNumber
-        })).data.merged_by;
+        const mergedBy = (yield octokit.rest.pulls.get(Object.assign(Object.assign({}, github_1.context.repo), { pull_number: prNumber }))).data.merged_by;
         if (!mergedBy) {
             throw new Error('PR details does not include `merged_by` details.');
         }
-        return {
-            username: mergedBy.login,
-            icon_url: mergedBy.avatar_url
-        };
+        return mergedBy;
     });
 }
 

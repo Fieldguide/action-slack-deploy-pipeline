@@ -14,6 +14,7 @@ describe('getMessageAuthor', () => {
   let messageAuthor: MessageAuthor | null
 
   const OLD_CONTEXT_PAYLOAD = github.context.payload
+  const OLD_ENV = process.env
 
   beforeEach(() => {
     github.context.payload = {
@@ -23,6 +24,9 @@ describe('getMessageAuthor', () => {
         avatar_url: 'github.com/namoscato'
       }
     }
+
+    process.env = {...OLD_ENV}
+    process.env.GITHUB_REPOSITORY = 'namoscato/action-testing'
 
     octokit = {
       rest: {
@@ -37,8 +41,9 @@ describe('getMessageAuthor', () => {
           get: jest.fn(async () => ({
             data: {
               merged_by: {
-                login: 'namoscato',
-                avatar_url: 'github.com/namoscato'
+                name: 'Miles Davis',
+                login: 'mdavis',
+                avatar_url: 'github.com/mdavis'
               }
             }
           }))
@@ -53,6 +58,7 @@ describe('getMessageAuthor', () => {
 
   afterEach(() => {
     github.context.payload = OLD_CONTEXT_PAYLOAD
+    process.env = OLD_ENV
   })
 
   describe('missing Slack OAuth scope', () => {
@@ -185,6 +191,7 @@ describe('getMessageAuthor', () => {
 
   describe('merged by the GH merge queue', () => {
     beforeEach(async () => {
+      github.context.eventName = 'push'
       github.context.payload = {
         sender: {
           type: 'bot',
@@ -201,27 +208,59 @@ describe('getMessageAuthor', () => {
       }
     })
 
-    it('falls back on user who merged the PR', async () => {
-      expect((await getMessageAuthor(octokit, slack))?.username).toBe(
-        'namoscato'
-      )
+    describe('when a slack user match is found', () => {
+      beforeEach(async () => {
+        jest.mocked(slack.getRealUsers).mockReturnValue(
+          Promise.resolve<Member[]>([
+            {
+              id: 'U2',
+              profile: {
+                real_name: 'Miles Davis',
+                display_name: 'Miles',
+                image_48: 'slack.com/img-miles'
+              }
+            }
+          ])
+        )
+
+        messageAuthor = await getMessageAuthor(octokit, slack)
+      })
+
+      it('fetches GH user info from the PR data', () => {
+        expect(octokit.rest.pulls.get).toHaveBeenCalledWith({
+          owner: 'namoscato',
+          pull_number: 123,
+          repo: 'action-testing'
+        })
+      })
+
+      it('maps to their PR merger user', () => {
+        expect(messageAuthor).toStrictEqual({
+          slack_user_id: 'U2',
+          username: 'Miles',
+          icon_url: 'slack.com/img-miles'
+        })
+      })
+    })
+
+    describe('when a slack user match is not found', () => {
+      beforeEach(() => {
+        jest
+          .mocked(slack.getRealUsers)
+          .mockReturnValue(Promise.resolve<Member[]>([]))
+      })
+
+      it('does not fallback on the merge queue user', async () => {
+        expect(await getMessageAuthor(octokit, slack)).toStrictEqual({
+          username: 'mdavis',
+          icon_url: 'github.com/mdavis'
+        })
+      })
     })
 
     describe('when the head commit message does not include PR number', () => {
       beforeEach(() => {
         github.context.payload.head_commit.message = 'Some new feature'
-      })
-
-      it('falls back on merge queue user', async () => {
-        expect((await getMessageAuthor(octokit, slack))?.username).toBe(
-          GH_MERGE_QUEUE_BOT_USERNAME
-        )
-      })
-    })
-
-    describe('when the webhook payload is missing repo info', () => {
-      beforeEach(() => {
-        delete github.context.payload.repository
       })
 
       it('falls back on merge queue user', async () => {
