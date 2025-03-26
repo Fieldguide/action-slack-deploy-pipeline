@@ -33,7 +33,9 @@ describe('getMessageAuthor', () => {
         users: {
           getByUsername: jest.fn(async () => ({
             data: {
-              name: 'Miles Davis'
+              name: 'Miles Davis',
+              login: 'mdavis',
+              avatar_url: 'github.com/mdavis'
             }
           }))
         },
@@ -41,7 +43,6 @@ describe('getMessageAuthor', () => {
           get: jest.fn(async () => ({
             data: {
               merged_by: {
-                name: 'Miles Davis',
                 login: 'mdavis',
                 avatar_url: 'github.com/mdavis'
               }
@@ -226,11 +227,17 @@ describe('getMessageAuthor', () => {
         messageAuthor = await getMessageAuthor(octokit, slack)
       })
 
-      it('fetches GH user info from the PR data', () => {
+      it('fetches the GH user that merged the PR', () => {
         expect(octokit.rest.pulls.get).toHaveBeenCalledWith({
           owner: 'namoscato',
           pull_number: 123,
           repo: 'action-testing'
+        })
+      })
+
+      it('fetches additional GH user info based on `merged_by` PR data', () => {
+        expect(octokit.rest.users.getByUsername).toHaveBeenCalledWith({
+          username: 'mdavis'
         })
       })
 

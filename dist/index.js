@@ -58925,7 +58925,11 @@ function getGitHubPRMergerUser(octokit) {
         if (!mergedBy) {
             throw new Error('PR details does not include `merged_by` details.');
         }
-        return mergedBy;
+        (0, core_1.info)(`Fetching PR Merger GitHub user: ${mergedBy.login}`);
+        const { data } = yield octokit.rest.users.getByUsername({
+            username: mergedBy.login
+        });
+        return data;
     });
 }
 

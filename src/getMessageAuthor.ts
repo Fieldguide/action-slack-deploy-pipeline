@@ -144,5 +144,10 @@ async function getGitHubPRMergerUser(octokit: OctokitClient): Promise<User> {
     throw new Error('PR details does not include `merged_by` details.')
   }
 
-  return mergedBy as User
+  info(`Fetching PR Merger GitHub user: ${mergedBy.login}`)
+  const {data} = await octokit.rest.users.getByUsername({
+    username: mergedBy.login
+  })
+
+  return data
 }
