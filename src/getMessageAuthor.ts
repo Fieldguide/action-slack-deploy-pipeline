@@ -1,13 +1,12 @@
 import {endGroup, info, isDebug, startGroup, warning} from '@actions/core'
 import {context} from '@actions/github'
 import type {Commit} from '@octokit/webhooks-types'
-import {OctokitClient, User} from './github/types'
-import {isPushEvent, senderFromPayload} from './github/webhook'
+import {OctokitClient} from './github/types'
+import {GitHubSender, isPushEvent, senderFromPayload} from './github/webhook'
 import {SlackClient} from './slack/SlackClient'
 import {MemberWithProfile, MessageAuthor} from './slack/types'
 
 export const GH_MERGE_QUEUE_BOT_USERNAME = 'github-merge-queue[bot]'
-type FallbackToGithubContextUser = boolean
 
 export async function getMessageAuthor(
   octokit: OctokitClient,
@@ -15,12 +14,23 @@ export async function getMessageAuthor(
 ): Promise<MessageAuthor | null> {
   startGroup('Getting message author')
 
+  const githubSender = await getGitHubSender(octokit)
+
+  if (!githubSender) {
+    warning('Unexpected GitHub sender payload.')
+    return null
+  }
+
   try {
     info('Fetching Slack users')
     const slackUsers = await slack.getRealUsers()
 
-    const [githubUser, fallbackToGithubContextUser] =
-      await getGitHubUser(octokit)
+    info(`Fetching GitHub user: ${githubSender.login}`)
+    const githubUser = (
+      await octokit.rest.users.getByUsername({
+        username: githubSender.login
+      })
+    ).data
 
     info(`Finding Slack user by name: ${githubUser.name}`)
     const matchingSlackUsers = slackUsers.filter(
@@ -34,13 +44,6 @@ export async function getMessageAuthor(
     )
 
     const matchingSlackUser = matchingSlackUsers[0]
-
-    if (!fallbackToGithubContextUser && !matchingSlackUser) {
-      return {
-        username: githubUser.login,
-        icon_url: githubUser.avatar_url
-      }
-    }
 
     if (!matchingSlackUser) {
       throw new Error(
@@ -67,50 +70,48 @@ export async function getMessageAuthor(
       warning(err.stack)
     }
 
-    return authorFromGitHubContext()
+    return {
+      username: githubSender.login,
+      icon_url: githubSender.avatar_url
+    }
   } finally {
     endGroup()
   }
 }
 
-async function getGitHubUser(
+/**
+ * Return the GitHub sender, conventionally from the webhook payload.
+ *
+ * If the sender is {@link GH_MERGE_QUEUE_BOT_USERNAME}, an attempt will be made
+ * to derive the actual sender from the originating Merge Queue pull request.
+ *
+ * @returns always resolved promise, falling back to webhook payload sender.
+ */
+async function getGitHubSender(
   octokit: OctokitClient
-): Promise<[User, FallbackToGithubContextUser]> {
+): Promise<GitHubSender | undefined> {
   const sender = senderFromPayload(context.payload)
 
-  if (!sender) {
-    throw new Error('Unexpected GitHub sender payload.')
+  if (GH_MERGE_QUEUE_BOT_USERNAME === sender?.login) {
+    try {
+      info(
+        `Deriving pull request merger in favor of ${GH_MERGE_QUEUE_BOT_USERNAME} sender`
+      )
+      return await getPullRequestMergerFromPushCommit(octokit)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err)
+      warning(
+        `${message} The message author will fallback to ${GH_MERGE_QUEUE_BOT_USERNAME}.`
+      )
+    }
   }
 
-  if (GH_MERGE_QUEUE_BOT_USERNAME === sender.login) {
-    info(
-      'Author is GH Merge Queue Bot User. Fetching actual author via PR info.'
-    )
-    return [await getGitHubPRMergerUser(octokit), false]
-  }
-
-  info(`Fetching GitHub user: ${sender.login}`)
-  const {data} = await octokit.rest.users.getByUsername({
-    username: sender.login
-  })
-
-  return [data, true]
+  return sender
 }
 
-function authorFromGitHubContext(): MessageAuthor | null {
-  const sender = senderFromPayload(context.payload)
-
-  if (!sender) {
-    return null
-  }
-
-  return {
-    username: sender.login,
-    icon_url: sender.avatar_url
-  }
-}
-
-async function getGitHubPRMergerUser(octokit: OctokitClient): Promise<User> {
+async function getPullRequestMergerFromPushCommit(
+  octokit: OctokitClient
+): Promise<GitHubSender> {
   let commit: Commit | null = null
 
   if (isPushEvent(context)) {
@@ -146,10 +147,5 @@ async function getGitHubPRMergerUser(octokit: OctokitClient): Promise<User> {
     throw new Error('PR details does not include `merged_by` details.')
   }
 
-  info(`Fetching PR Merger GitHub user: ${mergedBy.login}`)
-  const {data} = await octokit.rest.users.getByUsername({
-    username: mergedBy.login
-  })
-
-  return data
+  return mergedBy
 }
