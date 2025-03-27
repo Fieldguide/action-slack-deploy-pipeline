@@ -113,7 +113,11 @@ export function assertUnsupportedEvent(context: never): never {
   throw new UnsupportedEventError(context as GitHubContext)
 }
 
-export function senderFromPayload({sender}: WebhookPayload): User | undefined {
+export type GitHubSender = Pick<User, 'login' | 'avatar_url'>
+
+export function senderFromPayload({
+  sender
+}: WebhookPayload): GitHubSender | undefined {
   if (sender?.login && sender.avatar_url) {
     return sender as User
   }

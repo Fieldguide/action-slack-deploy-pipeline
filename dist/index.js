@@ -58826,17 +58826,26 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getMessageAuthor = void 0;
+exports.getMessageAuthor = exports.GH_MERGE_QUEUE_BOT_USERNAME = void 0;
 const core_1 = __nccwpck_require__(42186);
 const github_1 = __nccwpck_require__(95438);
 const webhook_1 = __nccwpck_require__(50302);
+exports.GH_MERGE_QUEUE_BOT_USERNAME = 'github-merge-queue[bot]';
 function getMessageAuthor(octokit, slack) {
     return __awaiter(this, void 0, void 0, function* () {
         (0, core_1.startGroup)('Getting message author');
+        const githubSender = yield getGitHubSender(octokit);
+        if (!githubSender) {
+            (0, core_1.warning)('Unexpected GitHub sender payload.');
+            return null;
+        }
         try {
             (0, core_1.info)('Fetching Slack users');
             const slackUsers = yield slack.getRealUsers();
-            const githubUser = yield getGitHubUser(octokit);
+            (0, core_1.info)(`Fetching GitHub user: ${githubSender.login}`);
+            const githubUser = (yield octokit.rest.users.getByUsername({
+                username: githubSender.login
+            })).data;
             (0, core_1.info)(`Finding Slack user by name: ${githubUser.name}`);
             const matchingSlackUsers = slackUsers.filter((user) => {
                 var _a;
@@ -58863,7 +58872,10 @@ function getMessageAuthor(octokit, slack) {
             if ((0, core_1.isDebug)() && err instanceof Error && err.stack) {
                 (0, core_1.warning)(err.stack);
             }
-            return authorFromGitHubContext();
+            return {
+                username: githubSender.login,
+                icon_url: githubSender.avatar_url
+            };
         }
         finally {
             (0, core_1.endGroup)();
@@ -58871,28 +58883,53 @@ function getMessageAuthor(octokit, slack) {
     });
 }
 exports.getMessageAuthor = getMessageAuthor;
-function getGitHubUser(octokit) {
+/**
+ * Return the GitHub sender, conventionally from the webhook payload.
+ *
+ * If the sender is {@link GH_MERGE_QUEUE_BOT_USERNAME}, an attempt will be made
+ * to derive the actual sender from the originating Merge Queue pull request.
+ *
+ * @returns always resolved promise, falling back to webhook payload sender.
+ */
+function getGitHubSender(octokit) {
     return __awaiter(this, void 0, void 0, function* () {
         const sender = (0, webhook_1.senderFromPayload)(github_1.context.payload);
-        if (!sender) {
-            throw new Error('Unexpected GitHub sender payload.');
+        if (exports.GH_MERGE_QUEUE_BOT_USERNAME === (sender === null || sender === void 0 ? void 0 : sender.login)) {
+            try {
+                (0, core_1.info)(`Deriving pull request merger in favor of ${exports.GH_MERGE_QUEUE_BOT_USERNAME} sender`);
+                return yield getPullRequestMergerFromPushCommit(octokit);
+            }
+            catch (err) {
+                const message = err instanceof Error ? err.message : String(err);
+                (0, core_1.warning)(`${message} The message author will fallback to ${exports.GH_MERGE_QUEUE_BOT_USERNAME}.`);
+            }
         }
-        (0, core_1.info)(`Fetching GitHub user: ${sender.login}`);
-        const { data } = yield octokit.rest.users.getByUsername({
-            username: sender.login
-        });
-        return data;
+        return sender;
     });
 }
-function authorFromGitHubContext() {
-    const sender = (0, webhook_1.senderFromPayload)(github_1.context.payload);
-    if (!sender) {
-        return null;
-    }
-    return {
-        username: sender.login,
-        icon_url: sender.avatar_url
-    };
+function getPullRequestMergerFromPushCommit(octokit) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let commit = null;
+        if ((0, webhook_1.isPushEvent)(github_1.context)) {
+            commit = github_1.context.payload.head_commit;
+        }
+        else {
+            throw new Error(`Encountered Merge Queue Bot user in non push event: '${github_1.context.eventName}'.`);
+        }
+        if (!commit) {
+            throw new Error('Unexpected push event payload (undefined head_commit).');
+        }
+        const matches = commit.message.match(/\(#(\d+)\)$/);
+        if (!matches) {
+            throw new Error(`Failed to parse PR number from commit message: '${commit.message}'.`);
+        }
+        const prNumber = Number(matches[1]);
+        const mergedBy = (yield octokit.rest.pulls.get(Object.assign(Object.assign({}, github_1.context.repo), { pull_number: prNumber }))).data.merged_by;
+        if (!mergedBy) {
+            throw new Error('PR details does not include `merged_by` details.');
+        }
+        return mergedBy;
+    });
 }
 
 

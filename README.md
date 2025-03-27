@@ -11,7 +11,7 @@ Post [GitHub Action](https://github.com/features/actions) deploy workflow progre
 ## Features
 
 - Posts summary message at beginning of the deploy workflow, surfacing commit message and author
-- Maps GitHub commit author to Slack user by full name, mentioning them in the summary message
+- Maps GitHub actor to Slack user by full name, mentioning them in the summary message
 - Threads intermediate stage completions, sending unexpected failures back to the channel
 - Adds summary message reaction to unsuccessful jobs (useful with [Reacji Channeler](https://reacji-channeler.builtbyslack.com/))
 - Updates summary message duration at conclusion of the workflow
@@ -22,7 +22,7 @@ Post [GitHub Action](https://github.com/features/actions) deploy workflow progre
 1. [Create a Slack App](https://api.slack.com/apps) for your workspace
 1. Under **OAuth & Permissions**, add two Bot Token Scopes:
    1. [`chat:write`](https://api.slack.com/scopes/chat:write) to post messages
-   1. [`chat:write.customize`](https://api.slack.com/scopes/chat:write.customize) to customize messages with GitHub commit author
+   1. [`chat:write.customize`](https://api.slack.com/scopes/chat:write.customize) to customize messages with GitHub actor
    1. [`reactions:write`](https://api.slack.com/scopes/reactions:write) to add summary message error reactions
    1. [`users:read`](https://api.slack.com/scopes/users:read) to map GitHub user to Slack user
 1. Install the app to your workspace
