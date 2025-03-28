@@ -277,6 +277,22 @@ describe('getMessageAuthor', () => {
       })
     })
 
+    describe('when the head commit message is multiple lines', () => {
+      beforeEach(() => {
+        github.context.payload.head_commit.message =
+          'My new Feature (#8987)\n' +
+          '  \n' +
+          '  Co-authored-by: Some Body <66177132@users.noreply.github.com>'
+      })
+
+      it('does not fallback on the merge queue user', async () => {
+        expect(await getMessageAuthor(octokit, slack)).toStrictEqual({
+          username: 'mdavis',
+          icon_url: 'github.com/mdavis'
+        })
+      })
+    })
+
     describe('when the request for PR info fails/does not include required info', () => {
       beforeEach(() => {
         ;(octokit.rest.pulls.get as unknown as jest.Mock).mockImplementation(
