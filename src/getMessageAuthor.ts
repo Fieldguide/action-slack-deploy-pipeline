@@ -126,7 +126,7 @@ async function getPullRequestMergerFromPushCommit(
     throw new Error('Unexpected push event payload (undefined head_commit).')
   }
 
-  const matches = commit.message.match(/\(#(\d+)\)$/)
+  const matches = commit.message.match(/\(#(\d+)\)$/m)
 
   if (!matches) {
     throw new Error(
