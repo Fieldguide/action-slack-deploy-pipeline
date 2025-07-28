@@ -27,16 +27,17 @@
   "engines": {
     "node": ">=20"
   },
+  "packageManager": "pnpm@10.12.4",
   "scripts": {
-    "dev": "npm run package -- --watch",
-    "bundle": "npm run format:write && npm run package",
+    "dev": "pnpm package --watch",
+    "bundle": "pnpm format:write && pnpm package",
     "format:write": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint . --ext .ts",
     "package": "ncc build src/main.ts --license licenses.txt",
     "test": "jest --watch",
     "test:ci": "jest",
-    "all": "npm run format:check && npm run lint && npm run test:ci && npm run package"
+    "all": "pnpm format:check && pnpm lint && pnpm test:ci && pnpm package"
   },
   "license": "MIT",
   "dependencies": {
@@ -47,6 +48,8 @@
     "date-fns": "^2.30.0"
   },
   "devDependencies": {
+    "@jest/globals": "^29.7.0",
+    "@octokit/types": "^12.6.0",
     "@types/node": "^20.12.11",
     "@typescript-eslint/parser": "^7.9.0",
     "@vercel/ncc": "^0.38.1",
