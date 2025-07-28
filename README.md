@@ -31,15 +31,6 @@ Post [GitHub Action](https://github.com/features/actions) deploy workflow progre
 1. Invite the bot user into the Slack channel you will post messages to (`/invite @bot_user_name`)
 1. Click the Slack channel name in the header, and copy its **Channel ID** from the bottom of the dialog
 
-## Development
-
-To develop this action locally:
-
-1. Run `corepack enable` once as a prerequisite to enable pnpm
-1. Install dependencies with `pnpm install`
-1. Run tests with `pnpm test`
-1. Build the action with `pnpm bundle`
-
 ## Usage
 
 ```yaml
