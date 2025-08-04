@@ -7,7 +7,27 @@ updates:
       interval: 'monthly'
     reviewers:
       - 'Fieldguide/ci'
+
   - package-ecosystem: npm
     directory: /
     schedule:
       interval: monthly
+    groups:
+      eslint:
+        patterns:
+          - '@typescript-eslint/parser'
+          - 'eslint'
+          - 'eslint-*'
+      typescript:
+        patterns:
+          - '@swc/*'
+          - '@tsconfig/*'
+          - 'ts-loader'
+          - 'ts-node'
+          - 'tsconfig-paths'
+          - 'typescript'
+      jest:
+        patterns:
+          - '@jest/globals'
+          - 'jest'
+          - 'ts-jest'
