@@ -1,5 +1,5 @@
 import {context} from '@actions/github'
-import {intervalToDuration} from 'date-fns'
+import {type Duration, intervalToDuration} from 'date-fns'
 import {bold} from '../slack/mrkdwn'
 import {MessageAuthor} from '../slack/types'
 import {getContextBlock} from './getContextBlock'
