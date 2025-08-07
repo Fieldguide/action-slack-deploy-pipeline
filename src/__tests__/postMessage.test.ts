@@ -377,7 +377,7 @@ describe('postMessage', () => {
       })
 
       it('should not add error reaction', () => {
-        expect(slack.maybeAddErrorReaction).not.toHaveBeenCalledWith()
+        expect(slack.maybeAddErrorReaction).not.toHaveBeenCalled()
       })
 
       it('should not return timestamp ID', () => {
