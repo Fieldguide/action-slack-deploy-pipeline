@@ -38103,6 +38103,7 @@ const getMessageAuthor_1 = __nccwpck_require__(58975);
 const input_1 = __nccwpck_require__(15165);
 const postMessage_1 = __nccwpck_require__(40466);
 const SlackClient_1 = __nccwpck_require__(25666);
+run();
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -38136,7 +38137,6 @@ function createOctokitClient() {
     const token = (0, core_1.getInput)('github_token', { required: true });
     return (0, github_1.getOctokit)(token);
 }
-run();
 
 
 /***/ }),
@@ -38356,7 +38356,7 @@ exports.SlackClient = SlackClient;
 /***/ }),
 
 /***/ 62501:
-/***/ ((__unused_webpack_module, exports) => {
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
@@ -38364,17 +38364,32 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.bold = bold;
 exports.emoji = emoji;
 exports.link = link;
+const escapeText_1 = __nccwpck_require__(69331);
+/**
+ * Bold and escape the specified `text`.
+ *
+ * @see https://api.slack.com/reference/surfaces/formatting#visual-styles
+ */
 function bold(text) {
-    return `*${text}*`;
+    return `*${(0, escapeText_1.escapeText)(text)}*`;
 }
+/**
+ * Return an emoji with the specified `name`.
+ *
+ * @see https://api.slack.com/reference/surfaces/formatting#emoji
+ */
 function emoji(name) {
     return `:${name}:`;
 }
 /**
+ * Return a link with the specified `text` and `url`.
+ *
+ * The `text` is escaped.
+ *
  * @see https://api.slack.com/reference/surfaces/formatting#linking-urls
  */
 function link({ text, url }) {
-    return `<${url}|${text}>`;
+    return `<${url}|${(0, escapeText_1.escapeText)(text)}>`;
 }
 
 
@@ -38393,6 +38408,31 @@ exports.dateFromTs = dateFromTs;
 function dateFromTs(ts) {
     return new Date(1000 * Number(ts));
 }
+
+
+/***/ }),
+
+/***/ 69331:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.escapeText = escapeText;
+/**
+ * Replace special control characters in the specified `text`.
+ *
+ * @see https://docs.slack.dev/messaging/formatting-message-text#escaping
+ */
+function escapeText(text) {
+    return text.replace(CONTROL_CHARACTER_REGEX, match => CONTROL_CHARACTER_HTML_ENTITY_MAP[match]);
+}
+const CONTROL_CHARACTER_HTML_ENTITY_MAP = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;'
+};
+const CONTROL_CHARACTER_REGEX = new RegExp(`[${Object.keys(CONTROL_CHARACTER_HTML_ENTITY_MAP).join('')}]`, 'g');
 
 
 /***/ }),

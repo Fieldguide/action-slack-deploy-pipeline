@@ -165,7 +165,7 @@ describe('postMessage', () => {
         data: {
           commit: {
             message:
-              'COMMIT-MESSAGE\n\nCo-authored-by: Nick <namoscato@users.noreply.github.com>',
+              '<COMMIT> & MESSAGE\n\nCo-authored-by: Nick <namoscato@users.noreply.github.com>',
             url: 'github.com/commit'
           }
         }
@@ -196,13 +196,13 @@ describe('postMessage', () => {
         icon_url: 'slack.com/nick',
         username: 'Nick (via GitHub)',
         unfurl_links: false,
-        text: 'Nick is deploying action-testing: COMMIT-MESSAGE',
+        text: 'Nick is deploying action-testing: <COMMIT> & MESSAGE',
         blocks: [
           {
             type: 'section',
             text: {
               type: 'mrkdwn',
-              text: ':black_square_button: <@U123> is deploying *action-testing*: <github.com/commit|COMMIT-MESSAGE>'
+              text: ':black_square_button: <@U123> is deploying *action-testing*: <github.com/commit|&lt;COMMIT&gt; &amp; MESSAGE>'
             }
           },
           {
