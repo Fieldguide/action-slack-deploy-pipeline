@@ -6,6 +6,8 @@ import {EnvironmentVariable, getEnv, getRequiredEnv} from './input'
 import {postMessage} from './postMessage'
 import {SlackClient} from './slack/SlackClient'
 
+run()
+
 async function run(): Promise<void> {
   try {
     const octokit = createOctokitClient()
@@ -43,5 +45,3 @@ function createOctokitClient(): OctokitClient {
 
   return getOctokit(token)
 }
-
-run()
