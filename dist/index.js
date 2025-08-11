@@ -7252,7 +7252,7 @@ ConsoleLogger.severity = {
 
 /***/ }),
 
-/***/ 75882:
+/***/ 1067:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -7263,18 +7263,17 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 
 /***/ }),
 
-/***/ 55229:
+/***/ 96008:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
 
-// This file contains objects documented here: https://api.slack.com/reference/block-kit/blocks
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 //# sourceMappingURL=blocks.js.map
 
 /***/ }),
 
-/***/ 65220:
+/***/ 66047:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -7285,7 +7284,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 
 /***/ }),
 
-/***/ 87945:
+/***/ 55984:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -7295,7 +7294,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 
 /***/ }),
 
-/***/ 86005:
+/***/ 13298:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -7308,7 +7307,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 
 /***/ }),
 
-/***/ 55534:
+/***/ 88983:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -7318,7 +7317,128 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 
 /***/ }),
 
-/***/ 85276:
+/***/ 56058:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+//# sourceMappingURL=app.js.map
+
+/***/ }),
+
+/***/ 6849:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+//# sourceMappingURL=assistant.js.map
+
+/***/ }),
+
+/***/ 11449:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+//# sourceMappingURL=call.js.map
+
+/***/ }),
+
+/***/ 75494:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+//# sourceMappingURL=channel.js.map
+
+/***/ }),
+
+/***/ 58343:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+//# sourceMappingURL=dnd.js.map
+
+/***/ }),
+
+/***/ 11169:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+//# sourceMappingURL=email.js.map
+
+/***/ }),
+
+/***/ 97963:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+//# sourceMappingURL=emoji.js.map
+
+/***/ }),
+
+/***/ 15963:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+// NOTE: `file_comment_added` and `file_comment_edited` are left out because they are discontinued
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+//# sourceMappingURL=file.js.map
+
+/***/ }),
+
+/***/ 60937:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+//# sourceMappingURL=function.js.map
+
+/***/ }),
+
+/***/ 41896:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+//# sourceMappingURL=grid-migration.js.map
+
+/***/ }),
+
+/***/ 61470:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+//# sourceMappingURL=group.js.map
+
+/***/ }),
+
+/***/ 63051:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+//# sourceMappingURL=im.js.map
+
+/***/ }),
+
+/***/ 25753:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -7338,30 +7458,67 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-__exportStar(__nccwpck_require__(86005), exports);
-__exportStar(__nccwpck_require__(55534), exports);
-__exportStar(__nccwpck_require__(11773), exports);
-__exportStar(__nccwpck_require__(84840), exports);
-__exportStar(__nccwpck_require__(84422), exports);
-__exportStar(__nccwpck_require__(55229), exports);
-__exportStar(__nccwpck_require__(65220), exports);
-__exportStar(__nccwpck_require__(75882), exports);
-__exportStar(__nccwpck_require__(87945), exports);
+__exportStar(__nccwpck_require__(56058), exports);
+__exportStar(__nccwpck_require__(6849), exports);
+__exportStar(__nccwpck_require__(11449), exports);
+__exportStar(__nccwpck_require__(75494), exports);
+__exportStar(__nccwpck_require__(58343), exports);
+__exportStar(__nccwpck_require__(11169), exports);
+__exportStar(__nccwpck_require__(97963), exports);
+__exportStar(__nccwpck_require__(15963), exports);
+__exportStar(__nccwpck_require__(60937), exports);
+__exportStar(__nccwpck_require__(41896), exports);
+__exportStar(__nccwpck_require__(61470), exports);
+__exportStar(__nccwpck_require__(63051), exports);
+__exportStar(__nccwpck_require__(42496), exports);
+__exportStar(__nccwpck_require__(11219), exports);
+__exportStar(__nccwpck_require__(89259), exports);
+__exportStar(__nccwpck_require__(22610), exports);
+__exportStar(__nccwpck_require__(34714), exports);
+__exportStar(__nccwpck_require__(3642), exports);
+__exportStar(__nccwpck_require__(65374), exports);
+__exportStar(__nccwpck_require__(38690), exports);
+__exportStar(__nccwpck_require__(11181), exports);
+__exportStar(__nccwpck_require__(61948), exports);
+__exportStar(__nccwpck_require__(36498), exports);
+__exportStar(__nccwpck_require__(34360), exports);
+__exportStar(__nccwpck_require__(17780), exports);
+__exportStar(__nccwpck_require__(13758), exports);
 //# sourceMappingURL=index.js.map
 
 /***/ }),
 
-/***/ 84840:
+/***/ 42496:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-//# sourceMappingURL=message-attachments.js.map
+//# sourceMappingURL=invite.js.map
 
 /***/ }),
 
-/***/ 11773:
+/***/ 11219:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+//# sourceMappingURL=link-shared.js.map
+
+/***/ }),
+
+/***/ 89259:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+//# sourceMappingURL=member.js.map
+
+/***/ }),
+
+/***/ 34714:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -7371,7 +7528,161 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 
 /***/ }),
 
-/***/ 84422:
+/***/ 22610:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+//# sourceMappingURL=message.js.map
+
+/***/ }),
+
+/***/ 3642:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+//# sourceMappingURL=pin.js.map
+
+/***/ }),
+
+/***/ 65374:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+//# sourceMappingURL=reaction.js.map
+
+/***/ }),
+
+/***/ 38690:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+//# sourceMappingURL=shared-channel.js.map
+
+/***/ }),
+
+/***/ 11181:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+//# sourceMappingURL=star.js.map
+
+/***/ }),
+
+/***/ 61948:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+//# sourceMappingURL=steps-from-apps.js.map
+
+/***/ }),
+
+/***/ 36498:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+//# sourceMappingURL=subteam.js.map
+
+/***/ }),
+
+/***/ 34360:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+//# sourceMappingURL=team.js.map
+
+/***/ }),
+
+/***/ 17780:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+//# sourceMappingURL=token.js.map
+
+/***/ }),
+
+/***/ 13758:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+//# sourceMappingURL=user.js.map
+
+/***/ }),
+
+/***/ 63019:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+__exportStar(__nccwpck_require__(1067), exports);
+__exportStar(__nccwpck_require__(96008), exports);
+__exportStar(__nccwpck_require__(66047), exports);
+__exportStar(__nccwpck_require__(55984), exports);
+__exportStar(__nccwpck_require__(13298), exports);
+__exportStar(__nccwpck_require__(88983), exports);
+__exportStar(__nccwpck_require__(25753), exports);
+__exportStar(__nccwpck_require__(75951), exports);
+__exportStar(__nccwpck_require__(14824), exports);
+__exportStar(__nccwpck_require__(68745), exports);
+//# sourceMappingURL=index.js.map
+
+/***/ }),
+
+/***/ 75951:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+//# sourceMappingURL=message-attachments.js.map
+
+/***/ }),
+
+/***/ 14824:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+//# sourceMappingURL=message-metadata.js.map
+
+/***/ }),
+
+/***/ 68745:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -7381,7 +7692,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 
 /***/ }),
 
-/***/ 50055:
+/***/ 74751:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -7402,13 +7713,23 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -7422,7 +7743,7 @@ var __await = (this && this.__await) || function (v) { return this instanceof __
 var __asyncGenerator = (this && this.__asyncGenerator) || function (thisArg, _arguments, generator) {
     if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
     var g = generator.apply(thisArg, _arguments || []), i, q = [];
-    return i = {}, verb("next"), verb("throw"), verb("return", awaitReturn), i[Symbol.asyncIterator] = function () { return this; }, i;
+    return i = Object.create((typeof AsyncIterator === "function" ? AsyncIterator : Object).prototype), verb("next"), verb("throw"), verb("return", awaitReturn), i[Symbol.asyncIterator] = function () { return this; }, i;
     function awaitReturn(f) { return function (v) { return Promise.resolve(v).then(f, reject); }; }
     function verb(n, f) { if (g[n]) { i[n] = function (v) { return new Promise(function (a, b) { q.push([n, v, a, b]) > 1 || resume(n, v); }); }; if (f) i[n] = f(i[n]); } }
     function resume(n, v) { try { step(g[n](v)); } catch (e) { settle(q[0][3], e); } }
@@ -7442,36 +7763,48 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.buildThreadTsWarningMessage = exports.WebClient = exports.WebClientEvent = void 0;
-const path_1 = __nccwpck_require__(16928);
-const querystring_1 = __nccwpck_require__(83480);
-const util_1 = __nccwpck_require__(39023);
-const zlib_1 = __importDefault(__nccwpck_require__(43106));
-const axios_1 = __importDefault(__nccwpck_require__(94457));
-const form_data_1 = __importDefault(__nccwpck_require__(2691));
+exports.WebClient = exports.WebClientEvent = void 0;
+exports.buildThreadTsWarningMessage = buildThreadTsWarningMessage;
+const node_path_1 = __nccwpck_require__(76760);
+const node_querystring_1 = __nccwpck_require__(41792);
+const node_util_1 = __nccwpck_require__(57975);
+const node_zlib_1 = __importDefault(__nccwpck_require__(38522));
+const axios_1 = __importDefault(__nccwpck_require__(69346));
+const form_data_1 = __importDefault(__nccwpck_require__(34455));
 const is_electron_1 = __importDefault(__nccwpck_require__(94830));
 const is_stream_1 = __importDefault(__nccwpck_require__(53187));
 const p_queue_1 = __importDefault(__nccwpck_require__(24993));
 const p_retry_1 = __importStar(__nccwpck_require__(11208));
-const errors_1 = __nccwpck_require__(9803);
-const file_upload_1 = __nccwpck_require__(41086);
-const helpers_1 = __importDefault(__nccwpck_require__(86311));
-const instrument_1 = __nccwpck_require__(76493);
-const logger_1 = __nccwpck_require__(83412);
-const methods_1 = __nccwpck_require__(82092);
-const retry_policies_1 = __nccwpck_require__(79395);
+const errors_1 = __nccwpck_require__(33651);
+const file_upload_1 = __nccwpck_require__(72662);
+const helpers_1 = __importDefault(__nccwpck_require__(46223));
+const instrument_1 = __nccwpck_require__(63717);
+const logger_1 = __nccwpck_require__(49932);
+const methods_1 = __nccwpck_require__(32356);
+const retry_policies_1 = __nccwpck_require__(52827);
 /*
  * Helpers
  */
 // Props on axios default headers object to ignore when retrieving full list of actual headers sent in any HTTP requests
-const axiosHeaderPropsToIgnore = ['delete', 'common', 'get', 'put', 'head', 'post', 'link', 'patch', 'purge', 'unlink', 'options'];
+const axiosHeaderPropsToIgnore = [
+    'delete',
+    'common',
+    'get',
+    'put',
+    'head',
+    'post',
+    'link',
+    'patch',
+    'purge',
+    'unlink',
+    'options',
+];
 const defaultFilename = 'Untitled';
 const defaultPageSize = 200;
 const noopPageReducer = () => undefined;
 var WebClientEvent;
 (function (WebClientEvent) {
     // TODO: safe to rename this to conform to PascalCase enum type naming convention?
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     WebClientEvent["RATE_LIMITED"] = "rate_limited";
 })(WebClientEvent || (exports.WebClientEvent = WebClientEvent = {}));
 /**
@@ -7483,18 +7816,24 @@ var WebClientEvent;
 class WebClient extends methods_1.Methods {
     /**
      * @param token - An API token to authenticate/authorize with Slack (usually start with `xoxp`, `xoxb`)
+     * @param {Object} [webClientOptions] - Configuration options.
+     * @param {Function} [webClientOptions.requestInterceptor] - An interceptor to mutate outgoing requests. See {@link https://axios-http.com/docs/interceptors Axios interceptors}
+     * @param {Function} [webClientOptions.adapter] - An adapter to allow custom handling of requests. Useful if you would like to use a pre-configured http client. See {@link https://github.com/axios/axios/blob/v1.x/README.md?plain=1#L586 Axios adapter}
      */
-    constructor(token, { slackApiUrl = 'https://slack.com/api/', logger = undefined, logLevel = undefined, maxRequestConcurrency = 100, retryConfig = retry_policies_1.tenRetriesInAboutThirtyMinutes, agent = undefined, tls = undefined, timeout = 0, rejectRateLimitedCalls = false, headers = {}, teamId = undefined, attachOriginalToWebAPIRequestError = true, } = {}) {
+    constructor(token, { slackApiUrl = 'https://slack.com/api/', logger = undefined, logLevel = undefined, maxRequestConcurrency = 100, retryConfig = retry_policies_1.tenRetriesInAboutThirtyMinutes, agent = undefined, tls = undefined, timeout = 0, rejectRateLimitedCalls = false, headers = {}, teamId = undefined, allowAbsoluteUrls = true, attachOriginalToWebAPIRequestError = true, requestInterceptor = undefined, adapter = undefined, } = {}) {
         super();
         this.token = token;
         this.slackApiUrl = slackApiUrl;
+        if (!this.slackApiUrl.endsWith('/')) {
+            this.slackApiUrl += '/';
+        }
         this.retryConfig = retryConfig;
-        // eslint-disable-next-line new-cap
         this.requestQueue = new p_queue_1.default({ concurrency: maxRequestConcurrency });
         // NOTE: may want to filter the keys to only those acceptable for TLS options
         this.tlsConfig = tls !== undefined ? tls : {};
         this.rejectRateLimitedCalls = rejectRateLimitedCalls;
         this.teamId = teamId;
+        this.allowAbsoluteUrls = allowAbsoluteUrls;
         this.attachOriginalToWebAPIRequestError = attachOriginalToWebAPIRequestError;
         // Logging
         if (typeof logger !== 'undefined') {
@@ -7506,17 +7845,15 @@ class WebClient extends methods_1.Methods {
         else {
             this.logger = (0, logger_1.getLogger)(WebClient.loggerName, logLevel !== null && logLevel !== void 0 ? logLevel : logger_1.LogLevel.INFO, logger);
         }
-        // eslint-disable-next-line no-param-reassign
         if (this.token && !headers.Authorization)
             headers.Authorization = `Bearer ${this.token}`;
         this.axios = axios_1.default.create({
+            adapter: adapter ? (config) => adapter(Object.assign(Object.assign({}, config), { adapter: undefined })) : undefined,
             timeout,
-            baseURL: slackApiUrl,
-            // eslint-disable-next-line @typescript-eslint/naming-convention
+            baseURL: this.slackApiUrl,
             headers: (0, is_electron_1.default)() ? headers : Object.assign({ 'User-Agent': (0, instrument_1.getUserAgent)() }, headers),
             httpAgent: agent,
             httpsAgent: agent,
-            transformRequest: [this.serializeApiCallOptions.bind(this)],
             validateStatus: () => true, // all HTTP status codes should result in a resolved promise (as opposed to only 2xx)
             maxRedirects: 0,
             // disabling axios' automatic proxy support:
@@ -7525,8 +7862,14 @@ class WebClient extends methods_1.Methods {
             // protocols), users of this package should use the `agent` option to configure a proxy.
             proxy: false,
         });
-        // serializeApiCallOptions will always determine the appropriate content-type
-        delete this.axios.defaults.headers.post['Content-Type'];
+        // serializeApiCallData will always determine the appropriate content-type
+        this.axios.defaults.headers.post['Content-Type'] = undefined;
+        // request interceptors have reversed execution order
+        // see: https://github.com/axios/axios/blob/v1.x/test/specs/interceptors.spec.js#L88
+        if (requestInterceptor) {
+            this.axios.interceptors.request.use(requestInterceptor, null);
+        }
+        this.axios.interceptors.request.use(this.serializeApiCallData.bind(this), null);
         this.logger.debug('initialized');
     }
     /**
@@ -7534,8 +7877,8 @@ class WebClient extends methods_1.Methods {
      * @param method - the Web API method to call {@link https://api.slack.com/methods}
      * @param options - options
      */
-    apiCall(method, options = {}) {
-        return __awaiter(this, void 0, void 0, function* () {
+    apiCall(method_1) {
+        return __awaiter(this, arguments, void 0, function* (method, options = {}) {
             this.logger.debug(`apiCall('${method}') start`);
             warnDeprecations(method, this.logger);
             warnIfFallbackIsMissing(method, this.logger, options);
@@ -7544,14 +7887,14 @@ class WebClient extends methods_1.Methods {
                 throw new TypeError(`Expected an options argument but instead received a ${typeof options}`);
             }
             (0, file_upload_1.warnIfNotUsingFilesUploadV2)(method, this.logger);
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
+            // @ts-expect-error insufficient overlap between Record and FilesUploadV2Arguments
             if (method === 'files.uploadV2')
                 return this.filesUploadV2(options);
             const headers = {};
             if (options.token)
                 headers.Authorization = `Bearer ${options.token}`;
-            const response = yield this.makeRequest(method, Object.assign({ team_id: this.teamId }, options), headers);
+            const url = this.deriveRequestUrl(method);
+            const response = yield this.makeRequest(url, Object.assign({ team_id: this.teamId }, options), headers);
             const result = yield this.buildResult(response);
             this.logger.debug(`http request result: ${JSON.stringify(result)}`);
             // log warnings in response metadata
@@ -7561,7 +7904,7 @@ class WebClient extends methods_1.Methods {
             // log warnings and errors in response metadata messages
             // related to https://api.slack.com/changelog/2016-09-28-response-metadata-is-on-the-way
             if (result.response_metadata !== undefined && result.response_metadata.messages !== undefined) {
-                result.response_metadata.messages.forEach((msg) => {
+                for (const msg of result.response_metadata.messages) {
                     const errReg = /\[ERROR\](.*)/;
                     const warnReg = /\[WARN\](.*)/;
                     if (errReg.test(msg)) {
@@ -7576,15 +7919,15 @@ class WebClient extends methods_1.Methods {
                             this.logger.warn(warnMatch[1].trim());
                         }
                     }
-                });
+                }
             }
             // If result's content is gzip, "ok" property is not returned with successful response
             // TODO: look into simplifying this code block to only check for the second condition
             // if an { ok: false } body applies for all API errors
-            if (!result.ok && (response.headers['content-type'] !== 'application/gzip')) {
+            if (!result.ok && response.headers['content-type'] !== 'application/gzip') {
                 throw (0, errors_1.platformErrorFromResult)(result);
             }
-            else if ('ok' in result && result.ok === false) {
+            if ('ok' in result && result.ok === false) {
                 throw (0, errors_1.platformErrorFromResult)(result);
             }
             this.logger.debug(`apiCall('${method}') end`);
@@ -7595,8 +7938,7 @@ class WebClient extends methods_1.Methods {
         const pageSize = (() => {
             if (options !== undefined && typeof options.limit === 'number') {
                 const { limit } = options;
-                // eslint-disable-next-line no-param-reassign
-                delete options.limit;
+                options.limit = undefined;
                 return limit;
             }
             return defaultPageSize;
@@ -7614,7 +7956,6 @@ class WebClient extends methods_1.Methods {
                 }
                 // NOTE: test for the situation where you're resuming a pagination using and existing cursor
                 while (result === undefined || paginationOptions !== undefined) {
-                    // eslint-disable-next-line no-await-in-loop
                     result = yield __await(this.apiCall(method, Object.assign(options !== undefined ? options : {}, paginationOptions)));
                     yield yield __await(result);
                     paginationOptions = paginationOptionsForNextPage(result, pageSize);
@@ -7624,7 +7965,7 @@ class WebClient extends methods_1.Methods {
         if (shouldStop === undefined) {
             return generatePages.call(this);
         }
-        const pageReducer = (reduce !== undefined) ? reduce : noopPageReducer;
+        const pageReducer = reduce !== undefined ? reduce : noopPageReducer;
         let index = 0;
         return (() => __awaiter(this, void 0, void 0, function* () {
             // Unroll the first iteration of the iterator
@@ -7644,7 +7985,6 @@ class WebClient extends methods_1.Methods {
             }
             try {
                 // Continue iteration
-                // eslint-disable-next-line no-restricted-syntax
                 for (var _d = true, pageIterator_1 = __asyncValues(pageIterator), pageIterator_1_1; pageIterator_1_1 = yield pageIterator_1.next(), _a = pageIterator_1_1.done, !_a; _d = true) {
                     _c = pageIterator_1_1.value;
                     _d = false;
@@ -7706,7 +8046,6 @@ class WebClient extends methods_1.Methods {
     fetchAllUploadURLExternal(fileUploads) {
         return __awaiter(this, void 0, void 0, function* () {
             return Promise.all(fileUploads.map((upload) => {
-                /* eslint-disable @typescript-eslint/consistent-type-assertions */
                 const options = {
                     filename: upload.filename,
                     length: upload.length,
@@ -7781,13 +8120,12 @@ class WebClient extends methods_1.Methods {
     /**
      * Low-level function to make a single API request. handles queuing, retries, and http-level errors
      */
-    makeRequest(url, body, headers = {}) {
-        return __awaiter(this, void 0, void 0, function* () {
+    makeRequest(url_1, body_1) {
+        return __awaiter(this, arguments, void 0, function* (url, body, headers = {}) {
             // TODO: better input types - remove any
             const task = () => this.requestQueue.add(() => __awaiter(this, void 0, void 0, function* () {
-                const requestURL = (url.startsWith('https' || 0)) ? url : `${this.axios.getUri() + url}`;
                 try {
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    // biome-ignore lint/suspicious/noExplicitAny: TODO: type this
                     const config = Object.assign({ headers }, this.tlsConfig);
                     // admin.analytics.getFile returns a binary response
                     // To be able to parse it, it should be read as an ArrayBuffer
@@ -7797,14 +8135,12 @@ class WebClient extends methods_1.Methods {
                     // apps.event.authorizations.list will reject HTTP requests that send token in the body
                     // TODO: consider applying this change to all methods - though that will require thorough integration testing
                     if (url.endsWith('apps.event.authorizations.list')) {
-                        // eslint-disable-next-line no-param-reassign
-                        delete body.token;
+                        body.token = undefined;
                     }
-                    this.logger.debug(`http request url: ${requestURL}`);
+                    this.logger.debug(`http request url: ${url}`);
                     this.logger.debug(`http request body: ${JSON.stringify(redact(body))}`);
                     // compile all headers - some set by default under the hood by axios - that will be sent along
-                    let allHeaders = Object.keys(this.axios.defaults.headers)
-                        .reduce((acc, cur) => {
+                    let allHeaders = Object.keys(this.axios.defaults.headers).reduce((acc, cur) => {
                         if (!axiosHeaderPropsToIgnore.includes(cur)) {
                             acc[cur] = this.axios.defaults.headers[cur];
                         }
@@ -7836,10 +8172,8 @@ class WebClient extends methods_1.Methods {
                             // TODO: We may want to have more detailed info such as team_id, params except tokens, and so on.
                             throw new Error(`A rate limit was exceeded (url: ${url}, retry-after: ${retrySec})`);
                         }
-                        else {
-                            // TODO: turn this into some CodedError
-                            throw new p_retry_1.AbortError(new Error(`Retry header did not contain a valid timeout (url: ${url}, retry-after header: ${response.headers['retry-after']})`));
-                        }
+                        // TODO: turn this into some CodedError
+                        throw new p_retry_1.AbortError(new Error(`Retry header did not contain a valid timeout (url: ${url}, retry-after header: ${response.headers['retry-after']})`));
                     }
                     // Slack's Web API doesn't use meaningful status codes besides 429 and 200
                     if (response.status !== 200) {
@@ -7849,7 +8183,7 @@ class WebClient extends methods_1.Methods {
                 }
                 catch (error) {
                     // To make this compatible with tsd, casting here instead of `catch (error: any)`
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    // biome-ignore lint/suspicious/noExplicitAny: errors can be anything
                     const e = error;
                     this.logger.warn('http request failed', e.message);
                     if (e.request) {
@@ -7858,24 +8192,35 @@ class WebClient extends methods_1.Methods {
                     throw error;
                 }
             }));
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            // biome-ignore lint/suspicious/noExplicitAny: http responses can be anything
             return (0, p_retry_1.default)(task, this.retryConfig);
         });
+    }
+    /**
+     * Get the complete request URL for the provided URL.
+     * @param url - The resource to POST to. Either a Slack API method or absolute URL.
+     */
+    deriveRequestUrl(url) {
+        const isAbsoluteURL = url.startsWith('https://') || url.startsWith('http://');
+        if (isAbsoluteURL && this.allowAbsoluteUrls) {
+            return url;
+        }
+        return `${this.axios.getUri() + url}`;
     }
     /**
      * Transforms options (a simple key-value object) into an acceptable value for a body. This can be either
      * a string, used when posting with a content-type of url-encoded. Or, it can be a readable stream, used
      * when the options contain a binary (a stream or a buffer) and the upload should be done with content-type
      * multipart/form-data.
-     * @param options - arguments for the Web API method
-     * @param headers - a mutable object representing the HTTP headers for the outgoing request
+     * @param config - The Axios request configuration object
      */
-    serializeApiCallOptions(options, headers) {
+    serializeApiCallData(config) {
+        const { data, headers } = config;
         // The following operation both flattens complex objects into a JSON-encoded strings and searches the values for
         // binary content
         let containsBinaryData = false;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const flattened = Object.entries(options).map(([key, value]) => {
+        // biome-ignore lint/suspicious/noExplicitAny: HTTP request data can be anything
+        const flattened = Object.entries(data).map(([key, value]) => {
             if (value === undefined || value === null) {
                 return [];
             }
@@ -7901,13 +8246,13 @@ class WebClient extends methods_1.Methods {
                         // https://github.com/form-data/form-data/blob/028c21e0f93c5fefa46a7bbf1ba753e4f627ab7a/lib/form_data.js#L227-L230
                         // formidable and the browser add a name property
                         // fs- and request- streams have path property
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        // biome-ignore lint/suspicious/noExplicitAny: form values can be anything
                         const streamOrBuffer = value;
                         if (typeof streamOrBuffer.name === 'string') {
-                            return (0, path_1.basename)(streamOrBuffer.name);
+                            return (0, node_path_1.basename)(streamOrBuffer.name);
                         }
                         if (typeof streamOrBuffer.path === 'string') {
-                            return (0, path_1.basename)(streamOrBuffer.path);
+                            return (0, node_path_1.basename)(streamOrBuffer.path);
                         }
                         return defaultFilename;
                     })();
@@ -7921,32 +8266,33 @@ class WebClient extends methods_1.Methods {
             if (headers) {
                 // Copying FormData-generated headers into headers param
                 // not reassigning to headers param since it is passed by reference and behaves as an inout param
-                Object.entries(form.getHeaders()).forEach(([header, value]) => {
-                    // eslint-disable-next-line no-param-reassign
+                for (const [header, value] of Object.entries(form.getHeaders())) {
                     headers[header] = value;
-                });
+                }
             }
-            return form;
+            config.data = form;
+            config.headers = headers;
+            return config;
         }
         // Otherwise, a simple key-value object is returned
-        // eslint-disable-next-line no-param-reassign
         if (headers)
             headers['Content-Type'] = 'application/x-www-form-urlencoded';
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // biome-ignore lint/suspicious/noExplicitAny: form values can be anything
         const initialValue = {};
-        return (0, querystring_1.stringify)(flattened.reduce((accumulator, [key, value]) => {
+        config.data = (0, node_querystring_1.stringify)(flattened.reduce((accumulator, [key, value]) => {
             if (key !== undefined && value !== undefined) {
                 accumulator[key] = value;
             }
             return accumulator;
         }, initialValue));
+        config.headers = headers;
+        return config;
     }
     /**
      * Processes an HTTP response into a WebAPICallResult by performing JSON parsing on the body and merging relevant
      * HTTP headers into the object.
      * @param response - an http response
      */
-    // eslint-disable-next-line class-methods-use-this
     buildResult(response) {
         return __awaiter(this, void 0, void 0, function* () {
             let { data } = response;
@@ -7956,23 +8302,24 @@ class WebClient extends methods_1.Methods {
                 // admin.analytics.getFile will return a Buffer that can be unzipped
                 try {
                     const unzippedData = yield new Promise((resolve, reject) => {
-                        zlib_1.default.unzip(data, (err, buf) => {
+                        node_zlib_1.default.unzip(data, (err, buf) => {
                             if (err) {
                                 return reject(err);
                             }
                             return resolve(buf.toString().split('\n'));
                         });
-                    }).then((res) => res)
+                    })
+                        .then((res) => res)
                         .catch((err) => {
                         throw err;
                     });
                     const fileData = [];
                     if (Array.isArray(unzippedData)) {
-                        unzippedData.forEach((dataset) => {
+                        for (const dataset of unzippedData) {
                             if (dataset && dataset.length > 0) {
                                 fileData.push(JSON.parse(dataset));
                             }
-                        });
+                        }
                     }
                     data = { file_data: fileData };
                 }
@@ -7983,7 +8330,7 @@ class WebClient extends methods_1.Methods {
             else if (!isGzipResponse && response.request.path === '/api/admin.analytics.getFile') {
                 // if it isn't a Gzip response but is from the admin.analytics.getFile request,
                 // decode the ArrayBuffer to JSON read the error
-                data = JSON.parse(new util_1.TextDecoder().decode(data));
+                data = JSON.parse(new node_util_1.TextDecoder().decode(data));
             }
             if (typeof data === 'string') {
                 // response.data can be a string, not an object for some reason
@@ -8003,7 +8350,9 @@ class WebClient extends methods_1.Methods {
                 data.response_metadata.scopes = response.headers['x-oauth-scopes'].trim().split(/\s*,\s*/);
             }
             if (response.headers['x-accepted-oauth-scopes'] !== undefined) {
-                data.response_metadata.acceptedScopes = response.headers['x-accepted-oauth-scopes'].trim().split(/\s*,\s*/);
+                data.response_metadata.acceptedScopes = response.headers['x-accepted-oauth-scopes']
+                    .trim()
+                    .split(/\s*,\s*/);
             }
             // add retry metadata from headers
             const retrySec = parseRetryHeaders(response);
@@ -8043,7 +8392,7 @@ function paginationOptionsForNextPage(previousResult, pageSize) {
  */
 function parseRetryHeaders(response) {
     if (response.headers['retry-after'] !== undefined) {
-        const retryAfter = parseInt(response.headers['retry-after'], 10);
+        const retryAfter = Number.parseInt(response.headers['retry-after'], 10);
         if (!Number.isNaN(retryAfter)) {
             return retryAfter;
         }
@@ -8078,13 +8427,8 @@ function warnIfFallbackIsMissing(method, logger, options) {
     const missingAttachmentFallbackDetected = (args) => Array.isArray(args.attachments) &&
         args.attachments.some((attachment) => !attachment.fallback || attachment.fallback.trim() === '');
     const isEmptyText = (args) => args.text === undefined || args.text === null || args.text === '';
-    const buildMissingTextWarning = () => `The top-level \`text\` argument is missing in the request payload for a ${method} call - ` +
-        'It\'s a best practice to always provide a `text` argument when posting a message. ' +
-        'The `text` is used in places where the content cannot be rendered such as: ' +
-        'system push notifications, assistive technology such as screen readers, etc.';
-    const buildMissingFallbackWarning = () => `Additionally, the attachment-level \`fallback\` argument is missing in the request payload for a ${method} call - ` +
-        'To avoid this warning, it is recommended to always provide a top-level `text` argument when posting a message. ' +
-        'Alternatively, you can provide an attachment-level `fallback` argument, though this is now considered a legacy field (see https://api.slack.com/reference/messaging/attachments#legacy_fields for more details).';
+    const buildMissingTextWarning = () => `The top-level \`text\` argument is missing in the request payload for a ${method} call - It's a best practice to always provide a \`text\` argument when posting a message. The \`text\` is used in places where the content cannot be rendered such as: system push notifications, assistive technology such as screen readers, etc.`;
+    const buildMissingFallbackWarning = () => `Additionally, the attachment-level \`fallback\` argument is missing in the request payload for a ${method} call - To avoid this warning, it is recommended to always provide a top-level \`text\` argument when posting a message. Alternatively, you can provide an attachment-level \`fallback\` argument, though this is now considered a legacy field (see https://api.slack.com/reference/messaging/attachments#legacy_fields for more details).`;
     if (isTargetMethod && typeof options === 'object') {
         if (hasAttachments(options)) {
             if (missingAttachmentFallbackDetected(options) && isEmptyText(options)) {
@@ -8113,14 +8457,13 @@ function warnIfThreadTsIsNotString(method, logger, options) {
 function buildThreadTsWarningMessage(method) {
     return `The given thread_ts value in the request payload for a ${method} call is a float value. We highly recommend using a string value instead.`;
 }
-exports.buildThreadTsWarningMessage = buildThreadTsWarningMessage;
 /**
  * Takes an object and redacts specific items
  * @param body
  * @returns
  */
 function redact(body) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // biome-ignore lint/suspicious/noExplicitAny: objects can be anything
     const flattened = Object.entries(body).map(([key, value]) => {
         // no value provided
         if (value === undefined || value === null) {
@@ -8153,13 +8496,18 @@ function redact(body) {
 
 /***/ }),
 
-/***/ 9803:
+/***/ 33651:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.rateLimitedErrorWithDelay = exports.platformErrorFromResult = exports.httpErrorFromResponse = exports.requestErrorWithOriginal = exports.errorWithCode = exports.ErrorCode = void 0;
+exports.ErrorCode = void 0;
+exports.errorWithCode = errorWithCode;
+exports.requestErrorWithOriginal = requestErrorWithOriginal;
+exports.httpErrorFromResponse = httpErrorFromResponse;
+exports.platformErrorFromResult = platformErrorFromResult;
+exports.rateLimitedErrorWithDelay = rateLimitedErrorWithDelay;
 /**
  * A dictionary of codes for errors produced by this package
  */
@@ -8183,7 +8531,6 @@ function errorWithCode(error, code) {
     codedError.code = code;
     return codedError;
 }
-exports.errorWithCode = errorWithCode;
 /**
  * A factory to create WebAPIRequestError objects
  * @param original - original error
@@ -8196,7 +8543,6 @@ function requestErrorWithOriginal(original, attachOriginal) {
     }
     return error;
 }
-exports.requestErrorWithOriginal = requestErrorWithOriginal;
 /**
  * A factory to create WebAPIHTTPError objects
  * @param response - original error
@@ -8206,16 +8552,15 @@ function httpErrorFromResponse(response) {
     error.statusCode = response.status;
     error.statusMessage = response.statusText;
     const nonNullHeaders = {};
-    Object.keys(response.headers).forEach((k) => {
+    for (const k of Object.keys(response.headers)) {
         if (k && response.headers[k]) {
             nonNullHeaders[k] = response.headers[k];
         }
-    });
+    }
     error.headers = nonNullHeaders;
     error.body = response.data;
     return error;
 }
-exports.httpErrorFromResponse = httpErrorFromResponse;
 /**
  * A factory to create WebAPIPlatformError objects
  * @param result - Web API call result
@@ -8225,7 +8570,6 @@ function platformErrorFromResult(result) {
     error.data = result;
     return error;
 }
-exports.platformErrorFromResult = platformErrorFromResult;
 /**
  * A factory to create WebAPIRateLimitedError objects
  * @param retrySec - Number of seconds that the request can be retried in
@@ -8235,12 +8579,11 @@ function rateLimitedErrorWithDelay(retrySec) {
     error.retryAfter = retrySec;
     return error;
 }
-exports.rateLimitedErrorWithDelay = rateLimitedErrorWithDelay;
 //# sourceMappingURL=errors.js.map
 
 /***/ }),
 
-/***/ 41086:
+/***/ 72662:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -8255,13 +8598,35 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.buildInvalidFilesUploadParamError = exports.buildMultipleChannelsErrorMsg = exports.buildChannelsWarning = exports.buildFilesUploadMissingMessage = exports.buildGeneralFilesUploadWarning = exports.buildLegacyMethodWarning = exports.buildMissingExtensionWarning = exports.buildMissingFileNameWarning = exports.buildLegacyFileTypeWarning = exports.buildFileSizeErrorMsg = exports.buildMissingFileIdError = exports.warnIfLegacyFileType = exports.warnIfMissingOrInvalidFileNameAndDefault = exports.errorIfInvalidOrMissingFileData = exports.errorIfChannelsCsv = exports.warnIfChannels = exports.warnIfNotUsingFilesUploadV2 = exports.getAllFileUploadsToComplete = exports.getFileDataAsStream = exports.getFileDataLength = exports.getFileData = exports.getMultipleFileUploadJobs = exports.getFileUploadJob = void 0;
-const fs_1 = __nccwpck_require__(79896);
-const stream_1 = __nccwpck_require__(2203);
-const errors_1 = __nccwpck_require__(9803);
+exports.getFileUploadJob = getFileUploadJob;
+exports.getMultipleFileUploadJobs = getMultipleFileUploadJobs;
+exports.getFileData = getFileData;
+exports.getFileDataLength = getFileDataLength;
+exports.getFileDataAsStream = getFileDataAsStream;
+exports.getAllFileUploadsToComplete = getAllFileUploadsToComplete;
+exports.warnIfNotUsingFilesUploadV2 = warnIfNotUsingFilesUploadV2;
+exports.warnIfChannels = warnIfChannels;
+exports.errorIfChannelsCsv = errorIfChannelsCsv;
+exports.errorIfInvalidOrMissingFileData = errorIfInvalidOrMissingFileData;
+exports.warnIfMissingOrInvalidFileNameAndDefault = warnIfMissingOrInvalidFileNameAndDefault;
+exports.warnIfLegacyFileType = warnIfLegacyFileType;
+exports.buildMissingFileIdError = buildMissingFileIdError;
+exports.buildFileSizeErrorMsg = buildFileSizeErrorMsg;
+exports.buildLegacyFileTypeWarning = buildLegacyFileTypeWarning;
+exports.buildMissingFileNameWarning = buildMissingFileNameWarning;
+exports.buildMissingExtensionWarning = buildMissingExtensionWarning;
+exports.buildLegacyMethodWarning = buildLegacyMethodWarning;
+exports.buildGeneralFilesUploadWarning = buildGeneralFilesUploadWarning;
+exports.buildFilesUploadMissingMessage = buildFilesUploadMissingMessage;
+exports.buildChannelsWarning = buildChannelsWarning;
+exports.buildMultipleChannelsErrorMsg = buildMultipleChannelsErrorMsg;
+exports.buildInvalidFilesUploadParamError = buildInvalidFilesUploadParamError;
+const node_fs_1 = __nccwpck_require__(73024);
+const node_stream_1 = __nccwpck_require__(57075);
+const errors_1 = __nccwpck_require__(33651);
 function getFileUploadJob(options, logger) {
-    var _a, _b, _c, _d;
     return __awaiter(this, void 0, void 0, function* () {
+        var _a, _b, _c, _d;
         // Validate parameters
         warnIfLegacyFileType(options, logger);
         warnIfChannels(options, logger);
@@ -8272,11 +8637,12 @@ function getFileUploadJob(options, logger) {
         const fileUploadJob = {
             // supplied by user
             alt_text: options.alt_text,
+            blocks: options.blocks,
             channel_id: (_a = options.channels) !== null && _a !== void 0 ? _a : options.channel_id,
             filename: (_b = options.filename) !== null && _b !== void 0 ? _b : fileName,
             initial_comment: options.initial_comment,
             snippet_type: options.snippet_type,
-            title: (_c = options.title) !== null && _c !== void 0 ? _c : ((_d = options.filename) !== null && _d !== void 0 ? _d : fileName), // default title to filename unless otherwise specified
+            title: (_d = (_c = options.title) !== null && _c !== void 0 ? _c : options.filename) !== null && _d !== void 0 ? _d : fileName, // default title to filename unless otherwise specified
             // calculated
             data: fileData,
             length: fileDataBytesLength,
@@ -8296,7 +8662,6 @@ function getFileUploadJob(options, logger) {
         throw (0, errors_1.errorWithCode)(new Error('Either a file or content field is required for valid file upload. You must supply one'), errors_1.ErrorCode.FileUploadInvalidArgumentsError);
     });
 }
-exports.getFileUploadJob = getFileUploadJob;
 /**
  * Returns an array of files upload entries when `file_uploads` is supplied.
  * **Note**
@@ -8321,7 +8686,7 @@ exports.getFileUploadJob = getFileUploadJob;
  * });
  * ```
  * @param options provided by user
-*/
+ */
 function getMultipleFileUploadJobs(options, logger) {
     return __awaiter(this, void 0, void 0, function* () {
         if ('file_uploads' in options) {
@@ -8330,13 +8695,13 @@ function getMultipleFileUploadJobs(options, logger) {
                 // ensure no omitted properties included in files_upload entry
                 // these properties are valid only at the top-level, not
                 // inside file_uploads.
-                const { channel_id, channels, initial_comment, thread_ts } = upload;
-                if (channel_id || channels || initial_comment || thread_ts) {
+                const { blocks, channel_id, channels, initial_comment, thread_ts } = upload;
+                if (blocks || channel_id || channels || initial_comment || thread_ts) {
                     throw (0, errors_1.errorWithCode)(new Error(buildInvalidFilesUploadParamError()), errors_1.ErrorCode.FileUploadInvalidArgumentsError);
                 }
                 // takes any channel_id, initial_comment and thread_ts
                 // supplied at the top level.
-                const uploadJobArgs = Object.assign(Object.assign({}, upload), { channels: options.channels, channel_id: options.channel_id, initial_comment: options.initial_comment });
+                const uploadJobArgs = Object.assign(Object.assign({}, upload), { blocks: options.blocks, channels: options.channels, channel_id: options.channel_id, initial_comment: options.initial_comment });
                 if ('thread_ts' in options) {
                     uploadJobArgs.thread_ts = options.thread_ts;
                 }
@@ -8355,7 +8720,6 @@ function getMultipleFileUploadJobs(options, logger) {
         throw new Error(buildFilesUploadMissingMessage());
     });
 }
-exports.getMultipleFileUploadJobs = getMultipleFileUploadJobs;
 // Helpers to build the FileUploadJob
 /**
  * Returns a single file upload's data
@@ -8374,7 +8738,7 @@ function getFileData(options) {
             if (typeof file === 'string') {
                 // try to read file as if the string was a file path
                 try {
-                    const dataBuffer = (0, fs_1.readFileSync)(file);
+                    const dataBuffer = (0, node_fs_1.readFileSync)(file);
                     return dataBuffer;
                 }
                 catch (error) {
@@ -8392,23 +8756,21 @@ function getFileData(options) {
         throw (0, errors_1.errorWithCode)(new Error('There was an issue getting the file data for the file or content supplied'), errors_1.ErrorCode.FileUploadReadFileDataError);
     });
 }
-exports.getFileData = getFileData;
 function getFileDataLength(data) {
     if (data) {
         return Buffer.byteLength(data, 'utf8');
     }
     throw (0, errors_1.errorWithCode)(new Error(buildFileSizeErrorMsg()), errors_1.ErrorCode.FileUploadReadFileDataError);
 }
-exports.getFileDataLength = getFileDataLength;
 function getFileDataAsStream(readable) {
     return __awaiter(this, void 0, void 0, function* () {
         const chunks = [];
         return new Promise((resolve, reject) => {
             readable.on('readable', () => {
-                let chunk;
-                /* eslint-disable no-cond-assign */
-                while ((chunk = readable.read()) !== null) {
+                let chunk = readable.read();
+                while (chunk !== null) {
                     chunks.push(chunk);
+                    chunk = readable.read();
                 }
             });
             readable.on('end', () => {
@@ -8423,10 +8785,9 @@ function getFileDataAsStream(readable) {
         });
     });
 }
-exports.getFileDataAsStream = getFileDataAsStream;
 /**
  * Filters through all fileUploads and groups them into jobs for completion
- * based on combination of channel_id, thread_ts, initial_comment.
+ * based on combination of channel_id, thread_ts, initial_comment, blocks.
  * {@link https://api.slack.com/methods/files.completeUploadExternal files.completeUploadExternal} allows for multiple
  * files to be uploaded with a message (`initial_comment`), and as a threaded message (`thread_ts`)
  * In order to be grouped together, file uploads must have like properties.
@@ -8435,18 +8796,23 @@ exports.getFileDataAsStream = getFileDataAsStream;
  */
 function getAllFileUploadsToComplete(fileUploads) {
     const toComplete = {};
-    fileUploads.forEach((upload) => {
-        const { channel_id, thread_ts, initial_comment, file_id, title } = upload;
+    for (const upload of fileUploads) {
+        const { blocks, channel_id, thread_ts, initial_comment, file_id, title } = upload;
         if (file_id) {
-            const compareString = `:::${channel_id}:::${thread_ts}:::${initial_comment}`;
+            const compareString = `:::${channel_id}:::${thread_ts}:::${initial_comment}:::${JSON.stringify(blocks)}`;
             if (!Object.prototype.hasOwnProperty.call(toComplete, compareString)) {
                 toComplete[compareString] = {
                     files: [{ id: file_id, title }],
                     channel_id,
+                    blocks,
                     initial_comment,
                 };
-                if (thread_ts) {
-                    toComplete[compareString].thread_ts = upload.thread_ts;
+                if (thread_ts && channel_id) {
+                    const fileThreadDestinationArgument = {
+                        channel_id,
+                        thread_ts,
+                    };
+                    toComplete[compareString] = Object.assign(Object.assign({}, toComplete[compareString]), fileThreadDestinationArgument);
                 }
                 if ('token' in upload) {
                     toComplete[compareString].token = upload.token;
@@ -8462,17 +8828,16 @@ function getAllFileUploadsToComplete(fileUploads) {
         else {
             throw new Error(buildMissingFileIdError());
         }
-    });
+    }
     return toComplete;
 }
-exports.getAllFileUploadsToComplete = getAllFileUploadsToComplete;
 // Validation
 /**
  * Advise to use the files.uploadV2 method over legacy files.upload method and over
  * lower-level utilities.
  * @param method
  * @param logger
-*/
+ */
 function warnIfNotUsingFilesUploadV2(method, logger) {
     const targetMethods = ['files.upload'];
     const isTargetMethod = targetMethods.includes(method);
@@ -8481,7 +8846,6 @@ function warnIfNotUsingFilesUploadV2(method, logger) {
     if (isTargetMethod)
         logger.info(buildGeneralFilesUploadWarning());
 }
-exports.warnIfNotUsingFilesUploadV2 = warnIfNotUsingFilesUploadV2;
 /**
  * `channels` param is supported but only when a single channel is specified.
  * @param options
@@ -8491,7 +8855,6 @@ function warnIfChannels(options, logger) {
     if (options.channels)
         logger.warn(buildChannelsWarning());
 }
-exports.warnIfChannels = warnIfChannels;
 /**
  * v1 files.upload supported `channels` parameter provided as a comma-separated
  * string of values, e.g. 'C1234,C5678'. V2 no longer supports this csv value.
@@ -8505,7 +8868,6 @@ function errorIfChannelsCsv(options) {
         throw (0, errors_1.errorWithCode)(new Error(buildMultipleChannelsErrorMsg()), errors_1.ErrorCode.FileUploadInvalidArgumentsError);
     }
 }
-exports.errorIfChannelsCsv = errorIfChannelsCsv;
 /**
  * Checks for either a file or content property and errors if missing
  * @param options
@@ -8516,10 +8878,9 @@ function errorIfInvalidOrMissingFileData(options) {
     if (!(hasFile || hasContent) || (hasFile && hasContent)) {
         throw (0, errors_1.errorWithCode)(new Error('Either a file or content field is required for valid file upload. You cannot supply both'), errors_1.ErrorCode.FileUploadInvalidArgumentsError);
     }
-    /* eslint-disable @typescript-eslint/no-explicit-any */
     if ('file' in options) {
         const { file } = options;
-        if (file && !(typeof file === 'string' || Buffer.isBuffer(file) || file instanceof stream_1.Readable)) {
+        if (file && !(typeof file === 'string' || Buffer.isBuffer(file) || file instanceof node_stream_1.Readable)) {
             throw (0, errors_1.errorWithCode)(new Error('file must be a valid string path, buffer or Readable'), errors_1.ErrorCode.FileUploadInvalidArgumentsError);
         }
     }
@@ -8527,7 +8888,6 @@ function errorIfInvalidOrMissingFileData(options) {
         throw (0, errors_1.errorWithCode)(new Error('content must be a string'), errors_1.ErrorCode.FileUploadInvalidArgumentsError);
     }
 }
-exports.errorIfInvalidOrMissingFileData = errorIfInvalidOrMissingFileData;
 /**
  * @param options
  * @param logger
@@ -8549,7 +8909,6 @@ function warnIfMissingOrInvalidFileNameAndDefault(options, logger) {
     }
     return filename;
 }
-exports.warnIfMissingOrInvalidFileNameAndDefault = warnIfMissingOrInvalidFileNameAndDefault;
 /**
  * `filetype` param is no longer supported and will be ignored
  * @param options
@@ -8560,69 +8919,58 @@ function warnIfLegacyFileType(options, logger) {
         logger.warn(buildLegacyFileTypeWarning());
     }
 }
-exports.warnIfLegacyFileType = warnIfLegacyFileType;
 // Validation message utilities
 function buildMissingFileIdError() {
     return 'Missing required file id for file upload completion';
 }
-exports.buildMissingFileIdError = buildMissingFileIdError;
 function buildFileSizeErrorMsg() {
     return 'There was an issue calculating the size of your file';
 }
-exports.buildFileSizeErrorMsg = buildFileSizeErrorMsg;
 function buildLegacyFileTypeWarning() {
-    return 'filetype is no longer a supported field in files.uploadV2.' +
+    return ('filetype is no longer a supported field in files.uploadV2.' +
         ' \nPlease remove this field. To indicate file type, please do so via the required filename property' +
-        ' using the appropriate file extension, e.g. image.png, text.txt';
+        ' using the appropriate file extension, e.g. image.png, text.txt');
 }
-exports.buildLegacyFileTypeWarning = buildLegacyFileTypeWarning;
 function buildMissingFileNameWarning() {
-    return 'filename is a required field for files.uploadV2. \n For backwards compatibility and ease of migration, ' +
+    return ('filename is a required field for files.uploadV2. \n For backwards compatibility and ease of migration, ' +
         'defaulting the filename. For best experience and consistent unfurl behavior, you' +
-        ' should set the filename property with correct file extension, e.g. image.png, text.txt';
+        ' should set the filename property with correct file extension, e.g. image.png, text.txt');
 }
-exports.buildMissingFileNameWarning = buildMissingFileNameWarning;
 function buildMissingExtensionWarning(filename) {
     return `filename supplied '${filename}' may be missing a proper extension. Missing extenions may result in unexpected unfurl behavior when shared`;
 }
-exports.buildMissingExtensionWarning = buildMissingExtensionWarning;
 function buildLegacyMethodWarning(method) {
     return `${method} may cause some issues like timeouts for relatively large files.`;
 }
-exports.buildLegacyMethodWarning = buildLegacyMethodWarning;
 function buildGeneralFilesUploadWarning() {
-    return 'Our latest recommendation is to use client.files.uploadV2() method, ' +
-        'which is mostly compatible and much stabler, instead.';
+    return ('Our latest recommendation is to use client.files.uploadV2() method, ' +
+        'which is mostly compatible and much stabler, instead.');
 }
-exports.buildGeneralFilesUploadWarning = buildGeneralFilesUploadWarning;
 function buildFilesUploadMissingMessage() {
     return 'Something went wrong with processing file_uploads';
 }
-exports.buildFilesUploadMissingMessage = buildFilesUploadMissingMessage;
 function buildChannelsWarning() {
-    return 'Although the \'channels\' parameter is still supported for smoother migration from legacy files.upload, ' +
-        'we recommend using the new channel_id parameter with a single str value instead (e.g. \'C12345\').';
+    return ("Although the 'channels' parameter is still supported for smoother migration from legacy files.upload, " +
+        "we recommend using the new channel_id parameter with a single str value instead (e.g. 'C12345').");
 }
-exports.buildChannelsWarning = buildChannelsWarning;
 function buildMultipleChannelsErrorMsg() {
     return 'Sharing files with multiple channels is no longer supported in v2. Share files in each channel separately instead.';
 }
-exports.buildMultipleChannelsErrorMsg = buildMultipleChannelsErrorMsg;
 function buildInvalidFilesUploadParamError() {
-    return 'You may supply file_uploads only for a single channel, comment, thread respectively. ' +
-        'Therefore, please supply any channel_id, initial_comment, thread_ts in the top-layer.';
+    return ('You may supply file_uploads only for a single channel, message, or thread respectively. ' +
+        'Therefore, please supply any channel_id, initial_comment or blocks, or thread_ts in the top-layer.');
 }
-exports.buildInvalidFilesUploadParamError = buildInvalidFilesUploadParamError;
 //# sourceMappingURL=file-upload.js.map
 
 /***/ }),
 
-/***/ 86311:
+/***/ 46223:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports["default"] = delay;
 /**
  * Build a Promise that will resolve after the specified number of milliseconds.
  * @param ms milliseconds to wait
@@ -8633,12 +8981,11 @@ function delay(ms) {
         setTimeout(resolve, ms);
     });
 }
-exports["default"] = delay;
 //# sourceMappingURL=helpers.js.map
 
 /***/ }),
 
-/***/ 47542:
+/***/ 51310:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -8663,25 +9010,25 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.addAppMetadata = exports.retryPolicies = exports.ErrorCode = exports.LogLevel = exports.WebClientEvent = exports.WebClient = void 0;
-var WebClient_1 = __nccwpck_require__(50055);
+var WebClient_1 = __nccwpck_require__(74751);
 Object.defineProperty(exports, "WebClient", ({ enumerable: true, get: function () { return WebClient_1.WebClient; } }));
 Object.defineProperty(exports, "WebClientEvent", ({ enumerable: true, get: function () { return WebClient_1.WebClientEvent; } }));
-var logger_1 = __nccwpck_require__(83412);
+var logger_1 = __nccwpck_require__(49932);
 Object.defineProperty(exports, "LogLevel", ({ enumerable: true, get: function () { return logger_1.LogLevel; } }));
-var errors_1 = __nccwpck_require__(9803);
+var errors_1 = __nccwpck_require__(33651);
 Object.defineProperty(exports, "ErrorCode", ({ enumerable: true, get: function () { return errors_1.ErrorCode; } }));
-var retry_policies_1 = __nccwpck_require__(79395);
+var retry_policies_1 = __nccwpck_require__(52827);
 Object.defineProperty(exports, "retryPolicies", ({ enumerable: true, get: function () { return __importDefault(retry_policies_1).default; } }));
-var instrument_1 = __nccwpck_require__(76493);
+var instrument_1 = __nccwpck_require__(63717);
 Object.defineProperty(exports, "addAppMetadata", ({ enumerable: true, get: function () { return instrument_1.addAppMetadata; } }));
-__exportStar(__nccwpck_require__(82092), exports);
-__exportStar(__nccwpck_require__(30354), exports);
-__exportStar(__nccwpck_require__(2662), exports);
+__exportStar(__nccwpck_require__(32356), exports);
+__exportStar(__nccwpck_require__(24730), exports);
+__exportStar(__nccwpck_require__(14846), exports);
 //# sourceMappingURL=index.js.map
 
 /***/ }),
 
-/***/ 76493:
+/***/ 63717:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -8702,19 +9049,29 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getUserAgent = exports.addAppMetadata = void 0;
-const os = __importStar(__nccwpck_require__(70857));
-const path_1 = __nccwpck_require__(16928);
-// eslint-disable-next-line @typescript-eslint/no-var-requires, import/no-commonjs
-const packageJson = __nccwpck_require__(48133);
+exports.addAppMetadata = addAppMetadata;
+exports.getUserAgent = getUserAgent;
+const os = __importStar(__nccwpck_require__(48161));
+const node_path_1 = __nccwpck_require__(76760);
+const packageJson = __nccwpck_require__(42397);
 /**
  * Replaces occurrences of '/' with ':' in a string, since '/' is meaningful inside User-Agent strings as a separator.
  */
@@ -8728,7 +9085,7 @@ function replaceSlashes(s) {
 // the `os` module deno shim to correctly report operating system from a deno runtime. Until then, the below `os`-
 // based code will report "browser/undefined" from a deno runtime.
 const baseUserAgent = `${replaceSlashes(packageJson.name)}/${packageJson.version} ` +
-    `${(0, path_1.basename)(process.title)}/${process.version.replace('v', '')} ` +
+    `${(0, node_path_1.basename)(process.title)}/${process.version.replace('v', '')} ` +
     `${os.platform()}/${os.release()}`;
 const appMetadata = {};
 /**
@@ -8739,27 +9096,28 @@ const appMetadata = {};
 function addAppMetadata({ name, version }) {
     appMetadata[replaceSlashes(name)] = version;
 }
-exports.addAppMetadata = addAppMetadata;
 /**
  * Returns the current User-Agent value for instrumentation
  */
 function getUserAgent() {
-    const appIdentifier = Object.entries(appMetadata).map(([name, version]) => `${name}/${version}`).join(' ');
+    const appIdentifier = Object.entries(appMetadata)
+        .map(([name, version]) => `${name}/${version}`)
+        .join(' ');
     // only prepend the appIdentifier when its not empty
-    return ((appIdentifier.length > 0) ? `${appIdentifier} ` : '') + baseUserAgent;
+    return (appIdentifier.length > 0 ? `${appIdentifier} ` : '') + baseUserAgent;
 }
-exports.getUserAgent = getUserAgent;
 //# sourceMappingURL=instrument.js.map
 
 /***/ }),
 
-/***/ 83412:
+/***/ 49932:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getLogger = exports.LogLevel = void 0;
+exports.LogLevel = void 0;
+exports.getLogger = getLogger;
 const logger_1 = __nccwpck_require__(96913);
 var logger_2 = __nccwpck_require__(96913);
 Object.defineProperty(exports, "LogLevel", ({ enumerable: true, get: function () { return logger_2.LogLevel; } }));
@@ -8784,12 +9142,11 @@ function getLogger(name, level, existingLogger) {
     }
     return logger;
 }
-exports.getLogger = getLogger;
 //# sourceMappingURL=logger.js.map
 
 /***/ }),
 
-/***/ 82092:
+/***/ 32356:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -8811,14 +9168,20 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Methods = void 0;
 const eventemitter3_1 = __nccwpck_require__(81164);
-const WebClient_1 = __nccwpck_require__(50055);
+const WebClient_1 = __nccwpck_require__(74751);
 /**
- * Binds a certain `method` and its arguments and result types to the `apiCall` method in `WebClient`.
+ * Binds a certain `method` and its (required) arguments and result types to the `apiCall` method in `WebClient`.
  */
 function bindApiCall(self, method) {
-    // We have to 'assert' that the bound method does indeed return the more specific `Result` type instead of just
-    // `WebAPICallResult`
-    return self.apiCall.bind(self, method);
+    const apiMethod = self.apiCall.bind(self, method);
+    return apiMethod;
+}
+/**
+ * Binds a certain `method` and its (required) arguments and result types to the `apiCall` method in `WebClient`.
+ */
+function bindApiCallWithOptionalArgument(self, method) {
+    const apiMethod = self.apiCall.bind(self, method);
+    return apiMethod;
 }
 function bindFilesUploadV2(self) {
     return self.filesUploadV2.bind(self);
@@ -8844,7 +9207,7 @@ class Methods extends eventemitter3_1.EventEmitter {
                      * @description Get logs for a specified team/org.
                      * @see {@link https://api.slack.com/methods/admin.apps.activities.list `admin.apps.activities.list` API reference}.
                      */
-                    list: bindApiCall(this, 'admin.apps.activities.list'),
+                    list: bindApiCallWithOptionalArgument(this, 'admin.apps.activities.list'),
                 },
                 /**
                  * @description Approve an app for installation on a workspace.
@@ -8939,7 +9302,7 @@ class Methods extends eventemitter3_1.EventEmitter {
                  * @description Get all Information Barriers for your organization.
                  * @see {@link https://api.slack.com/methods/admin.barriers.list `admin.barriers.list` API reference}.
                  */
-                list: bindApiCall(this, 'admin.barriers.list'),
+                list: bindApiCallWithOptionalArgument(this, 'admin.barriers.list'),
                 /**
                  * @description Update an existing Information Barrier.
                  * @see {@link https://api.slack.com/methods/admin.barriers.update `admin.barriers.update` API reference}.
@@ -8998,7 +9361,7 @@ class Methods extends eventemitter3_1.EventEmitter {
                      * and then disconnected — and the corresponding original channel IDs for key revocation with EKM.
                      * @see {@link https://api.slack.com/methods/admin.conversations.ekm.listOriginalConnectedChannelInfo `admin.conversations.ekm.listOriginalConnectedChannelInfo` API reference}.
                      */
-                    listOriginalConnectedChannelInfo: bindApiCall(this, 'admin.conversations.ekm.listOriginalConnectedChannelInfo'),
+                    listOriginalConnectedChannelInfo: bindApiCallWithOptionalArgument(this, 'admin.conversations.ekm.listOriginalConnectedChannelInfo'),
                 },
                 /**
                  * @description Get conversation preferences for a public or private channel.
@@ -9057,7 +9420,7 @@ class Methods extends eventemitter3_1.EventEmitter {
                  * @description Search for public or private channels in an Enterprise organization.
                  * @see {@link https://api.slack.com/methods/admin.conversations.search `admin.conversations.search` API reference}.
                  */
-                search: bindApiCall(this, 'admin.conversations.search'),
+                search: bindApiCallWithOptionalArgument(this, 'admin.conversations.search'),
                 /**
                  * @description Set the posting permissions for a public or private channel.
                  * @see {@link https://api.slack.com/methods/admin.conversations.setConversationPrefs `admin.conversations.setConversationPrefs` API reference}.
@@ -9094,7 +9457,7 @@ class Methods extends eventemitter3_1.EventEmitter {
                  * @description List emoji for an Enterprise Grid organization.
                  * @see {@link https://api.slack.com/methods/admin.emoji.list `admin.emoji.list` API reference}.
                  */
-                list: bindApiCall(this, 'admin.emoji.list'),
+                list: bindApiCallWithOptionalArgument(this, 'admin.emoji.list'),
                 /**
                  * @description Remove an emoji across an Enterprise Grid organization.
                  * @see {@link https://api.slack.com/methods/admin.emoji.remove `admin.emoji.remove` API reference}.
@@ -9169,7 +9532,7 @@ class Methods extends eventemitter3_1.EventEmitter {
                  * Options to scope results by any combination of roles or entities.
                  * @see {@link https://api.slack.com/methods/admin.roles.listAssignments `admin.roles.listAssignments` API reference}.
                  */
-                listAssignments: bindApiCall(this, 'admin.roles.listAssignments'),
+                listAssignments: bindApiCallWithOptionalArgument(this, 'admin.roles.listAssignments'),
                 /**
                  * @description Removes a set of users from a role for the given scopes and entities.
                  * @see {@link https://api.slack.com/methods/admin.roles.removeAssignments `admin.roles.removeAssignments` API reference}.
@@ -9193,7 +9556,7 @@ class Methods extends eventemitter3_1.EventEmitter {
                  * @description List all teams on an Enterprise organization.
                  * @see {@link https://api.slack.com/methods/admin.teams.list `admin.teams.list` API reference}.
                  */
-                list: bindApiCall(this, 'admin.teams.list'),
+                list: bindApiCallWithOptionalArgument(this, 'admin.teams.list'),
                 owners: {
                     /**
                      * @description List all of the owners on a given workspace.
@@ -9271,7 +9634,7 @@ class Methods extends eventemitter3_1.EventEmitter {
                  * @description List users on a workspace.
                  * @see {@link https://api.slack.com/methods/admin.users.list `admin.users.list` API reference}.
                  */
-                list: bindApiCall(this, 'admin.users.list'),
+                list: bindApiCallWithOptionalArgument(this, 'admin.users.list'),
                 /**
                  * @description Remove a user from a workspace.
                  * @see {@link https://api.slack.com/methods/admin.users.remove `admin.users.remove` API reference}.
@@ -9299,7 +9662,7 @@ class Methods extends eventemitter3_1.EventEmitter {
                      * @description List active user sessions for an organization.
                      * @see {@link https://api.slack.com/methods/admin.users.session.list `admin.users.session.list` API reference}.
                      */
-                    list: bindApiCall(this, 'admin.users.session.list'),
+                    list: bindApiCallWithOptionalArgument(this, 'admin.users.session.list'),
                     /**
                      * @description Wipes all valid sessions on all devices for a given user.
                      * @see {@link https://api.slack.com/methods/admin.users.session.reset `admin.users.session.reset` API reference}.
@@ -9370,7 +9733,7 @@ class Methods extends eventemitter3_1.EventEmitter {
                  * @description Search workflows within the team or enterprise.
                  * @see {@link https://api.slack.com/methods/admin.workflows.search `admin.workflows.search` API reference}.
                  */
-                search: bindApiCall(this, 'admin.workflows.search'),
+                search: bindApiCallWithOptionalArgument(this, 'admin.workflows.search'),
                 /**
                  * @description Unpublish workflows within the team or enterprise.
                  * @see {@link https://api.slack.com/methods/admin.workflows.unpublish `admin.workflows.unpublish` API reference}.
@@ -9383,7 +9746,26 @@ class Methods extends eventemitter3_1.EventEmitter {
              * @description Checks API calling code.
              * @see {@link https://api.slack.com/methods/api.test `api.test` API reference}.
              */
-            test: bindApiCall(this, 'api.test'),
+            test: bindApiCallWithOptionalArgument(this, 'api.test'),
+        };
+        this.assistant = {
+            threads: {
+                /**
+                 * @description Set loading status to indicate that the app is building a response.
+                 * @see {@link https://api.slack.com/methods/assistant.threads.setStatus `assistant.threads.setStatus` API reference}.
+                 */
+                setStatus: bindApiCall(this, 'assistant.threads.setStatus'),
+                /**
+                 * @description Set suggested prompts for the user. Can suggest up to four prompts.
+                 * @see {@link https://api.slack.com/methods/assistant.threads.setSuggestedPrompts `assistant.threads.setSuggestedPrompts` API reference}.
+                 */
+                setSuggestedPrompts: bindApiCall(this, 'assistant.threads.setSuggestedPrompts'),
+                /**
+                 * @description Set the title of the thread. This is shown when a user views the app's chat history.
+                 * @see {@link https://api.slack.com/methods/assistant.threads.setTitle `assistant.threads.setTitle` API reference}.
+                 */
+                setTitle: bindApiCall(this, 'assistant.threads.setTitle'),
+            },
         };
         this.apps = {
             connections: {
@@ -9392,7 +9774,7 @@ class Methods extends eventemitter3_1.EventEmitter {
                  * events and interactive payloads over.
                  * @see {@link https://api.slack.com/methods/apps.connections.open `apps.connections.open` API reference}.
                  */
-                open: bindApiCall(this, 'apps.connections.open'),
+                open: bindApiCallWithOptionalArgument(this, 'apps.connections.open'),
             },
             event: {
                 authorizations: {
@@ -9442,15 +9824,15 @@ class Methods extends eventemitter3_1.EventEmitter {
              * @description Revokes a token.
              * @see {@link https://api.slack.com/methods/auth.revoke `auth.revoke` API reference}.
              */
-            revoke: bindApiCall(this, 'auth.revoke'),
+            revoke: bindApiCallWithOptionalArgument(this, 'auth.revoke'),
             teams: {
                 /**
                  * @description Obtain a full list of workspaces your org-wide app has been approved for.
                  * @see {@link https://api.slack.com/methods/auth.teams.list `auth.teams.list` API reference}.
                  */
-                list: bindApiCall(this, 'auth.teams.list'),
+                list: bindApiCallWithOptionalArgument(this, 'auth.teams.list'),
             },
-            test: bindApiCall(this, 'auth.test'),
+            test: bindApiCallWithOptionalArgument(this, 'auth.test'),
         };
         this.bookmarks = {
             /**
@@ -9479,7 +9861,7 @@ class Methods extends eventemitter3_1.EventEmitter {
              * @description Gets information about a bot user.
              * @see {@link https://api.slack.com/methods/bots.info `bots.info` API reference}.
              */
-            info: bindApiCall(this, 'bots.info'),
+            info: bindApiCallWithOptionalArgument(this, 'bots.info'),
         };
         this.calls = {
             /**
@@ -9528,7 +9910,7 @@ class Methods extends eventemitter3_1.EventEmitter {
              * @description Create Canvas for a user.
              * @see {@link https://api.slack.com/methods/canvases.create `canvases.create` API reference}.
              */
-            create: bindApiCall(this, 'canvases.create'),
+            create: bindApiCallWithOptionalArgument(this, 'canvases.create'),
             /**
              * @description Deletes a canvas.
              * @see {@link https://api.slack.com/methods/canvases.delete `canvases.delete` API reference}.
@@ -9588,7 +9970,7 @@ class Methods extends eventemitter3_1.EventEmitter {
                  * @description Returns a list of scheduled messages.
                  * @see {@link https://api.slack.com/methods/chat.scheduledMessages.list `chat.scheduledMessages.list` API reference}.
                  */
-                list: bindApiCall(this, 'chat.scheduledMessages.list'),
+                list: bindApiCallWithOptionalArgument(this, 'chat.scheduledMessages.list'),
             },
             /**
              * @description Provide custom unfurl behavior for user-posted URLs.
@@ -9686,13 +10068,13 @@ class Methods extends eventemitter3_1.EventEmitter {
              * @description List all channels in a Slack team.
              * @see {@link https://api.slack.com/methods/conversations.list `conversations.list` API reference}.
              */
-            list: bindApiCall(this, 'conversations.list'),
+            list: bindApiCallWithOptionalArgument(this, 'conversations.list'),
             /**
              * @description Lists shared channel invites that have been generated or received but have not been approved by
              * all parties.
              * @see {@link https://api.slack.com/methods/conversations.listConnectInvites `conversations.listConnectInvites` API reference}.
              */
-            listConnectInvites: bindApiCall(this, 'conversations.listConnectInvites'),
+            listConnectInvites: bindApiCallWithOptionalArgument(this, 'conversations.listConnectInvites'),
             /**
              * @description Sets the read cursor in a channel.
              * @see {@link https://api.slack.com/methods/conversations.mark `conversations.mark` API reference}.
@@ -9718,6 +10100,23 @@ class Methods extends eventemitter3_1.EventEmitter {
              * @see {@link https://api.slack.com/methods/conversations.replies `conversations.replies` API reference}.
              */
             replies: bindApiCall(this, 'conversations.replies'),
+            requestSharedInvite: {
+                /**
+                 * @description Approves a request to add an external user to a channel and sends them a Slack Connect invite.
+                 * @see {@link https://api.slack.com/methods/conversations.requestSharedInvite.approve `conversations.requestSharedInvite.approve` API reference}.
+                 */
+                approve: bindApiCall(this, 'conversations.requestSharedInvite.approve'),
+                /**
+                 * @description Denies a request to invite an external user to a channel.
+                 * @see {@link https://api.slack.com/methods/conversations.requestSharedInvite.deny `conversations.requestSharedInvite.deny` API reference}.
+                 */
+                deny: bindApiCall(this, 'conversations.requestSharedInvite.deny'),
+                /**
+                 * @description Lists requests to add external users to channels with ability to filter.
+                 * @see {@link https://api.slack.com/methods/conversations.requestSharedInvite.list `conversations.requestSharedInvite.list` API reference}.
+                 */
+                list: bindApiCallWithOptionalArgument(this, 'conversations.requestSharedInvite.list'),
+            },
             /**
              * @description Sets the purpose for a conversation.
              * @see {@link https://api.slack.com/methods/conversations.setPurpose `conversations.setPurpose` API reference}.
@@ -9746,17 +10145,17 @@ class Methods extends eventemitter3_1.EventEmitter {
              * @description Ends the current user's Do Not Disturb session immediately.
              * @see {@link https://api.slack.com/methods/dnd.endDnd `dnd.endDnd` API reference}.
              */
-            endDnd: bindApiCall(this, 'dnd.endDnd'),
+            endDnd: bindApiCallWithOptionalArgument(this, 'dnd.endDnd'),
             /**
              * @description Ends the current user's snooze mode immediately.
              * @see {@link https://api.slack.com/methods/dnd.endSnooze `dnd.endSnooze` API reference}.
              */
-            endSnooze: bindApiCall(this, 'dnd.endSnooze'),
+            endSnooze: bindApiCallWithOptionalArgument(this, 'dnd.endSnooze'),
             /**
              * @description Retrieves a user's current Do Not Disturb status.
              * @see {@link https://api.slack.com/methods/dnd.info `dnd.info` API reference}.
              */
-            info: bindApiCall(this, 'dnd.info'),
+            info: bindApiCallWithOptionalArgument(this, 'dnd.info'),
             /**
              * @description Turns on Do Not Disturb mode for the current user, or changes its duration.
              * @see {@link https://api.slack.com/methods/dnd.setSnooze `dnd.setSnooze` API reference}.
@@ -9773,7 +10172,7 @@ class Methods extends eventemitter3_1.EventEmitter {
              * @description Lists custom emoji for a team.
              * @see {@link https://api.slack.com/methods/emoji.list `emoji.list` API reference}.
              */
-            list: bindApiCall(this, 'emoji.list'),
+            list: bindApiCallWithOptionalArgument(this, 'emoji.list'),
         };
         this.files = {
             /**
@@ -9828,8 +10227,8 @@ class Methods extends eventemitter3_1.EventEmitter {
              * - multiple upload_files
              * Will try to honor both single file or content data supplied as well
              * as multiple file uploads property.
-             * @see {@link https://slack.dev/node-slack-sdk/web-api#upload-a-file `@slack/web-api` Upload a file documentation}.
-            */
+             * @see {@link https://tools.slack.dev/node-slack-sdk/web-api#upload-a-file `@slack/web-api` Upload a file documentation}.
+             */
             uploadV2: bindFilesUploadV2(this),
             comments: {
                 /**
@@ -9921,7 +10320,7 @@ class Methods extends eventemitter3_1.EventEmitter {
                  * @description Get the identity of a user who has authorized {@link https://api.slack.com/authentication/sign-in-with-slack Sign in with Slack}.
                  * @see {@link https://api.slack.com/methods/openid.connect.userInfo `openid.connect.userInfo` API reference}.
                  */
-                userInfo: bindApiCall(this, 'openid.connect.userInfo'),
+                userInfo: bindApiCallWithOptionalArgument(this, 'openid.connect.userInfo'),
             },
         };
         this.pins = {
@@ -9956,7 +10355,7 @@ class Methods extends eventemitter3_1.EventEmitter {
              * @description List reactions made by a user.
              * @see {@link https://api.slack.com/methods/reactions.list `reactions.list` API reference}.
              */
-            list: bindApiCall(this, 'reactions.list'),
+            list: bindApiCallWithOptionalArgument(this, 'reactions.list'),
             /**
              * @description Removes a reaction from an item.
              * @see {@link https://api.slack.com/methods/reactions.remove `reactions.remove` API reference}.
@@ -9990,20 +10389,20 @@ class Methods extends eventemitter3_1.EventEmitter {
              * @description Lists all reminders created by or for a given user.
              * @see {@link https://api.slack.com/methods/reminders.list `reminders.list` API reference}.
              */
-            list: bindApiCall(this, 'reminders.list'),
+            list: bindApiCallWithOptionalArgument(this, 'reminders.list'),
         };
         this.rtm = {
             /**
              * @description Starts a Real Time Messaging session.
              * @see {@link https://api.slack.com/methods/rtm.connect `rtm.connect` API reference}.
              */
-            connect: bindApiCall(this, 'rtm.connect'),
+            connect: bindApiCallWithOptionalArgument(this, 'rtm.connect'),
             /**
              * @description Starts a Real Time Messaging session.
              * @deprecated Use `rtm.connect` instead. See {@link https://api.slack.com/changelog/2021-10-rtm-start-to-stop our post on retiring `rtm.start`}.
              * @see {@link https://api.slack.com/methods/rtm.start `rtm.start` API reference}.
              */
-            start: bindApiCall(this, 'rtm.start'),
+            start: bindApiCallWithOptionalArgument(this, 'rtm.start'),
         };
         this.search = {
             /**
@@ -10027,12 +10426,12 @@ class Methods extends eventemitter3_1.EventEmitter {
              * @description Gets the access logs for the current team.
              * @see {@link https://api.slack.com/methods/team.accessLogs `team.accessLogs` API reference}.
              */
-            accessLogs: bindApiCall(this, 'team.accessLogs'),
+            accessLogs: bindApiCallWithOptionalArgument(this, 'team.accessLogs'),
             /**
              * @description Gets billable users information for the current team.
              * @see {@link https://api.slack.com/methods/team.billableInfo `team.billableInfo` API reference}.
              */
-            billableInfo: bindApiCall(this, 'team.billableInfo'),
+            billableInfo: bindApiCallWithOptionalArgument(this, 'team.billableInfo'),
             billing: {
                 /**
                  * @description Reads a workspace's billing plan information.
@@ -10056,25 +10455,25 @@ class Methods extends eventemitter3_1.EventEmitter {
              * @description Gets information about the current team.
              * @see {@link https://api.slack.com/methods/team.info `team.info` API reference}.
              */
-            info: bindApiCall(this, 'team.info'),
+            info: bindApiCallWithOptionalArgument(this, 'team.info'),
             /**
              * @description Gets the integration logs for the current team.
              * @see {@link https://api.slack.com/methods/team.integrationLogs `team.integrationLogs` API reference}.
              */
-            integrationLogs: bindApiCall(this, 'team.integrationLogs'),
+            integrationLogs: bindApiCallWithOptionalArgument(this, 'team.integrationLogs'),
             preferences: {
                 /**
                  * @description Retrieve a list of a workspace's team preferences.
                  * @see {@link https://api.slack.com/methods/team.preferences.list `team.preferences.list` API reference}.
                  */
-                list: bindApiCall(this, 'team.preferences.list'),
+                list: bindApiCallWithOptionalArgument(this, 'team.preferences.list'),
             },
             profile: {
                 /**
                  * @description Retrieve a team's profile.
                  * @see {@link https://api.slack.com/methods/team.profile.get `team.profile.get` API reference}.
                  */
-                get: bindApiCall(this, 'team.profile.get'),
+                get: bindApiCallWithOptionalArgument(this, 'team.profile.get'),
             },
         };
         this.tooling = {
@@ -10106,7 +10505,7 @@ class Methods extends eventemitter3_1.EventEmitter {
              * @description List all User Groups for a team.
              * @see {@link https://api.slack.com/methods/usergroups.list `usergroups.list` API reference}.
              */
-            list: bindApiCall(this, 'usergroups.list'),
+            list: bindApiCallWithOptionalArgument(this, 'usergroups.list'),
             /**
              * @description Update an existing User Group.
              * @see {@link https://api.slack.com/methods/usergroups.update `usergroups.update` API reference}.
@@ -10275,12 +10674,12 @@ class Methods extends eventemitter3_1.EventEmitter {
     }
 }
 exports.Methods = Methods;
-__exportStar(__nccwpck_require__(85276), exports);
+__exportStar(__nccwpck_require__(63019), exports);
 //# sourceMappingURL=methods.js.map
 
 /***/ }),
 
-/***/ 79395:
+/***/ 52827:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -10321,7 +10720,7 @@ exports["default"] = policies;
 
 /***/ }),
 
-/***/ 30354:
+/***/ 24730:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -10331,7 +10730,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 
 /***/ }),
 
-/***/ 2662:
+/***/ 14846:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -10959,6 +11358,83 @@ function removeHook(state, name, method) {
 
   state.registry[name].splice(index, 1);
 }
+
+
+/***/ }),
+
+/***/ 429:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+var bind = __nccwpck_require__(35632);
+
+var $apply = __nccwpck_require__(89831);
+var $call = __nccwpck_require__(14715);
+var $reflectApply = __nccwpck_require__(59348);
+
+/** @type {import('./actualApply')} */
+module.exports = $reflectApply || bind.call($call, $apply);
+
+
+/***/ }),
+
+/***/ 89831:
+/***/ ((module) => {
+
+"use strict";
+
+
+/** @type {import('./functionApply')} */
+module.exports = Function.prototype.apply;
+
+
+/***/ }),
+
+/***/ 14715:
+/***/ ((module) => {
+
+"use strict";
+
+
+/** @type {import('./functionCall')} */
+module.exports = Function.prototype.call;
+
+
+/***/ }),
+
+/***/ 57063:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+var bind = __nccwpck_require__(35632);
+var $TypeError = __nccwpck_require__(56458);
+
+var $call = __nccwpck_require__(14715);
+var $actualApply = __nccwpck_require__(429);
+
+/** @type {(args: [Function, thisArg?: unknown, ...args: unknown[]]) => Function} TODO FIXME, find a way to use import('.') */
+module.exports = function callBindBasic(args) {
+	if (args.length < 1 || typeof args[0] !== 'function') {
+		throw new $TypeError('a function is required');
+	}
+	return $actualApply(bind, $call, args);
+};
+
+
+/***/ }),
+
+/***/ 59348:
+/***/ ((module) => {
+
+"use strict";
+
+
+/** @type {import('./reflectApply')} */
+module.exports = typeof Reflect !== 'undefined' && Reflect && Reflect.apply;
 
 
 /***/ }),
@@ -12164,6 +12640,205 @@ exports.Deprecation = Deprecation;
 
 /***/ }),
 
+/***/ 89594:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+var callBind = __nccwpck_require__(57063);
+var gOPD = __nccwpck_require__(72671);
+
+var hasProtoAccessor;
+try {
+	// eslint-disable-next-line no-extra-parens, no-proto
+	hasProtoAccessor = /** @type {{ __proto__?: typeof Array.prototype }} */ ([]).__proto__ === Array.prototype;
+} catch (e) {
+	if (!e || typeof e !== 'object' || !('code' in e) || e.code !== 'ERR_PROTO_ACCESS') {
+		throw e;
+	}
+}
+
+// eslint-disable-next-line no-extra-parens
+var desc = !!hasProtoAccessor && gOPD && gOPD(Object.prototype, /** @type {keyof typeof Object.prototype} */ ('__proto__'));
+
+var $Object = Object;
+var $getPrototypeOf = $Object.getPrototypeOf;
+
+/** @type {import('./get')} */
+module.exports = desc && typeof desc.get === 'function'
+	? callBind([desc.get])
+	: typeof $getPrototypeOf === 'function'
+		? /** @type {import('./get')} */ function getDunder(value) {
+			// eslint-disable-next-line eqeqeq
+			return $getPrototypeOf(value == null ? value : $Object(value));
+		}
+		: false;
+
+
+/***/ }),
+
+/***/ 79674:
+/***/ ((module) => {
+
+"use strict";
+
+
+/** @type {import('.')} */
+var $defineProperty = Object.defineProperty || false;
+if ($defineProperty) {
+	try {
+		$defineProperty({}, 'a', { value: 1 });
+	} catch (e) {
+		// IE 8 has a broken defineProperty
+		$defineProperty = false;
+	}
+}
+
+module.exports = $defineProperty;
+
+
+/***/ }),
+
+/***/ 49224:
+/***/ ((module) => {
+
+"use strict";
+
+
+/** @type {import('./eval')} */
+module.exports = EvalError;
+
+
+/***/ }),
+
+/***/ 94684:
+/***/ ((module) => {
+
+"use strict";
+
+
+/** @type {import('.')} */
+module.exports = Error;
+
+
+/***/ }),
+
+/***/ 24433:
+/***/ ((module) => {
+
+"use strict";
+
+
+/** @type {import('./range')} */
+module.exports = RangeError;
+
+
+/***/ }),
+
+/***/ 97409:
+/***/ ((module) => {
+
+"use strict";
+
+
+/** @type {import('./ref')} */
+module.exports = ReferenceError;
+
+
+/***/ }),
+
+/***/ 61681:
+/***/ ((module) => {
+
+"use strict";
+
+
+/** @type {import('./syntax')} */
+module.exports = SyntaxError;
+
+
+/***/ }),
+
+/***/ 56458:
+/***/ ((module) => {
+
+"use strict";
+
+
+/** @type {import('./type')} */
+module.exports = TypeError;
+
+
+/***/ }),
+
+/***/ 51866:
+/***/ ((module) => {
+
+"use strict";
+
+
+/** @type {import('./uri')} */
+module.exports = URIError;
+
+
+/***/ }),
+
+/***/ 33485:
+/***/ ((module) => {
+
+"use strict";
+
+
+/** @type {import('.')} */
+module.exports = Object;
+
+
+/***/ }),
+
+/***/ 14879:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+var GetIntrinsic = __nccwpck_require__(51412);
+
+var $defineProperty = GetIntrinsic('%Object.defineProperty%', true);
+
+var hasToStringTag = __nccwpck_require__(85005)();
+var hasOwn = __nccwpck_require__(2618);
+var $TypeError = __nccwpck_require__(56458);
+
+var toStringTag = hasToStringTag ? Symbol.toStringTag : null;
+
+/** @type {import('.')} */
+module.exports = function setToStringTag(object, value) {
+	var overrideIfSet = arguments.length > 2 && !!arguments[2] && arguments[2].force;
+	var nonConfigurable = arguments.length > 2 && !!arguments[2] && arguments[2].nonConfigurable;
+	if (
+		(typeof overrideIfSet !== 'undefined' && typeof overrideIfSet !== 'boolean')
+		|| (typeof nonConfigurable !== 'undefined' && typeof nonConfigurable !== 'boolean')
+	) {
+		throw new $TypeError('if provided, the `overrideIfSet` and `nonConfigurable` options must be booleans');
+	}
+	if (toStringTag && (overrideIfSet || !hasOwn(object, toStringTag))) {
+		if ($defineProperty) {
+			$defineProperty(object, toStringTag, {
+				configurable: !nonConfigurable,
+				enumerable: false,
+				value: value,
+				writable: false
+			});
+		} else {
+			object[toStringTag] = value; // eslint-disable-line no-param-reassign
+		}
+	}
+};
+
+
+/***/ }),
+
 /***/ 78655:
 /***/ ((module) => {
 
@@ -12852,7 +13527,7 @@ if (true) {
 
 /***/ }),
 
-/***/ 91806:
+/***/ 47018:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 var debug;
@@ -12874,7 +13549,7 @@ module.exports = function () {
 
 /***/ }),
 
-/***/ 36417:
+/***/ 63509:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 var url = __nccwpck_require__(87016);
@@ -12883,12 +13558,23 @@ var http = __nccwpck_require__(58611);
 var https = __nccwpck_require__(65692);
 var Writable = (__nccwpck_require__(2203).Writable);
 var assert = __nccwpck_require__(42613);
-var debug = __nccwpck_require__(91806);
+var debug = __nccwpck_require__(47018);
+
+// Preventive platform detection
+// istanbul ignore next
+(function detectUnsupportedEnvironment() {
+  var looksLikeNode = typeof process !== "undefined";
+  var looksLikeBrowser = typeof window !== "undefined" && typeof document !== "undefined";
+  var looksLikeV8 = isFunction(Error.captureStackTrace);
+  if (!looksLikeNode && (looksLikeBrowser || !looksLikeV8)) {
+    console.warn("The follow-redirects package should be excluded from browser builds.");
+  }
+}());
 
 // Whether to use the native URL object or the legacy url module
 var useNativeURL = false;
 try {
-  assert(new URL());
+  assert(new URL(""));
 }
 catch (error) {
   useNativeURL = error.code === "ERR_INVALID_URL";
@@ -13225,17 +13911,17 @@ RedirectableRequest.prototype._performRequest = function () {
     var buffers = this._requestBodyBuffers;
     (function writeNext(error) {
       // Only write if this request has not been redirected yet
-      /* istanbul ignore else */
+      // istanbul ignore else
       if (request === self._currentRequest) {
         // Report any write errors
-        /* istanbul ignore if */
+        // istanbul ignore if
         if (error) {
           self.emit("error", error);
         }
         // Write the next buffer if there are still left
         else if (i < buffers.length) {
           var buffer = buffers[i++];
-          /* istanbul ignore else */
+          // istanbul ignore else
           if (!request.finished) {
             request.write(buffer.data, buffer.encoding, writeNext);
           }
@@ -13431,7 +14117,7 @@ function noop() { /* empty */ }
 
 function parseUrl(input) {
   var parsed;
-  /* istanbul ignore else */
+  // istanbul ignore else
   if (useNativeURL) {
     parsed = new URL(input);
   }
@@ -13446,7 +14132,7 @@ function parseUrl(input) {
 }
 
 function resolveUrl(relative, base) {
-  /* istanbul ignore next */
+  // istanbul ignore next
   return useNativeURL ? new URL(relative, base) : parseUrl(url.resolve(base, relative));
 }
 
@@ -13495,7 +14181,10 @@ function removeMatchingHeaders(regex, headers) {
 function createErrorType(code, message, baseClass) {
   // Create constructor
   function CustomError(properties) {
-    Error.captureStackTrace(this, this.constructor);
+    // istanbul ignore else
+    if (isFunction(Error.captureStackTrace)) {
+      Error.captureStackTrace(this, this.constructor);
+    }
     Object.assign(this, properties || {});
     this.code = code;
     this.message = this.cause ? message + ": " + this.cause.message : message;
@@ -13553,8 +14242,11 @@ module.exports.wrap = wrap;
 
 /***/ }),
 
-/***/ 2691:
+/***/ 34455:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+"use strict";
+
 
 var CombinedStream = __nccwpck_require__(87315);
 var util = __nccwpck_require__(39023);
@@ -13564,15 +14256,12 @@ var https = __nccwpck_require__(65692);
 var parseUrl = (__nccwpck_require__(87016).parse);
 var fs = __nccwpck_require__(79896);
 var Stream = (__nccwpck_require__(2203).Stream);
+var crypto = __nccwpck_require__(76982);
 var mime = __nccwpck_require__(56553);
 var asynckit = __nccwpck_require__(95094);
-var populate = __nccwpck_require__(56908);
-
-// Public API
-module.exports = FormData;
-
-// make it a Stream
-util.inherits(FormData, CombinedStream);
+var setToStringTag = __nccwpck_require__(14879);
+var hasOwn = __nccwpck_require__(2618);
+var populate = __nccwpck_require__(30016);
 
 /**
  * Create readable "multipart/form-data" streams.
@@ -13580,7 +14269,7 @@ util.inherits(FormData, CombinedStream);
  * and file uploads to other web applications.
  *
  * @constructor
- * @param {Object} options - Properties to be added/overriden for FormData and CombinedStream
+ * @param {object} options - Properties to be added/overriden for FormData and CombinedStream
  */
 function FormData(options) {
   if (!(this instanceof FormData)) {
@@ -13593,35 +14282,39 @@ function FormData(options) {
 
   CombinedStream.call(this);
 
-  options = options || {};
-  for (var option in options) {
+  options = options || {}; // eslint-disable-line no-param-reassign
+  for (var option in options) { // eslint-disable-line no-restricted-syntax
     this[option] = options[option];
   }
 }
 
+// make it a Stream
+util.inherits(FormData, CombinedStream);
+
 FormData.LINE_BREAK = '\r\n';
 FormData.DEFAULT_CONTENT_TYPE = 'application/octet-stream';
 
-FormData.prototype.append = function(field, value, options) {
-
-  options = options || {};
+FormData.prototype.append = function (field, value, options) {
+  options = options || {}; // eslint-disable-line no-param-reassign
 
   // allow filename as single option
-  if (typeof options == 'string') {
-    options = {filename: options};
+  if (typeof options === 'string') {
+    options = { filename: options }; // eslint-disable-line no-param-reassign
   }
 
   var append = CombinedStream.prototype.append.bind(this);
 
   // all that streamy business can't handle numbers
-  if (typeof value == 'number') {
-    value = '' + value;
+  if (typeof value === 'number' || value == null) {
+    value = String(value); // eslint-disable-line no-param-reassign
   }
 
   // https://github.com/felixge/node-form-data/issues/38
-  if (util.isArray(value)) {
-    // Please convert your array into string
-    // the way web server expects it
+  if (Array.isArray(value)) {
+    /*
+     * Please convert your array into string
+     * the way web server expects it
+     */
     this._error(new Error('Arrays are not supported.'));
     return;
   }
@@ -13637,15 +14330,17 @@ FormData.prototype.append = function(field, value, options) {
   this._trackLength(header, value, options);
 };
 
-FormData.prototype._trackLength = function(header, value, options) {
+FormData.prototype._trackLength = function (header, value, options) {
   var valueLength = 0;
 
-  // used w/ getLengthSync(), when length is known.
-  // e.g. for streaming directly from a remote server,
-  // w/ a known file a size, and not wanting to wait for
-  // incoming file to finish to get its size.
+  /*
+   * used w/ getLengthSync(), when length is known.
+   * e.g. for streaming directly from a remote server,
+   * w/ a known file a size, and not wanting to wait for
+   * incoming file to finish to get its size.
+   */
   if (options.knownLength != null) {
-    valueLength += +options.knownLength;
+    valueLength += Number(options.knownLength);
   } else if (Buffer.isBuffer(value)) {
     valueLength = value.length;
   } else if (typeof value === 'string') {
@@ -13655,12 +14350,10 @@ FormData.prototype._trackLength = function(header, value, options) {
   this._valueLength += valueLength;
 
   // @check why add CRLF? does this account for custom/multiple CRLFs?
-  this._overheadLength +=
-    Buffer.byteLength(header) +
-    FormData.LINE_BREAK.length;
+  this._overheadLength += Buffer.byteLength(header) + FormData.LINE_BREAK.length;
 
   // empty or either doesn't have path or not an http response or not a stream
-  if (!value || ( !value.path && !(value.readable && value.hasOwnProperty('httpVersion')) && !(value instanceof Stream))) {
+  if (!value || (!value.path && !(value.readable && hasOwn(value, 'httpVersion')) && !(value instanceof Stream))) {
     return;
   }
 
@@ -13670,10 +14363,8 @@ FormData.prototype._trackLength = function(header, value, options) {
   }
 };
 
-FormData.prototype._lengthRetriever = function(value, callback) {
-
-  if (value.hasOwnProperty('fd')) {
-
+FormData.prototype._lengthRetriever = function (value, callback) {
+  if (hasOwn(value, 'fd')) {
     // take read range into a account
     // `end` = Infinity –> read file till the end
     //
@@ -13682,54 +14373,52 @@ FormData.prototype._lengthRetriever = function(value, callback) {
     // Fix it when node fixes it.
     // https://github.com/joyent/node/issues/7819
     if (value.end != undefined && value.end != Infinity && value.start != undefined) {
-
       // when end specified
       // no need to calculate range
       // inclusive, starts with 0
-      callback(null, value.end + 1 - (value.start ? value.start : 0));
+      callback(null, value.end + 1 - (value.start ? value.start : 0)); // eslint-disable-line callback-return
 
-    // not that fast snoopy
+      // not that fast snoopy
     } else {
       // still need to fetch file size from fs
-      fs.stat(value.path, function(err, stat) {
-
-        var fileSize;
-
+      fs.stat(value.path, function (err, stat) {
         if (err) {
           callback(err);
           return;
         }
 
         // update final size based on the range options
-        fileSize = stat.size - (value.start ? value.start : 0);
+        var fileSize = stat.size - (value.start ? value.start : 0);
         callback(null, fileSize);
       });
     }
 
-  // or http response
-  } else if (value.hasOwnProperty('httpVersion')) {
-    callback(null, +value.headers['content-length']);
+    // or http response
+  } else if (hasOwn(value, 'httpVersion')) {
+    callback(null, Number(value.headers['content-length'])); // eslint-disable-line callback-return
 
-  // or request stream http://github.com/mikeal/request
-  } else if (value.hasOwnProperty('httpModule')) {
+    // or request stream http://github.com/mikeal/request
+  } else if (hasOwn(value, 'httpModule')) {
     // wait till response come back
-    value.on('response', function(response) {
+    value.on('response', function (response) {
       value.pause();
-      callback(null, +response.headers['content-length']);
+      callback(null, Number(response.headers['content-length']));
     });
     value.resume();
 
-  // something else
+    // something else
   } else {
-    callback('Unknown stream');
+    callback('Unknown stream'); // eslint-disable-line callback-return
   }
 };
 
-FormData.prototype._multiPartHeader = function(field, value, options) {
-  // custom header specified (as string)?
-  // it becomes responsible for boundary
-  // (e.g. to handle extra CRLFs on .NET servers)
-  if (typeof options.header == 'string') {
+FormData.prototype._multiPartHeader = function (field, value, options) {
+  /*
+   * custom header specified (as string)?
+   * it becomes responsible for boundary
+   * (e.g. to handle extra CRLFs on .NET servers)
+   */
+  if (typeof options.header === 'string') {
     return options.header;
   }
 
@@ -13737,7 +14426,7 @@ FormData.prototype._multiPartHeader = function(field, value, options) {
   var contentType = this._getContentType(value, options);
 
   var contents = '';
-  var headers  = {
+  var headers = {
     // add custom disposition as third element or keep it two elements if not
     'Content-Disposition': ['form-data', 'name="' + field + '"'].concat(contentDisposition || []),
     // if no content type. allow it to be empty array
@@ -13745,77 +14434,74 @@ FormData.prototype._multiPartHeader = function(field, value, options) {
   };
 
   // allow custom headers.
-  if (typeof options.header == 'object') {
+  if (typeof options.header === 'object') {
     populate(headers, options.header);
   }
 
   var header;
-  for (var prop in headers) {
-    if (!headers.hasOwnProperty(prop)) continue;
-    header = headers[prop];
+  for (var prop in headers) { // eslint-disable-line no-restricted-syntax
+    if (hasOwn(headers, prop)) {
+      header = headers[prop];
 
-    // skip nullish headers.
-    if (header == null) {
-      continue;
-    }
+      // skip nullish headers.
+      if (header == null) {
+        continue; // eslint-disable-line no-restricted-syntax, no-continue
+      }
 
-    // convert all headers to arrays.
-    if (!Array.isArray(header)) {
-      header = [header];
-    }
+      // convert all headers to arrays.
+      if (!Array.isArray(header)) {
+        header = [header];
+      }
 
-    // add non-empty headers.
-    if (header.length) {
-      contents += prop + ': ' + header.join('; ') + FormData.LINE_BREAK;
+      // add non-empty headers.
+      if (header.length) {
+        contents += prop + ': ' + header.join('; ') + FormData.LINE_BREAK;
+      }
     }
   }
 
   return '--' + this.getBoundary() + FormData.LINE_BREAK + contents + FormData.LINE_BREAK;
 };
 
-FormData.prototype._getContentDisposition = function(value, options) {
-
-  var filename
-    , contentDisposition
-    ;
+FormData.prototype._getContentDisposition = function (value, options) { // eslint-disable-line consistent-return
+  var filename;
 
   if (typeof options.filepath === 'string') {
     // custom filepath for relative paths
     filename = path.normalize(options.filepath).replace(/\\/g, '/');
-  } else if (options.filename || value.name || value.path) {
-    // custom filename take precedence
-    // formidable and the browser add a name property
-    // fs- and request- streams have path property
-    filename = path.basename(options.filename || value.name || value.path);
-  } else if (value.readable && value.hasOwnProperty('httpVersion')) {
+  } else if (options.filename || (value && (value.name || value.path))) {
+    /*
+     * custom filename take precedence
+     * formidable and the browser add a name property
+     * fs- and request- streams have path property
+     */
+    filename = path.basename(options.filename || (value && (value.name || value.path)));
+  } else if (value && value.readable && hasOwn(value, 'httpVersion')) {
     // or try http response
     filename = path.basename(value.client._httpMessage.path || '');
   }
 
   if (filename) {
-    contentDisposition = 'filename="' + filename + '"';
+    return 'filename="' + filename + '"';
   }
-
-  return contentDisposition;
 };
 
-FormData.prototype._getContentType = function(value, options) {
-
+FormData.prototype._getContentType = function (value, options) {
   // use custom content-type above all
   var contentType = options.contentType;
 
   // or try `name` from formidable, browser
-  if (!contentType && value.name) {
+  if (!contentType && value && value.name) {
     contentType = mime.lookup(value.name);
   }
 
   // or try `path` from fs-, request- streams
-  if (!contentType && value.path) {
+  if (!contentType && value && value.path) {
     contentType = mime.lookup(value.path);
   }
 
   // or if it's http-reponse
-  if (!contentType && value.readable && value.hasOwnProperty('httpVersion')) {
+  if (!contentType && value && value.readable && hasOwn(value, 'httpVersion')) {
     contentType = value.headers['content-type'];
   }
 
@@ -13825,18 +14511,18 @@ FormData.prototype._getContentType = function(value, options) {
   }
 
   // fallback to the default content type if `value` is not simple value
-  if (!contentType && typeof value == 'object') {
+  if (!contentType && value && typeof value === 'object') {
     contentType = FormData.DEFAULT_CONTENT_TYPE;
   }
 
   return contentType;
 };
 
-FormData.prototype._multiPartFooter = function() {
-  return function(next) {
+FormData.prototype._multiPartFooter = function () {
+  return function (next) {
     var footer = FormData.LINE_BREAK;
 
-    var lastPart = (this._streams.length === 0);
+    var lastPart = this._streams.length === 0;
     if (lastPart) {
       footer += this._lastBoundary();
     }
@@ -13845,18 +14531,18 @@ FormData.prototype._multiPartFooter = function() {
   }.bind(this);
 };
 
-FormData.prototype._lastBoundary = function() {
+FormData.prototype._lastBoundary = function () {
   return '--' + this.getBoundary() + '--' + FormData.LINE_BREAK;
 };
 
-FormData.prototype.getHeaders = function(userHeaders) {
+FormData.prototype.getHeaders = function (userHeaders) {
   var header;
   var formHeaders = {
     'content-type': 'multipart/form-data; boundary=' + this.getBoundary()
   };
 
-  for (header in userHeaders) {
-    if (userHeaders.hasOwnProperty(header)) {
+  for (header in userHeaders) { // eslint-disable-line no-restricted-syntax
+    if (hasOwn(userHeaders, header)) {
       formHeaders[header.toLowerCase()] = userHeaders[header];
     }
   }
@@ -13864,11 +14550,14 @@ FormData.prototype.getHeaders = function(userHeaders) {
   return formHeaders;
 };
 
-FormData.prototype.setBoundary = function(boundary) {
+FormData.prototype.setBoundary = function (boundary) {
+  if (typeof boundary !== 'string') {
+    throw new TypeError('FormData boundary must be a string');
+  }
   this._boundary = boundary;
 };
 
-FormData.prototype.getBoundary = function() {
+FormData.prototype.getBoundary = function () {
   if (!this._boundary) {
     this._generateBoundary();
   }
@@ -13876,60 +14565,55 @@ FormData.prototype.getBoundary = function() {
   return this._boundary;
 };
 
-FormData.prototype.getBuffer = function() {
-  var dataBuffer = new Buffer.alloc( 0 );
+FormData.prototype.getBuffer = function () {
+  var dataBuffer = new Buffer.alloc(0); // eslint-disable-line new-cap
   var boundary = this.getBoundary();
 
   // Create the form content. Add Line breaks to the end of data.
   for (var i = 0, len = this._streams.length; i < len; i++) {
     if (typeof this._streams[i] !== 'function') {
-
       // Add content to the buffer.
-      if(Buffer.isBuffer(this._streams[i])) {
-        dataBuffer = Buffer.concat( [dataBuffer, this._streams[i]]);
-      }else {
-        dataBuffer = Buffer.concat( [dataBuffer, Buffer.from(this._streams[i])]);
+      if (Buffer.isBuffer(this._streams[i])) {
+        dataBuffer = Buffer.concat([dataBuffer, this._streams[i]]);
+      } else {
+        dataBuffer = Buffer.concat([dataBuffer, Buffer.from(this._streams[i])]);
       }
 
       // Add break after content.
-      if (typeof this._streams[i] !== 'string' || this._streams[i].substring( 2, boundary.length + 2 ) !== boundary) {
-        dataBuffer = Buffer.concat( [dataBuffer, Buffer.from(FormData.LINE_BREAK)] );
+      if (typeof this._streams[i] !== 'string' || this._streams[i].substring(2, boundary.length + 2) !== boundary) {
+        dataBuffer = Buffer.concat([dataBuffer, Buffer.from(FormData.LINE_BREAK)]);
       }
     }
   }
 
   // Add the footer and return the Buffer object.
-  return Buffer.concat( [dataBuffer, Buffer.from(this._lastBoundary())] );
+  return Buffer.concat([dataBuffer, Buffer.from(this._lastBoundary())]);
 };
 
-FormData.prototype._generateBoundary = function() {
+FormData.prototype._generateBoundary = function () {
   // This generates a 50 character boundary similar to those used by Firefox.
-  // They are optimized for boyer-moore parsing.
-  var boundary = '--------------------------';
-  for (var i = 0; i < 24; i++) {
-    boundary += Math.floor(Math.random() * 10).toString(16);
-  }
 
-  this._boundary = boundary;
+  // They are optimized for boyer-moore parsing.
+  this._boundary = '--------------------------' + crypto.randomBytes(12).toString('hex');
 };
 
 // Note: getLengthSync DOESN'T calculate streams length
-// As workaround one can calculate file size manually
-// and add it as knownLength option
-FormData.prototype.getLengthSync = function() {
+// As workaround one can calculate file size manually and add it as knownLength option
+FormData.prototype.getLengthSync = function () {
   var knownLength = this._overheadLength + this._valueLength;
 
-  // Don't get confused, there are 3 "internal" streams for each keyval pair
-  // so it basically checks if there is any value added to the form
+  // Don't get confused, there are 3 "internal" streams for each keyval pair so it basically checks if there is any value added to the form
   if (this._streams.length) {
     knownLength += this._lastBoundary().length;
   }
 
   // https://github.com/form-data/form-data/issues/40
   if (!this.hasKnownLength()) {
-    // Some async length retrievers are present
-    // therefore synchronous length calculation is false.
-    // Please use getLength(callback) to get proper length
+    /*
+     * Some async length retrievers are present
+     * therefore synchronous length calculation is false.
+     * Please use getLength(callback) to get proper length
+     */
     this._error(new Error('Cannot calculate proper length in synchronous way.'));
   }
 
@@ -13939,7 +14623,7 @@ FormData.prototype.getLengthSync = function() {
 // Public API to check if length of added values is known
 // https://github.com/form-data/form-data/issues/196
 // https://github.com/form-data/form-data/issues/262
-FormData.prototype.hasKnownLength = function() {
+FormData.prototype.hasKnownLength = function () {
   var hasKnownLength = true;
 
   if (this._valuesToMeasure.length) {
@@ -13949,7 +14633,7 @@ FormData.prototype.hasKnownLength = function() {
   return hasKnownLength;
 };
 
-FormData.prototype.getLength = function(cb) {
+FormData.prototype.getLength = function (cb) {
   var knownLength = this._overheadLength + this._valueLength;
 
   if (this._streams.length) {
@@ -13961,13 +14645,13 @@ FormData.prototype.getLength = function(cb) {
     return;
   }
 
-  asynckit.parallel(this._valuesToMeasure, this._lengthRetriever, function(err, values) {
+  asynckit.parallel(this._valuesToMeasure, this._lengthRetriever, function (err, values) {
     if (err) {
       cb(err);
       return;
     }
 
-    values.forEach(function(length) {
+    values.forEach(function (length) {
       knownLength += length;
     });
 
@@ -13975,31 +14659,26 @@ FormData.prototype.getLength = function(cb) {
   });
 };
 
-FormData.prototype.submit = function(params, cb) {
-  var request
-    , options
-    , defaults = {method: 'post'}
-    ;
+FormData.prototype.submit = function (params, cb) {
+  var request;
+  var options;
+  var defaults = { method: 'post' };
 
-  // parse provided url if it's string
-  // or treat it as options object
-  if (typeof params == 'string') {
-
-    params = parseUrl(params);
+  // parse provided url if it's string or treat it as options object
+  if (typeof params === 'string') {
+    params = parseUrl(params); // eslint-disable-line no-param-reassign
+    /* eslint sort-keys: 0 */
     options = populate({
       port: params.port,
       path: params.pathname,
       host: params.hostname,
       protocol: params.protocol
     }, defaults);
-
-  // use custom params
-  } else {
-
+  } else { // use custom params
     options = populate(params, defaults);
     // if no port provided use default one
     if (!options.port) {
-      options.port = options.protocol == 'https:' ? 443 : 80;
+      options.port = options.protocol === 'https:' ? 443 : 80;
     }
   }
 
@@ -14007,14 +14686,14 @@ FormData.prototype.submit = function(params, cb) {
   options.headers = this.getHeaders(params.headers);
 
   // https if specified, fallback to http in any other case
-  if (options.protocol == 'https:') {
+  if (options.protocol === 'https:') {
     request = https.request(options);
   } else {
     request = http.request(options);
   }
 
   // get content length and fire away
-  this.getLength(function(err, length) {
+  this.getLength(function (err, length) {
     if (err && err !== 'Unknown stream') {
       this._error(err);
       return;
@@ -14033,7 +14712,7 @@ FormData.prototype.submit = function(params, cb) {
         request.removeListener('error', callback);
         request.removeListener('response', onResponse);
 
-        return cb.call(this, error, responce);
+        return cb.call(this, error, responce); // eslint-disable-line no-invalid-this
       };
 
       onResponse = callback.bind(this, null);
@@ -14046,7 +14725,7 @@ FormData.prototype.submit = function(params, cb) {
   return request;
 };
 
-FormData.prototype._error = function(err) {
+FormData.prototype._error = function (err) {
   if (!this.error) {
     this.error = err;
     this.pause();
@@ -14057,23 +14736,615 @@ FormData.prototype._error = function(err) {
 FormData.prototype.toString = function () {
   return '[object FormData]';
 };
+setToStringTag(FormData, 'FormData');
+
+// Public API
+module.exports = FormData;
 
 
 /***/ }),
 
-/***/ 56908:
+/***/ 30016:
 /***/ ((module) => {
 
-// populates missing values
-module.exports = function(dst, src) {
+"use strict";
 
-  Object.keys(src).forEach(function(prop)
-  {
-    dst[prop] = dst[prop] || src[prop];
+
+// populates missing values
+module.exports = function (dst, src) {
+  Object.keys(src).forEach(function (prop) {
+    dst[prop] = dst[prop] || src[prop]; // eslint-disable-line no-param-reassign
   });
 
   return dst;
 };
+
+
+/***/ }),
+
+/***/ 96404:
+/***/ ((module) => {
+
+"use strict";
+
+
+/* eslint no-invalid-this: 1 */
+
+var ERROR_MESSAGE = 'Function.prototype.bind called on incompatible ';
+var toStr = Object.prototype.toString;
+var max = Math.max;
+var funcType = '[object Function]';
+
+var concatty = function concatty(a, b) {
+    var arr = [];
+
+    for (var i = 0; i < a.length; i += 1) {
+        arr[i] = a[i];
+    }
+    for (var j = 0; j < b.length; j += 1) {
+        arr[j + a.length] = b[j];
+    }
+
+    return arr;
+};
+
+var slicy = function slicy(arrLike, offset) {
+    var arr = [];
+    for (var i = offset || 0, j = 0; i < arrLike.length; i += 1, j += 1) {
+        arr[j] = arrLike[i];
+    }
+    return arr;
+};
+
+var joiny = function (arr, joiner) {
+    var str = '';
+    for (var i = 0; i < arr.length; i += 1) {
+        str += arr[i];
+        if (i + 1 < arr.length) {
+            str += joiner;
+        }
+    }
+    return str;
+};
+
+module.exports = function bind(that) {
+    var target = this;
+    if (typeof target !== 'function' || toStr.apply(target) !== funcType) {
+        throw new TypeError(ERROR_MESSAGE + target);
+    }
+    var args = slicy(arguments, 1);
+
+    var bound;
+    var binder = function () {
+        if (this instanceof bound) {
+            var result = target.apply(
+                this,
+                concatty(args, arguments)
+            );
+            if (Object(result) === result) {
+                return result;
+            }
+            return this;
+        }
+        return target.apply(
+            that,
+            concatty(args, arguments)
+        );
+
+    };
+
+    var boundLength = max(0, target.length - args.length);
+    var boundArgs = [];
+    for (var i = 0; i < boundLength; i++) {
+        boundArgs[i] = '$' + i;
+    }
+
+    bound = Function('binder', 'return function (' + joiny(boundArgs, ',') + '){ return binder.apply(this,arguments); }')(binder);
+
+    if (target.prototype) {
+        var Empty = function Empty() {};
+        Empty.prototype = target.prototype;
+        bound.prototype = new Empty();
+        Empty.prototype = null;
+    }
+
+    return bound;
+};
+
+
+/***/ }),
+
+/***/ 35632:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+var implementation = __nccwpck_require__(96404);
+
+module.exports = Function.prototype.bind || implementation;
+
+
+/***/ }),
+
+/***/ 51412:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+var undefined;
+
+var $Object = __nccwpck_require__(33485);
+
+var $Error = __nccwpck_require__(94684);
+var $EvalError = __nccwpck_require__(49224);
+var $RangeError = __nccwpck_require__(24433);
+var $ReferenceError = __nccwpck_require__(97409);
+var $SyntaxError = __nccwpck_require__(61681);
+var $TypeError = __nccwpck_require__(56458);
+var $URIError = __nccwpck_require__(51866);
+
+var abs = __nccwpck_require__(34328);
+var floor = __nccwpck_require__(70422);
+var max = __nccwpck_require__(71378);
+var min = __nccwpck_require__(87388);
+var pow = __nccwpck_require__(80526);
+var round = __nccwpck_require__(17816);
+var sign = __nccwpck_require__(19947);
+
+var $Function = Function;
+
+// eslint-disable-next-line consistent-return
+var getEvalledConstructor = function (expressionSyntax) {
+	try {
+		return $Function('"use strict"; return (' + expressionSyntax + ').constructor;')();
+	} catch (e) {}
+};
+
+var $gOPD = __nccwpck_require__(72671);
+var $defineProperty = __nccwpck_require__(79674);
+
+var throwTypeError = function () {
+	throw new $TypeError();
+};
+var ThrowTypeError = $gOPD
+	? (function () {
+		try {
+			// eslint-disable-next-line no-unused-expressions, no-caller, no-restricted-properties
+			arguments.callee; // IE 8 does not throw here
+			return throwTypeError;
+		} catch (calleeThrows) {
+			try {
+				// IE 8 throws on Object.getOwnPropertyDescriptor(arguments, '')
+				return $gOPD(arguments, 'callee').get;
+			} catch (gOPDthrows) {
+				return throwTypeError;
+			}
+		}
+	}())
+	: throwTypeError;
+
+var hasSymbols = __nccwpck_require__(79718)();
+
+var getProto = __nccwpck_require__(99272);
+var $ObjectGPO = __nccwpck_require__(85932);
+var $ReflectGPO = __nccwpck_require__(3172);
+
+var $apply = __nccwpck_require__(89831);
+var $call = __nccwpck_require__(14715);
+
+var needsEval = {};
+
+var TypedArray = typeof Uint8Array === 'undefined' || !getProto ? undefined : getProto(Uint8Array);
+
+var INTRINSICS = {
+	__proto__: null,
+	'%AggregateError%': typeof AggregateError === 'undefined' ? undefined : AggregateError,
+	'%Array%': Array,
+	'%ArrayBuffer%': typeof ArrayBuffer === 'undefined' ? undefined : ArrayBuffer,
+	'%ArrayIteratorPrototype%': hasSymbols && getProto ? getProto([][Symbol.iterator]()) : undefined,
+	'%AsyncFromSyncIteratorPrototype%': undefined,
+	'%AsyncFunction%': needsEval,
+	'%AsyncGenerator%': needsEval,
+	'%AsyncGeneratorFunction%': needsEval,
+	'%AsyncIteratorPrototype%': needsEval,
+	'%Atomics%': typeof Atomics === 'undefined' ? undefined : Atomics,
+	'%BigInt%': typeof BigInt === 'undefined' ? undefined : BigInt,
+	'%BigInt64Array%': typeof BigInt64Array === 'undefined' ? undefined : BigInt64Array,
+	'%BigUint64Array%': typeof BigUint64Array === 'undefined' ? undefined : BigUint64Array,
+	'%Boolean%': Boolean,
+	'%DataView%': typeof DataView === 'undefined' ? undefined : DataView,
+	'%Date%': Date,
+	'%decodeURI%': decodeURI,
+	'%decodeURIComponent%': decodeURIComponent,
+	'%encodeURI%': encodeURI,
+	'%encodeURIComponent%': encodeURIComponent,
+	'%Error%': $Error,
+	'%eval%': eval, // eslint-disable-line no-eval
+	'%EvalError%': $EvalError,
+	'%Float16Array%': typeof Float16Array === 'undefined' ? undefined : Float16Array,
+	'%Float32Array%': typeof Float32Array === 'undefined' ? undefined : Float32Array,
+	'%Float64Array%': typeof Float64Array === 'undefined' ? undefined : Float64Array,
+	'%FinalizationRegistry%': typeof FinalizationRegistry === 'undefined' ? undefined : FinalizationRegistry,
+	'%Function%': $Function,
+	'%GeneratorFunction%': needsEval,
+	'%Int8Array%': typeof Int8Array === 'undefined' ? undefined : Int8Array,
+	'%Int16Array%': typeof Int16Array === 'undefined' ? undefined : Int16Array,
+	'%Int32Array%': typeof Int32Array === 'undefined' ? undefined : Int32Array,
+	'%isFinite%': isFinite,
+	'%isNaN%': isNaN,
+	'%IteratorPrototype%': hasSymbols && getProto ? getProto(getProto([][Symbol.iterator]())) : undefined,
+	'%JSON%': typeof JSON === 'object' ? JSON : undefined,
+	'%Map%': typeof Map === 'undefined' ? undefined : Map,
+	'%MapIteratorPrototype%': typeof Map === 'undefined' || !hasSymbols || !getProto ? undefined : getProto(new Map()[Symbol.iterator]()),
+	'%Math%': Math,
+	'%Number%': Number,
+	'%Object%': $Object,
+	'%Object.getOwnPropertyDescriptor%': $gOPD,
+	'%parseFloat%': parseFloat,
+	'%parseInt%': parseInt,
+	'%Promise%': typeof Promise === 'undefined' ? undefined : Promise,
+	'%Proxy%': typeof Proxy === 'undefined' ? undefined : Proxy,
+	'%RangeError%': $RangeError,
+	'%ReferenceError%': $ReferenceError,
+	'%Reflect%': typeof Reflect === 'undefined' ? undefined : Reflect,
+	'%RegExp%': RegExp,
+	'%Set%': typeof Set === 'undefined' ? undefined : Set,
+	'%SetIteratorPrototype%': typeof Set === 'undefined' || !hasSymbols || !getProto ? undefined : getProto(new Set()[Symbol.iterator]()),
+	'%SharedArrayBuffer%': typeof SharedArrayBuffer === 'undefined' ? undefined : SharedArrayBuffer,
+	'%String%': String,
+	'%StringIteratorPrototype%': hasSymbols && getProto ? getProto(''[Symbol.iterator]()) : undefined,
+	'%Symbol%': hasSymbols ? Symbol : undefined,
+	'%SyntaxError%': $SyntaxError,
+	'%ThrowTypeError%': ThrowTypeError,
+	'%TypedArray%': TypedArray,
+	'%TypeError%': $TypeError,
+	'%Uint8Array%': typeof Uint8Array === 'undefined' ? undefined : Uint8Array,
+	'%Uint8ClampedArray%': typeof Uint8ClampedArray === 'undefined' ? undefined : Uint8ClampedArray,
+	'%Uint16Array%': typeof Uint16Array === 'undefined' ? undefined : Uint16Array,
+	'%Uint32Array%': typeof Uint32Array === 'undefined' ? undefined : Uint32Array,
+	'%URIError%': $URIError,
+	'%WeakMap%': typeof WeakMap === 'undefined' ? undefined : WeakMap,
+	'%WeakRef%': typeof WeakRef === 'undefined' ? undefined : WeakRef,
+	'%WeakSet%': typeof WeakSet === 'undefined' ? undefined : WeakSet,
+
+	'%Function.prototype.call%': $call,
+	'%Function.prototype.apply%': $apply,
+	'%Object.defineProperty%': $defineProperty,
+	'%Object.getPrototypeOf%': $ObjectGPO,
+	'%Math.abs%': abs,
+	'%Math.floor%': floor,
+	'%Math.max%': max,
+	'%Math.min%': min,
+	'%Math.pow%': pow,
+	'%Math.round%': round,
+	'%Math.sign%': sign,
+	'%Reflect.getPrototypeOf%': $ReflectGPO
+};
+
+if (getProto) {
+	try {
+		null.error; // eslint-disable-line no-unused-expressions
+	} catch (e) {
+		// https://github.com/tc39/proposal-shadowrealm/pull/384#issuecomment-1364264229
+		var errorProto = getProto(getProto(e));
+		INTRINSICS['%Error.prototype%'] = errorProto;
+	}
+}
+
+var doEval = function doEval(name) {
+	var value;
+	if (name === '%AsyncFunction%') {
+		value = getEvalledConstructor('async function () {}');
+	} else if (name === '%GeneratorFunction%') {
+		value = getEvalledConstructor('function* () {}');
+	} else if (name === '%AsyncGeneratorFunction%') {
+		value = getEvalledConstructor('async function* () {}');
+	} else if (name === '%AsyncGenerator%') {
+		var fn = doEval('%AsyncGeneratorFunction%');
+		if (fn) {
+			value = fn.prototype;
+		}
+	} else if (name === '%AsyncIteratorPrototype%') {
+		var gen = doEval('%AsyncGenerator%');
+		if (gen && getProto) {
+			value = getProto(gen.prototype);
+		}
+	}
+
+	INTRINSICS[name] = value;
+
+	return value;
+};
+
+var LEGACY_ALIASES = {
+	__proto__: null,
+	'%ArrayBufferPrototype%': ['ArrayBuffer', 'prototype'],
+	'%ArrayPrototype%': ['Array', 'prototype'],
+	'%ArrayProto_entries%': ['Array', 'prototype', 'entries'],
+	'%ArrayProto_forEach%': ['Array', 'prototype', 'forEach'],
+	'%ArrayProto_keys%': ['Array', 'prototype', 'keys'],
+	'%ArrayProto_values%': ['Array', 'prototype', 'values'],
+	'%AsyncFunctionPrototype%': ['AsyncFunction', 'prototype'],
+	'%AsyncGenerator%': ['AsyncGeneratorFunction', 'prototype'],
+	'%AsyncGeneratorPrototype%': ['AsyncGeneratorFunction', 'prototype', 'prototype'],
+	'%BooleanPrototype%': ['Boolean', 'prototype'],
+	'%DataViewPrototype%': ['DataView', 'prototype'],
+	'%DatePrototype%': ['Date', 'prototype'],
+	'%ErrorPrototype%': ['Error', 'prototype'],
+	'%EvalErrorPrototype%': ['EvalError', 'prototype'],
+	'%Float32ArrayPrototype%': ['Float32Array', 'prototype'],
+	'%Float64ArrayPrototype%': ['Float64Array', 'prototype'],
+	'%FunctionPrototype%': ['Function', 'prototype'],
+	'%Generator%': ['GeneratorFunction', 'prototype'],
+	'%GeneratorPrototype%': ['GeneratorFunction', 'prototype', 'prototype'],
+	'%Int8ArrayPrototype%': ['Int8Array', 'prototype'],
+	'%Int16ArrayPrototype%': ['Int16Array', 'prototype'],
+	'%Int32ArrayPrototype%': ['Int32Array', 'prototype'],
+	'%JSONParse%': ['JSON', 'parse'],
+	'%JSONStringify%': ['JSON', 'stringify'],
+	'%MapPrototype%': ['Map', 'prototype'],
+	'%NumberPrototype%': ['Number', 'prototype'],
+	'%ObjectPrototype%': ['Object', 'prototype'],
+	'%ObjProto_toString%': ['Object', 'prototype', 'toString'],
+	'%ObjProto_valueOf%': ['Object', 'prototype', 'valueOf'],
+	'%PromisePrototype%': ['Promise', 'prototype'],
+	'%PromiseProto_then%': ['Promise', 'prototype', 'then'],
+	'%Promise_all%': ['Promise', 'all'],
+	'%Promise_reject%': ['Promise', 'reject'],
+	'%Promise_resolve%': ['Promise', 'resolve'],
+	'%RangeErrorPrototype%': ['RangeError', 'prototype'],
+	'%ReferenceErrorPrototype%': ['ReferenceError', 'prototype'],
+	'%RegExpPrototype%': ['RegExp', 'prototype'],
+	'%SetPrototype%': ['Set', 'prototype'],
+	'%SharedArrayBufferPrototype%': ['SharedArrayBuffer', 'prototype'],
+	'%StringPrototype%': ['String', 'prototype'],
+	'%SymbolPrototype%': ['Symbol', 'prototype'],
+	'%SyntaxErrorPrototype%': ['SyntaxError', 'prototype'],
+	'%TypedArrayPrototype%': ['TypedArray', 'prototype'],
+	'%TypeErrorPrototype%': ['TypeError', 'prototype'],
+	'%Uint8ArrayPrototype%': ['Uint8Array', 'prototype'],
+	'%Uint8ClampedArrayPrototype%': ['Uint8ClampedArray', 'prototype'],
+	'%Uint16ArrayPrototype%': ['Uint16Array', 'prototype'],
+	'%Uint32ArrayPrototype%': ['Uint32Array', 'prototype'],
+	'%URIErrorPrototype%': ['URIError', 'prototype'],
+	'%WeakMapPrototype%': ['WeakMap', 'prototype'],
+	'%WeakSetPrototype%': ['WeakSet', 'prototype']
+};
+
+var bind = __nccwpck_require__(35632);
+var hasOwn = __nccwpck_require__(2618);
+var $concat = bind.call($call, Array.prototype.concat);
+var $spliceApply = bind.call($apply, Array.prototype.splice);
+var $replace = bind.call($call, String.prototype.replace);
+var $strSlice = bind.call($call, String.prototype.slice);
+var $exec = bind.call($call, RegExp.prototype.exec);
+
+/* adapted from https://github.com/lodash/lodash/blob/4.17.15/dist/lodash.js#L6735-L6744 */
+var rePropName = /[^%.[\]]+|\[(?:(-?\d+(?:\.\d+)?)|(["'])((?:(?!\2)[^\\]|\\.)*?)\2)\]|(?=(?:\.|\[\])(?:\.|\[\]|%$))/g;
+var reEscapeChar = /\\(\\)?/g; /** Used to match backslashes in property paths. */
+var stringToPath = function stringToPath(string) {
+	var first = $strSlice(string, 0, 1);
+	var last = $strSlice(string, -1);
+	if (first === '%' && last !== '%') {
+		throw new $SyntaxError('invalid intrinsic syntax, expected closing `%`');
+	} else if (last === '%' && first !== '%') {
+		throw new $SyntaxError('invalid intrinsic syntax, expected opening `%`');
+	}
+	var result = [];
+	$replace(string, rePropName, function (match, number, quote, subString) {
+		result[result.length] = quote ? $replace(subString, reEscapeChar, '$1') : number || match;
+	});
+	return result;
+};
+/* end adaptation */
+
+var getBaseIntrinsic = function getBaseIntrinsic(name, allowMissing) {
+	var intrinsicName = name;
+	var alias;
+	if (hasOwn(LEGACY_ALIASES, intrinsicName)) {
+		alias = LEGACY_ALIASES[intrinsicName];
+		intrinsicName = '%' + alias[0] + '%';
+	}
+
+	if (hasOwn(INTRINSICS, intrinsicName)) {
+		var value = INTRINSICS[intrinsicName];
+		if (value === needsEval) {
+			value = doEval(intrinsicName);
+		}
+		if (typeof value === 'undefined' && !allowMissing) {
+			throw new $TypeError('intrinsic ' + name + ' exists, but is not available. Please file an issue!');
+		}
+
+		return {
+			alias: alias,
+			name: intrinsicName,
+			value: value
+		};
+	}
+
+	throw new $SyntaxError('intrinsic ' + name + ' does not exist!');
+};
+
+module.exports = function GetIntrinsic(name, allowMissing) {
+	if (typeof name !== 'string' || name.length === 0) {
+		throw new $TypeError('intrinsic name must be a non-empty string');
+	}
+	if (arguments.length > 1 && typeof allowMissing !== 'boolean') {
+		throw new $TypeError('"allowMissing" argument must be a boolean');
+	}
+
+	if ($exec(/^%?[^%]*%?$/, name) === null) {
+		throw new $SyntaxError('`%` may not be present anywhere but at the beginning and end of the intrinsic name');
+	}
+	var parts = stringToPath(name);
+	var intrinsicBaseName = parts.length > 0 ? parts[0] : '';
+
+	var intrinsic = getBaseIntrinsic('%' + intrinsicBaseName + '%', allowMissing);
+	var intrinsicRealName = intrinsic.name;
+	var value = intrinsic.value;
+	var skipFurtherCaching = false;
+
+	var alias = intrinsic.alias;
+	if (alias) {
+		intrinsicBaseName = alias[0];
+		$spliceApply(parts, $concat([0, 1], alias));
+	}
+
+	for (var i = 1, isOwn = true; i < parts.length; i += 1) {
+		var part = parts[i];
+		var first = $strSlice(part, 0, 1);
+		var last = $strSlice(part, -1);
+		if (
+			(
+				(first === '"' || first === "'" || first === '`')
+				|| (last === '"' || last === "'" || last === '`')
+			)
+			&& first !== last
+		) {
+			throw new $SyntaxError('property names with quotes must have matching quotes');
+		}
+		if (part === 'constructor' || !isOwn) {
+			skipFurtherCaching = true;
+		}
+
+		intrinsicBaseName += '.' + part;
+		intrinsicRealName = '%' + intrinsicBaseName + '%';
+
+		if (hasOwn(INTRINSICS, intrinsicRealName)) {
+			value = INTRINSICS[intrinsicRealName];
+		} else if (value != null) {
+			if (!(part in value)) {
+				if (!allowMissing) {
+					throw new $TypeError('base intrinsic for ' + name + ' exists, but the property is not available.');
+				}
+				return void undefined;
+			}
+			if ($gOPD && (i + 1) >= parts.length) {
+				var desc = $gOPD(value, part);
+				isOwn = !!desc;
+
+				// By convention, when a data property is converted to an accessor
+				// property to emulate a data property that does not suffer from
+				// the override mistake, that accessor's getter is marked with
+				// an `originalValue` property. Here, when we detect this, we
+				// uphold the illusion by pretending to see that original data
+				// property, i.e., returning the value rather than the getter
+				// itself.
+				if (isOwn && 'get' in desc && !('originalValue' in desc.get)) {
+					value = desc.get;
+				} else {
+					value = value[part];
+				}
+			} else {
+				isOwn = hasOwn(value, part);
+				value = value[part];
+			}
+
+			if (isOwn && !skipFurtherCaching) {
+				INTRINSICS[intrinsicRealName] = value;
+			}
+		}
+	}
+	return value;
+};
+
+
+/***/ }),
+
+/***/ 85932:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+var $Object = __nccwpck_require__(33485);
+
+/** @type {import('./Object.getPrototypeOf')} */
+module.exports = $Object.getPrototypeOf || null;
+
+
+/***/ }),
+
+/***/ 3172:
+/***/ ((module) => {
+
+"use strict";
+
+
+/** @type {import('./Reflect.getPrototypeOf')} */
+module.exports = (typeof Reflect !== 'undefined' && Reflect.getPrototypeOf) || null;
+
+
+/***/ }),
+
+/***/ 99272:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+var reflectGetProto = __nccwpck_require__(3172);
+var originalGetProto = __nccwpck_require__(85932);
+
+var getDunderProto = __nccwpck_require__(89594);
+
+/** @type {import('.')} */
+module.exports = reflectGetProto
+	? function getProto(O) {
+		// @ts-expect-error TS can't narrow inside a closure, for some reason
+		return reflectGetProto(O);
+	}
+	: originalGetProto
+		? function getProto(O) {
+			if (!O || (typeof O !== 'object' && typeof O !== 'function')) {
+				throw new TypeError('getProto: not an object');
+			}
+			// @ts-expect-error TS can't narrow inside a closure, for some reason
+			return originalGetProto(O);
+		}
+		: getDunderProto
+			? function getProto(O) {
+				// @ts-expect-error TS can't narrow inside a closure, for some reason
+				return getDunderProto(O);
+			}
+			: null;
+
+
+/***/ }),
+
+/***/ 47401:
+/***/ ((module) => {
+
+"use strict";
+
+
+/** @type {import('./gOPD')} */
+module.exports = Object.getOwnPropertyDescriptor;
+
+
+/***/ }),
+
+/***/ 72671:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+/** @type {import('.')} */
+var $gOPD = __nccwpck_require__(47401);
+
+if ($gOPD) {
+	try {
+		$gOPD([], 'length');
+	} catch (e) {
+		// IE 8 has a broken gOPD
+		$gOPD = null;
+	}
+}
+
+module.exports = $gOPD;
 
 
 /***/ }),
@@ -14090,6 +15361,113 @@ module.exports = (flag, argv = process.argv) => {
 	const terminatorPosition = argv.indexOf('--');
 	return position !== -1 && (terminatorPosition === -1 || position < terminatorPosition);
 };
+
+
+/***/ }),
+
+/***/ 79718:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+var origSymbol = typeof Symbol !== 'undefined' && Symbol;
+var hasSymbolSham = __nccwpck_require__(96044);
+
+/** @type {import('.')} */
+module.exports = function hasNativeSymbols() {
+	if (typeof origSymbol !== 'function') { return false; }
+	if (typeof Symbol !== 'function') { return false; }
+	if (typeof origSymbol('foo') !== 'symbol') { return false; }
+	if (typeof Symbol('bar') !== 'symbol') { return false; }
+
+	return hasSymbolSham();
+};
+
+
+/***/ }),
+
+/***/ 96044:
+/***/ ((module) => {
+
+"use strict";
+
+
+/** @type {import('./shams')} */
+/* eslint complexity: [2, 18], max-statements: [2, 33] */
+module.exports = function hasSymbols() {
+	if (typeof Symbol !== 'function' || typeof Object.getOwnPropertySymbols !== 'function') { return false; }
+	if (typeof Symbol.iterator === 'symbol') { return true; }
+
+	/** @type {{ [k in symbol]?: unknown }} */
+	var obj = {};
+	var sym = Symbol('test');
+	var symObj = Object(sym);
+	if (typeof sym === 'string') { return false; }
+
+	if (Object.prototype.toString.call(sym) !== '[object Symbol]') { return false; }
+	if (Object.prototype.toString.call(symObj) !== '[object Symbol]') { return false; }
+
+	// temp disabled per https://github.com/ljharb/object.assign/issues/17
+	// if (sym instanceof Symbol) { return false; }
+	// temp disabled per https://github.com/WebReflection/get-own-property-symbols/issues/4
+	// if (!(symObj instanceof Symbol)) { return false; }
+
+	// if (typeof Symbol.prototype.toString !== 'function') { return false; }
+	// if (String(sym) !== Symbol.prototype.toString.call(sym)) { return false; }
+
+	var symVal = 42;
+	obj[sym] = symVal;
+	for (var _ in obj) { return false; } // eslint-disable-line no-restricted-syntax, no-unreachable-loop
+	if (typeof Object.keys === 'function' && Object.keys(obj).length !== 0) { return false; }
+
+	if (typeof Object.getOwnPropertyNames === 'function' && Object.getOwnPropertyNames(obj).length !== 0) { return false; }
+
+	var syms = Object.getOwnPropertySymbols(obj);
+	if (syms.length !== 1 || syms[0] !== sym) { return false; }
+
+	if (!Object.prototype.propertyIsEnumerable.call(obj, sym)) { return false; }
+
+	if (typeof Object.getOwnPropertyDescriptor === 'function') {
+		// eslint-disable-next-line no-extra-parens
+		var descriptor = /** @type {PropertyDescriptor} */ (Object.getOwnPropertyDescriptor(obj, sym));
+		if (descriptor.value !== symVal || descriptor.enumerable !== true) { return false; }
+	}
+
+	return true;
+};
+
+
+/***/ }),
+
+/***/ 85005:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+var hasSymbols = __nccwpck_require__(96044);
+
+/** @type {import('.')} */
+module.exports = function hasToStringTagShams() {
+	return hasSymbols() && !!Symbol.toStringTag;
+};
+
+
+/***/ }),
+
+/***/ 2618:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+var call = Function.prototype.call;
+var $hasOwn = Object.prototype.hasOwnProperty;
+var bind = __nccwpck_require__(35632);
+
+/** @type {import('.')} */
+module.exports = bind.call(call, $hasOwn);
 
 
 /***/ }),
@@ -14154,6 +15532,111 @@ isStream.transform = stream =>
 	typeof stream._transform === 'function';
 
 module.exports = isStream;
+
+
+/***/ }),
+
+/***/ 34328:
+/***/ ((module) => {
+
+"use strict";
+
+
+/** @type {import('./abs')} */
+module.exports = Math.abs;
+
+
+/***/ }),
+
+/***/ 70422:
+/***/ ((module) => {
+
+"use strict";
+
+
+/** @type {import('./floor')} */
+module.exports = Math.floor;
+
+
+/***/ }),
+
+/***/ 24021:
+/***/ ((module) => {
+
+"use strict";
+
+
+/** @type {import('./isNaN')} */
+module.exports = Number.isNaN || function isNaN(a) {
+	return a !== a;
+};
+
+
+/***/ }),
+
+/***/ 71378:
+/***/ ((module) => {
+
+"use strict";
+
+
+/** @type {import('./max')} */
+module.exports = Math.max;
+
+
+/***/ }),
+
+/***/ 87388:
+/***/ ((module) => {
+
+"use strict";
+
+
+/** @type {import('./min')} */
+module.exports = Math.min;
+
+
+/***/ }),
+
+/***/ 80526:
+/***/ ((module) => {
+
+"use strict";
+
+
+/** @type {import('./pow')} */
+module.exports = Math.pow;
+
+
+/***/ }),
+
+/***/ 17816:
+/***/ ((module) => {
+
+"use strict";
+
+
+/** @type {import('./round')} */
+module.exports = Math.round;
+
+
+/***/ }),
+
+/***/ 19947:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+var $isNaN = __nccwpck_require__(24021);
+
+/** @type {import('./sign')} */
+module.exports = function sign(number) {
+	if ($isNaN(number) || number === 0) {
+		return number;
+	}
+	return number < 0 ? -1 : +1;
+};
 
 
 /***/ }),
@@ -38992,7 +40475,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.SlackClient = void 0;
 const core_1 = __nccwpck_require__(59999);
-const web_api_1 = __nccwpck_require__(47542);
+const web_api_1 = __nccwpck_require__(51310);
 const MissingScopeError_1 = __nccwpck_require__(88424);
 const isCodedPlatformError_1 = __nccwpck_require__(3176);
 class SlackClient {
@@ -39178,7 +40661,7 @@ const CONTROL_CHARACTER_REGEX = new RegExp(`[${Object.keys(CONTROL_CHARACTER_HTM
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.isCodedPlatformError = isCodedPlatformError;
-const web_api_1 = __nccwpck_require__(47542);
+const web_api_1 = __nccwpck_require__(51310);
 function isCodedPlatformError(error) {
     return isCodedError(error) && web_api_1.ErrorCode.PlatformError === error.code;
 }
@@ -39309,6 +40792,38 @@ module.exports = require("node:events");
 
 /***/ }),
 
+/***/ 73024:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("node:fs");
+
+/***/ }),
+
+/***/ 48161:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("node:os");
+
+/***/ }),
+
+/***/ 76760:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("node:path");
+
+/***/ }),
+
+/***/ 41792:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("node:querystring");
+
+/***/ }),
+
 /***/ 57075:
 /***/ ((module) => {
 
@@ -39322,6 +40837,14 @@ module.exports = require("node:stream");
 
 "use strict";
 module.exports = require("node:util");
+
+/***/ }),
+
+/***/ 38522:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("node:zlib");
 
 /***/ }),
 
@@ -41070,20 +42593,21 @@ module.exports = parseParams
 
 /***/ }),
 
-/***/ 94457:
+/***/ 69346:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
-// Axios v1.7.2 Copyright (c) 2024 Matt Zabriskie and contributors
+/*! Axios v1.11.0 Copyright (c) 2025 Matt Zabriskie and contributors */
 
 
-const FormData$1 = __nccwpck_require__(2691);
+const FormData$1 = __nccwpck_require__(34455);
+const crypto = __nccwpck_require__(76982);
 const url = __nccwpck_require__(87016);
 const proxyFromEnv = __nccwpck_require__(20330);
 const http = __nccwpck_require__(58611);
 const https = __nccwpck_require__(65692);
 const util = __nccwpck_require__(39023);
-const followRedirects = __nccwpck_require__(36417);
+const followRedirects = __nccwpck_require__(63509);
 const zlib = __nccwpck_require__(43106);
 const stream = __nccwpck_require__(2203);
 const events = __nccwpck_require__(24434);
@@ -41091,7 +42615,9 @@ const events = __nccwpck_require__(24434);
 function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
 
 const FormData__default = /*#__PURE__*/_interopDefaultLegacy(FormData$1);
+const crypto__default = /*#__PURE__*/_interopDefaultLegacy(crypto);
 const url__default = /*#__PURE__*/_interopDefaultLegacy(url);
+const proxyFromEnv__default = /*#__PURE__*/_interopDefaultLegacy(proxyFromEnv);
 const http__default = /*#__PURE__*/_interopDefaultLegacy(http);
 const https__default = /*#__PURE__*/_interopDefaultLegacy(https);
 const util__default = /*#__PURE__*/_interopDefaultLegacy(util);
@@ -41109,6 +42635,7 @@ function bind(fn, thisArg) {
 
 const {toString} = Object.prototype;
 const {getPrototypeOf} = Object;
+const {iterator, toStringTag} = Symbol;
 
 const kindOf = (cache => thing => {
     const str = toString.call(thing);
@@ -41235,7 +42762,28 @@ const isPlainObject = (val) => {
   }
 
   const prototype = getPrototypeOf(val);
-  return (prototype === null || prototype === Object.prototype || Object.getPrototypeOf(prototype) === null) && !(Symbol.toStringTag in val) && !(Symbol.iterator in val);
+  return (prototype === null || prototype === Object.prototype || Object.getPrototypeOf(prototype) === null) && !(toStringTag in val) && !(iterator in val);
+};
+
+/**
+ * Determine if a value is an empty object (safely handles Buffers)
+ *
+ * @param {*} val The value to test
+ *
+ * @returns {boolean} True if value is an empty object, otherwise false
+ */
+const isEmptyObject = (val) => {
+  // Early return for non-objects or Buffers to prevent RangeError
+  if (!isObject(val) || isBuffer(val)) {
+    return false;
+  }
+  
+  try {
+    return Object.keys(val).length === 0 && Object.getPrototypeOf(val) === Object.prototype;
+  } catch (e) {
+    // Fallback for any other objects that might cause RangeError with Object.keys()
+    return false;
+  }
 };
 
 /**
@@ -41360,6 +42908,11 @@ function forEach(obj, fn, {allOwnKeys = false} = {}) {
       fn.call(null, obj[i], i, obj);
     }
   } else {
+    // Buffer check
+    if (isBuffer(obj)) {
+      return;
+    }
+
     // Iterate over object keys
     const keys = allOwnKeys ? Object.getOwnPropertyNames(obj) : Object.keys(obj);
     const len = keys.length;
@@ -41373,6 +42926,10 @@ function forEach(obj, fn, {allOwnKeys = false} = {}) {
 }
 
 function findKey(obj, key) {
+  if (isBuffer(obj)){
+    return null;
+  }
+
   key = key.toLowerCase();
   const keys = Object.keys(obj);
   let i = keys.length;
@@ -41586,13 +43143,13 @@ const isTypedArray = (TypedArray => {
  * @returns {void}
  */
 const forEachEntry = (obj, fn) => {
-  const generator = obj && obj[Symbol.iterator];
+  const generator = obj && obj[iterator];
 
-  const iterator = generator.call(obj);
+  const _iterator = generator.call(obj);
 
   let result;
 
-  while ((result = iterator.next()) && !result.done) {
+  while ((result = _iterator.next()) && !result.done) {
     const pair = result.value;
     fn.call(obj, pair[0], pair[1]);
   }
@@ -41705,26 +43262,6 @@ const toFiniteNumber = (value, defaultValue) => {
   return value != null && Number.isFinite(value = +value) ? value : defaultValue;
 };
 
-const ALPHA = 'abcdefghijklmnopqrstuvwxyz';
-
-const DIGIT = '0123456789';
-
-const ALPHABET = {
-  DIGIT,
-  ALPHA,
-  ALPHA_DIGIT: ALPHA + ALPHA.toUpperCase() + DIGIT
-};
-
-const generateString = (size = 16, alphabet = ALPHABET.ALPHA_DIGIT) => {
-  let str = '';
-  const {length} = alphabet;
-  while (size--) {
-    str += alphabet[Math.random() * length|0];
-  }
-
-  return str;
-};
-
 /**
  * If the thing is a FormData object, return true, otherwise return false.
  *
@@ -41733,7 +43270,7 @@ const generateString = (size = 16, alphabet = ALPHABET.ALPHA_DIGIT) => {
  * @returns {boolean}
  */
 function isSpecCompliantForm(thing) {
-  return !!(thing && isFunction(thing.append) && thing[Symbol.toStringTag] === 'FormData' && thing[Symbol.iterator]);
+  return !!(thing && isFunction(thing.append) && thing[toStringTag] === 'FormData' && thing[iterator]);
 }
 
 const toJSONObject = (obj) => {
@@ -41744,6 +43281,11 @@ const toJSONObject = (obj) => {
     if (isObject(source)) {
       if (stack.indexOf(source) >= 0) {
         return;
+      }
+
+      //Buffer check
+      if (isBuffer(source)) {
+        return source;
       }
 
       if(!('toJSON' in source)) {
@@ -41772,6 +43314,40 @@ const isAsyncFn = kindOfTest('AsyncFunction');
 const isThenable = (thing) =>
   thing && (isObject(thing) || isFunction(thing)) && isFunction(thing.then) && isFunction(thing.catch);
 
+// original code
+// https://github.com/DigitalBrainJS/AxiosPromise/blob/16deab13710ec09779922131f3fa5954320f83ab/lib/utils.js#L11-L34
+
+const _setImmediate = ((setImmediateSupported, postMessageSupported) => {
+  if (setImmediateSupported) {
+    return setImmediate;
+  }
+
+  return postMessageSupported ? ((token, callbacks) => {
+    _global.addEventListener("message", ({source, data}) => {
+      if (source === _global && data === token) {
+        callbacks.length && callbacks.shift()();
+      }
+    }, false);
+
+    return (cb) => {
+      callbacks.push(cb);
+      _global.postMessage(token, "*");
+    }
+  })(`axios@${Math.random()}`, []) : (cb) => setTimeout(cb);
+})(
+  typeof setImmediate === 'function',
+  isFunction(_global.postMessage)
+);
+
+const asap = typeof queueMicrotask !== 'undefined' ?
+  queueMicrotask.bind(_global) : ( typeof process !== 'undefined' && process.nextTick || _setImmediate);
+
+// *********************
+
+
+const isIterable = (thing) => thing != null && isFunction(thing[iterator]);
+
+
 const utils$1 = {
   isArray,
   isArrayBuffer,
@@ -41783,6 +43359,7 @@ const utils$1 = {
   isBoolean,
   isObject,
   isPlainObject,
+  isEmptyObject,
   isReadableStream,
   isRequest,
   isResponse,
@@ -41822,12 +43399,13 @@ const utils$1 = {
   findKey,
   global: _global,
   isContextDefined,
-  ALPHABET,
-  generateString,
   isSpecCompliantForm,
   toJSONObject,
   isAsyncFn,
-  isThenable
+  isThenable,
+  setImmediate: _setImmediate,
+  asap,
+  isIterable
 };
 
 /**
@@ -41855,7 +43433,10 @@ function AxiosError(message, code, config, request, response) {
   code && (this.code = code);
   config && (this.config = config);
   request && (this.request = request);
-  response && (this.response = response);
+  if (response) {
+    this.response = response;
+    this.status = response.status ? response.status : null;
+  }
 }
 
 utils$1.inherits(AxiosError, Error, {
@@ -41875,7 +43456,7 @@ utils$1.inherits(AxiosError, Error, {
       // Axios
       config: utils$1.toJSONObject(this.config),
       code: this.code,
-      status: this.response && this.response.status ? this.response.status : null
+      status: this.status
     };
   }
 });
@@ -42038,6 +43619,10 @@ function toFormData(obj, formData, options) {
 
     if (utils$1.isDate(value)) {
       return value.toISOString();
+    }
+
+    if (utils$1.isBoolean(value)) {
+      return value.toString();
     }
 
     if (!useBlob && utils$1.isBlob(value)) {
@@ -42212,7 +43797,7 @@ function encode(val) {
  *
  * @param {string} url The base of the url (e.g., http://www.google.com)
  * @param {object} [params] The params to be appended
- * @param {?object} options
+ * @param {?(object|Function)} options
  *
  * @returns {string} The formatted url
  */
@@ -42223,6 +43808,12 @@ function buildURL(url, params, options) {
   }
   
   const _encode = options && options.encode || encode;
+
+  if (utils$1.isFunction(options)) {
+    options = {
+      serialize: options
+    };
+  } 
 
   const serializeFn = options && options.serialize;
 
@@ -42324,6 +43915,29 @@ const transitionalDefaults = {
 
 const URLSearchParams = url__default["default"].URLSearchParams;
 
+const ALPHA = 'abcdefghijklmnopqrstuvwxyz';
+
+const DIGIT = '0123456789';
+
+const ALPHABET = {
+  DIGIT,
+  ALPHA,
+  ALPHA_DIGIT: ALPHA + ALPHA.toUpperCase() + DIGIT
+};
+
+const generateString = (size = 16, alphabet = ALPHABET.ALPHA_DIGIT) => {
+  let str = '';
+  const {length} = alphabet;
+  const randomValues = new Uint32Array(size);
+  crypto__default["default"].randomFillSync(randomValues);
+  for (let i = 0; i < size; i++) {
+    str += alphabet[randomValues[i] % length];
+  }
+
+  return str;
+};
+
+
 const platform$1 = {
   isNode: true,
   classes: {
@@ -42331,10 +43945,14 @@ const platform$1 = {
     FormData: FormData__default["default"],
     Blob: typeof Blob !== 'undefined' && Blob || null
   },
+  ALPHABET,
+  generateString,
   protocols: [ 'http', 'https', 'file', 'data' ]
 };
 
 const hasBrowserEnv = typeof window !== 'undefined' && typeof document !== 'undefined';
+
+const _navigator = typeof navigator === 'object' && navigator || undefined;
 
 /**
  * Determine if we're running in a standard browser environment
@@ -42353,10 +43971,8 @@ const hasBrowserEnv = typeof window !== 'undefined' && typeof document !== 'unde
  *
  * @returns {boolean}
  */
-const hasStandardBrowserEnv = (
-  (product) => {
-    return hasBrowserEnv && ['ReactNative', 'NativeScript', 'NS'].indexOf(product) < 0
-  })(typeof navigator !== 'undefined' && navigator.product);
+const hasStandardBrowserEnv = hasBrowserEnv &&
+  (!_navigator || ['ReactNative', 'NativeScript', 'NS'].indexOf(_navigator.product) < 0);
 
 /**
  * Determine if we're running in a standard browser webWorker environment
@@ -42383,6 +43999,7 @@ const utils = /*#__PURE__*/Object.freeze({
   hasBrowserEnv: hasBrowserEnv,
   hasStandardBrowserWebWorkerEnv: hasStandardBrowserWebWorkerEnv,
   hasStandardBrowserEnv: hasStandardBrowserEnv,
+  navigator: _navigator,
   origin: origin
 });
 
@@ -42392,7 +44009,7 @@ const platform = {
 };
 
 function toURLEncodedForm(data, options) {
-  return toFormData(data, new platform.classes.URLSearchParams(), Object.assign({
+  return toFormData(data, new platform.classes.URLSearchParams(), {
     visitor: function(value, key, path, helpers) {
       if (platform.isNode && utils$1.isBuffer(value)) {
         this.append(key, value.toString('base64'));
@@ -42400,8 +44017,9 @@ function toURLEncodedForm(data, options) {
       }
 
       return helpers.defaultVisitor.apply(this, arguments);
-    }
-  }, options));
+    },
+    ...options
+  });
 }
 
 /**
@@ -42795,10 +44413,18 @@ class AxiosHeaders {
       setHeaders(header, valueOrRewrite);
     } else if(utils$1.isString(header) && (header = header.trim()) && !isValidHeaderName(header)) {
       setHeaders(parseHeaders(header), valueOrRewrite);
-    } else if (utils$1.isHeaders(header)) {
-      for (const [key, value] of header.entries()) {
-        setHeader(value, key, rewrite);
+    } else if (utils$1.isObject(header) && utils$1.isIterable(header)) {
+      let obj = {}, dest, key;
+      for (const entry of header) {
+        if (!utils$1.isArray(entry)) {
+          throw TypeError('Object iterator must return a key-value pair');
+        }
+
+        obj[key = entry[0]] = (dest = obj[key]) ?
+          (utils$1.isArray(dest) ? [...dest, entry[1]] : [dest, entry[1]]) : entry[1];
       }
+
+      setHeaders(obj, valueOrRewrite);
     } else {
       header != null && setHeader(valueOrRewrite, header, rewrite);
     }
@@ -42938,6 +44564,10 @@ class AxiosHeaders {
 
   toString() {
     return Object.entries(this.toJSON()).map(([header, value]) => header + ': ' + value).join('\n');
+  }
+
+  getSetCookie() {
+    return this.get("set-cookie") || [];
   }
 
   get [Symbol.toStringTag]() {
@@ -43104,14 +44734,15 @@ function combineURLs(baseURL, relativeURL) {
  *
  * @returns {string} The combined full path
  */
-function buildFullPath(baseURL, requestedURL) {
-  if (baseURL && !isAbsoluteURL(requestedURL)) {
+function buildFullPath(baseURL, requestedURL, allowAbsoluteUrls) {
+  let isRelativeUrl = !isAbsoluteURL(requestedURL);
+  if (baseURL && (isRelativeUrl || allowAbsoluteUrls == false)) {
     return combineURLs(baseURL, requestedURL);
   }
   return requestedURL;
 }
 
-const VERSION = "1.7.2";
+const VERSION = "1.11.0";
 
 function parseProtocol(url) {
   const match = /^([-+\w]{1,25})(:?\/\/|:)/.exec(url);
@@ -43166,90 +44797,6 @@ function fromDataURI(uri, asBlob, options) {
   throw new AxiosError('Unsupported protocol ' + protocol, AxiosError.ERR_NOT_SUPPORT);
 }
 
-/**
- * Throttle decorator
- * @param {Function} fn
- * @param {Number} freq
- * @return {Function}
- */
-function throttle(fn, freq) {
-  let timestamp = 0;
-  const threshold = 1000 / freq;
-  let timer = null;
-  return function throttled() {
-    const force = this === true;
-
-    const now = Date.now();
-    if (force || now - timestamp > threshold) {
-      if (timer) {
-        clearTimeout(timer);
-        timer = null;
-      }
-      timestamp = now;
-      return fn.apply(null, arguments);
-    }
-    if (!timer) {
-      timer = setTimeout(() => {
-        timer = null;
-        timestamp = Date.now();
-        return fn.apply(null, arguments);
-      }, threshold - (now - timestamp));
-    }
-  };
-}
-
-/**
- * Calculate data maxRate
- * @param {Number} [samplesCount= 10]
- * @param {Number} [min= 1000]
- * @returns {Function}
- */
-function speedometer(samplesCount, min) {
-  samplesCount = samplesCount || 10;
-  const bytes = new Array(samplesCount);
-  const timestamps = new Array(samplesCount);
-  let head = 0;
-  let tail = 0;
-  let firstSampleTS;
-
-  min = min !== undefined ? min : 1000;
-
-  return function push(chunkLength) {
-    const now = Date.now();
-
-    const startedAt = timestamps[tail];
-
-    if (!firstSampleTS) {
-      firstSampleTS = now;
-    }
-
-    bytes[head] = chunkLength;
-    timestamps[head] = now;
-
-    let i = tail;
-    let bytesCount = 0;
-
-    while (i !== head) {
-      bytesCount += bytes[i++];
-      i = i % samplesCount;
-    }
-
-    head = (head + 1) % samplesCount;
-
-    if (head === tail) {
-      tail = (tail + 1) % samplesCount;
-    }
-
-    if (now - firstSampleTS < min) {
-      return;
-    }
-
-    const passed = startedAt && now - startedAt;
-
-    return passed ? Math.round(bytesCount * 1000 / passed) : undefined;
-  };
-}
-
 const kInternals = Symbol('internals');
 
 class AxiosTransformStream extends stream__default["default"].Transform{
@@ -43269,12 +44816,8 @@ class AxiosTransformStream extends stream__default["default"].Transform{
       readableHighWaterMark: options.chunkSize
     });
 
-    const self = this;
-
     const internals = this[kInternals] = {
-      length: options.length,
       timeWindow: options.timeWindow,
-      ticksRate: options.ticksRate,
       chunkSize: options.chunkSize,
       maxRate: options.maxRate,
       minChunkSize: options.minChunkSize,
@@ -43286,8 +44829,6 @@ class AxiosTransformStream extends stream__default["default"].Transform{
       onReadCallback: null
     };
 
-    const _speedometer = speedometer(internals.ticksRate * options.samplesCount, internals.timeWindow);
-
     this.on('newListener', event => {
       if (event === 'progress') {
         if (!internals.isCaptured) {
@@ -43295,39 +44836,6 @@ class AxiosTransformStream extends stream__default["default"].Transform{
         }
       }
     });
-
-    let bytesNotified = 0;
-
-    internals.updateProgress = throttle(function throttledHandler() {
-      const totalBytes = internals.length;
-      const bytesTransferred = internals.bytesSeen;
-      const progressBytes = bytesTransferred - bytesNotified;
-      if (!progressBytes || self.destroyed) return;
-
-      const rate = _speedometer(progressBytes);
-
-      bytesNotified = bytesTransferred;
-
-      process.nextTick(() => {
-        self.emit('progress', {
-          loaded: bytesTransferred,
-          total: totalBytes,
-          progress: totalBytes ? (bytesTransferred / totalBytes) : undefined,
-          bytes: progressBytes,
-          rate: rate ? rate : undefined,
-          estimated: rate && totalBytes && bytesTransferred <= totalBytes ?
-            (totalBytes - bytesTransferred) / rate : undefined,
-          lengthComputable: totalBytes != null
-        });
-      });
-    }, internals.ticksRate);
-
-    const onFinish = () => {
-      internals.updateProgress.call(true);
-    };
-
-    this.once('end', onFinish);
-    this.once('error', onFinish);
   }
 
   _read(size) {
@@ -43341,7 +44849,6 @@ class AxiosTransformStream extends stream__default["default"].Transform{
   }
 
   _transform(chunk, encoding, callback) {
-    const self = this;
     const internals = this[kInternals];
     const maxRate = internals.maxRate;
 
@@ -43353,16 +44860,14 @@ class AxiosTransformStream extends stream__default["default"].Transform{
     const bytesThreshold = (maxRate / divider);
     const minChunkSize = internals.minChunkSize !== false ? Math.max(internals.minChunkSize, bytesThreshold * 0.01) : 0;
 
-    function pushChunk(_chunk, _callback) {
+    const pushChunk = (_chunk, _callback) => {
       const bytes = Buffer.byteLength(_chunk);
       internals.bytesSeen += bytes;
       internals.bytes += bytes;
 
-      if (internals.isCaptured) {
-        internals.updateProgress();
-      }
+      internals.isCaptured && this.emit('progress', internals.bytesSeen);
 
-      if (self.push(_chunk)) {
+      if (this.push(_chunk)) {
         process.nextTick(_callback);
       } else {
         internals.onReadCallback = () => {
@@ -43370,7 +44875,7 @@ class AxiosTransformStream extends stream__default["default"].Transform{
           process.nextTick(_callback);
         };
       }
-    }
+    };
 
     const transformChunk = (_chunk, _callback) => {
       const chunkSize = Buffer.byteLength(_chunk);
@@ -43427,11 +44932,6 @@ class AxiosTransformStream extends stream__default["default"].Transform{
       }
     });
   }
-
-  setLength(length) {
-    this[kInternals].length = +length;
-    return this;
-  }
 }
 
 const AxiosTransformStream$1 = AxiosTransformStream;
@@ -43452,9 +44952,9 @@ const readBlob = async function* (blob) {
 
 const readBlob$1 = readBlob;
 
-const BOUNDARY_ALPHABET = utils$1.ALPHABET.ALPHA_DIGIT + '-_';
+const BOUNDARY_ALPHABET = platform.ALPHABET.ALPHA_DIGIT + '-_';
 
-const textEncoder = new util.TextEncoder();
+const textEncoder = typeof TextEncoder === 'function' ? new TextEncoder() : new util__default["default"].TextEncoder();
 
 const CRLF = '\r\n';
 const CRLF_BYTES = textEncoder.encode(CRLF);
@@ -43512,7 +45012,7 @@ const formDataToStream = (form, headersHandler, options) => {
   const {
     tag = 'form-data-boundary',
     size = 25,
-    boundary = tag + '-' + utils$1.generateString(size, BOUNDARY_ALPHABET)
+    boundary = tag + '-' + platform.generateString(size, BOUNDARY_ALPHABET)
   } = options || {};
 
   if(!utils$1.isFormData(form)) {
@@ -43524,7 +45024,7 @@ const formDataToStream = (form, headersHandler, options) => {
   }
 
   const boundaryBytes = textEncoder.encode('--' + boundary + CRLF);
-  const footerBytes = textEncoder.encode('--' + boundary + '--' + CRLF + CRLF);
+  const footerBytes = textEncoder.encode('--' + boundary + '--' + CRLF);
   let contentLength = footerBytes.byteLength;
 
   const parts = Array.from(form.entries()).map(([name, value]) => {
@@ -43599,6 +45099,142 @@ const callbackify = (fn, reducer) => {
 
 const callbackify$1 = callbackify;
 
+/**
+ * Calculate data maxRate
+ * @param {Number} [samplesCount= 10]
+ * @param {Number} [min= 1000]
+ * @returns {Function}
+ */
+function speedometer(samplesCount, min) {
+  samplesCount = samplesCount || 10;
+  const bytes = new Array(samplesCount);
+  const timestamps = new Array(samplesCount);
+  let head = 0;
+  let tail = 0;
+  let firstSampleTS;
+
+  min = min !== undefined ? min : 1000;
+
+  return function push(chunkLength) {
+    const now = Date.now();
+
+    const startedAt = timestamps[tail];
+
+    if (!firstSampleTS) {
+      firstSampleTS = now;
+    }
+
+    bytes[head] = chunkLength;
+    timestamps[head] = now;
+
+    let i = tail;
+    let bytesCount = 0;
+
+    while (i !== head) {
+      bytesCount += bytes[i++];
+      i = i % samplesCount;
+    }
+
+    head = (head + 1) % samplesCount;
+
+    if (head === tail) {
+      tail = (tail + 1) % samplesCount;
+    }
+
+    if (now - firstSampleTS < min) {
+      return;
+    }
+
+    const passed = startedAt && now - startedAt;
+
+    return passed ? Math.round(bytesCount * 1000 / passed) : undefined;
+  };
+}
+
+/**
+ * Throttle decorator
+ * @param {Function} fn
+ * @param {Number} freq
+ * @return {Function}
+ */
+function throttle(fn, freq) {
+  let timestamp = 0;
+  let threshold = 1000 / freq;
+  let lastArgs;
+  let timer;
+
+  const invoke = (args, now = Date.now()) => {
+    timestamp = now;
+    lastArgs = null;
+    if (timer) {
+      clearTimeout(timer);
+      timer = null;
+    }
+    fn(...args);
+  };
+
+  const throttled = (...args) => {
+    const now = Date.now();
+    const passed = now - timestamp;
+    if ( passed >= threshold) {
+      invoke(args, now);
+    } else {
+      lastArgs = args;
+      if (!timer) {
+        timer = setTimeout(() => {
+          timer = null;
+          invoke(lastArgs);
+        }, threshold - passed);
+      }
+    }
+  };
+
+  const flush = () => lastArgs && invoke(lastArgs);
+
+  return [throttled, flush];
+}
+
+const progressEventReducer = (listener, isDownloadStream, freq = 3) => {
+  let bytesNotified = 0;
+  const _speedometer = speedometer(50, 250);
+
+  return throttle(e => {
+    const loaded = e.loaded;
+    const total = e.lengthComputable ? e.total : undefined;
+    const progressBytes = loaded - bytesNotified;
+    const rate = _speedometer(progressBytes);
+    const inRange = loaded <= total;
+
+    bytesNotified = loaded;
+
+    const data = {
+      loaded,
+      total,
+      progress: total ? (loaded / total) : undefined,
+      bytes: progressBytes,
+      rate: rate ? rate : undefined,
+      estimated: rate && total && inRange ? (total - loaded) / rate : undefined,
+      event: e,
+      lengthComputable: total != null,
+      [isDownloadStream ? 'download' : 'upload']: true
+    };
+
+    listener(data);
+  }, freq);
+};
+
+const progressEventDecorator = (total, throttled) => {
+  const lengthComputable = total != null;
+
+  return [(loaded) => throttled[0]({
+    lengthComputable,
+    total,
+    loaded
+  }), throttled[1]];
+};
+
+const asyncDecorator = (fn) => (...args) => utils$1.asap(() => fn(...args));
+
 const zlibOptions = {
   flush: zlib__default["default"].constants.Z_SYNC_FLUSH,
   finishFlush: zlib__default["default"].constants.Z_SYNC_FLUSH
@@ -43618,6 +45254,14 @@ const isHttps = /https:?/;
 const supportedProtocols = platform.protocols.map(protocol => {
   return protocol + ':';
 });
+
+const flushOnFinish = (stream, [throttled, flush]) => {
+  stream
+    .on('end', flush)
+    .on('error', flush);
+
+  return throttled;
+};
 
 /**
  * If the proxy or config beforeRedirects functions are defined, call them with the options
@@ -43648,7 +45292,7 @@ function dispatchBeforeRedirect(options, responseDetails) {
 function setProxy(options, configProxy, location) {
   let proxy = configProxy;
   if (!proxy && proxy !== false) {
-    const proxyUrl = proxyFromEnv.getProxyForUrl(location);
+    const proxyUrl = proxyFromEnv__default["default"].getProxyForUrl(location);
     if (proxyUrl) {
       proxy = new URL(proxyUrl);
     }
@@ -43793,8 +45437,8 @@ const httpAdapter = isHttpAdapterSupported && function httpAdapter(config) {
     }
 
     // Parse url
-    const fullPath = buildFullPath(config.baseURL, config.url);
-    const parsed = new URL(fullPath, 'http://localhost');
+    const fullPath = buildFullPath(config.baseURL, config.url, config.allowAbsoluteUrls);
+    const parsed = new URL(fullPath, platform.hasBrowserEnv ? platform.origin : undefined);
     const protocol = parsed.protocol || supportedProtocols[0];
 
     if (protocol === 'data:') {
@@ -43852,8 +45496,7 @@ const httpAdapter = isHttpAdapterSupported && function httpAdapter(config) {
     // Only set header if it hasn't been set in config
     headers.set('User-Agent', 'axios/' + VERSION, false);
 
-    const onDownloadProgress = config.onDownloadProgress;
-    const onUploadProgress = config.onUploadProgress;
+    const {onUploadProgress, onDownloadProgress} = config;
     const maxRate = config.maxRate;
     let maxUploadRate = undefined;
     let maxDownloadRate = undefined;
@@ -43880,7 +45523,7 @@ const httpAdapter = isHttpAdapterSupported && function httpAdapter(config) {
         } catch (e) {
         }
       }
-    } else if (utils$1.isBlob(data)) {
+    } else if (utils$1.isBlob(data) || utils$1.isFile(data)) {
       data.size && headers.setContentType(data.type || 'application/octet-stream');
       headers.setContentLength(data.size || 0);
       data = stream__default["default"].Readable.from(readBlob$1(data));
@@ -43924,15 +45567,16 @@ const httpAdapter = isHttpAdapterSupported && function httpAdapter(config) {
       }
 
       data = stream__default["default"].pipeline([data, new AxiosTransformStream$1({
-        length: contentLength,
         maxRate: utils$1.toFiniteNumber(maxUploadRate)
       })], utils$1.noop);
 
-      onUploadProgress && data.on('progress', progress => {
-        onUploadProgress(Object.assign(progress, {
-          upload: true
-        }));
-      });
+      onUploadProgress && data.on('progress', flushOnFinish(
+        data,
+        progressEventDecorator(
+          contentLength,
+          progressEventReducer(asyncDecorator(onUploadProgress), false, 3)
+        )
+      ));
     }
 
     // HTTP basic authentication
@@ -43990,7 +45634,7 @@ const httpAdapter = isHttpAdapterSupported && function httpAdapter(config) {
     if (config.socketPath) {
       options.socketPath = config.socketPath;
     } else {
-      options.hostname = parsed.hostname;
+      options.hostname = parsed.hostname.startsWith("[") ? parsed.hostname.slice(1, -1) : parsed.hostname;
       options.port = parsed.port;
       setProxy(options, config.proxy, protocol + '//' + parsed.hostname + (parsed.port ? ':' + parsed.port : '') + options.path);
     }
@@ -44031,17 +45675,18 @@ const httpAdapter = isHttpAdapterSupported && function httpAdapter(config) {
 
       const responseLength = +res.headers['content-length'];
 
-      if (onDownloadProgress) {
+      if (onDownloadProgress || maxDownloadRate) {
         const transformStream = new AxiosTransformStream$1({
-          length: utils$1.toFiniteNumber(responseLength),
           maxRate: utils$1.toFiniteNumber(maxDownloadRate)
         });
 
-        onDownloadProgress && transformStream.on('progress', progress => {
-          onDownloadProgress(Object.assign(progress, {
-            download: true
-          }));
-        });
+        onDownloadProgress && transformStream.on('progress', flushOnFinish(
+          transformStream,
+          progressEventDecorator(
+            responseLength,
+            progressEventReducer(asyncDecorator(onDownloadProgress), true, 3)
+          )
+        ));
 
         streams.push(transformStream);
       }
@@ -44131,7 +45776,7 @@ const httpAdapter = isHttpAdapterSupported && function httpAdapter(config) {
           }
 
           const err = new AxiosError(
-            'maxContentLength size of ' + config.maxContentLength + ' exceeded',
+            'stream has been aborted',
             AxiosError.ERR_BAD_RESPONSE,
             config,
             lastRequest
@@ -44254,98 +45899,18 @@ const httpAdapter = isHttpAdapterSupported && function httpAdapter(config) {
   });
 };
 
-const progressEventReducer = (listener, isDownloadStream, freq = 3) => {
-  let bytesNotified = 0;
-  const _speedometer = speedometer(50, 250);
+const isURLSameOrigin = platform.hasStandardBrowserEnv ? ((origin, isMSIE) => (url) => {
+  url = new URL(url, platform.origin);
 
-  return throttle(e => {
-    const loaded = e.loaded;
-    const total = e.lengthComputable ? e.total : undefined;
-    const progressBytes = loaded - bytesNotified;
-    const rate = _speedometer(progressBytes);
-    const inRange = loaded <= total;
-
-    bytesNotified = loaded;
-
-    const data = {
-      loaded,
-      total,
-      progress: total ? (loaded / total) : undefined,
-      bytes: progressBytes,
-      rate: rate ? rate : undefined,
-      estimated: rate && total && inRange ? (total - loaded) / rate : undefined,
-      event: e,
-      lengthComputable: total != null
-    };
-
-    data[isDownloadStream ? 'download' : 'upload'] = true;
-
-    listener(data);
-  }, freq);
-};
-
-const isURLSameOrigin = platform.hasStandardBrowserEnv ?
-
-// Standard browser envs have full support of the APIs needed to test
-// whether the request URL is of the same origin as current location.
-  (function standardBrowserEnv() {
-    const msie = /(msie|trident)/i.test(navigator.userAgent);
-    const urlParsingNode = document.createElement('a');
-    let originURL;
-
-    /**
-    * Parse a URL to discover its components
-    *
-    * @param {String} url The URL to be parsed
-    * @returns {Object}
-    */
-    function resolveURL(url) {
-      let href = url;
-
-      if (msie) {
-        // IE needs attribute set twice to normalize properties
-        urlParsingNode.setAttribute('href', href);
-        href = urlParsingNode.href;
-      }
-
-      urlParsingNode.setAttribute('href', href);
-
-      // urlParsingNode provides the UrlUtils interface - http://url.spec.whatwg.org/#urlutils
-      return {
-        href: urlParsingNode.href,
-        protocol: urlParsingNode.protocol ? urlParsingNode.protocol.replace(/:$/, '') : '',
-        host: urlParsingNode.host,
-        search: urlParsingNode.search ? urlParsingNode.search.replace(/^\?/, '') : '',
-        hash: urlParsingNode.hash ? urlParsingNode.hash.replace(/^#/, '') : '',
-        hostname: urlParsingNode.hostname,
-        port: urlParsingNode.port,
-        pathname: (urlParsingNode.pathname.charAt(0) === '/') ?
-          urlParsingNode.pathname :
-          '/' + urlParsingNode.pathname
-      };
-    }
-
-    originURL = resolveURL(window.location.href);
-
-    /**
-    * Determine if a URL shares the same origin as the current location
-    *
-    * @param {String} requestURL The URL to test
-    * @returns {boolean} True if URL shares the same origin, otherwise false
-    */
-    return function isURLSameOrigin(requestURL) {
-      const parsed = (utils$1.isString(requestURL)) ? resolveURL(requestURL) : requestURL;
-      return (parsed.protocol === originURL.protocol &&
-          parsed.host === originURL.host);
-    };
-  })() :
-
-  // Non standard browser envs (web workers, react-native) lack needed support.
-  (function nonStandardBrowserEnv() {
-    return function isURLSameOrigin() {
-      return true;
-    };
-  })();
+  return (
+    origin.protocol === url.protocol &&
+    origin.host === url.host &&
+    (isMSIE || origin.port === url.port)
+  );
+})(
+  new URL(platform.origin),
+  platform.navigator && /(msie|trident)/i.test(platform.navigator.userAgent)
+) : () => true;
 
 const cookies = platform.hasStandardBrowserEnv ?
 
@@ -44402,7 +45967,7 @@ function mergeConfig(config1, config2) {
   config2 = config2 || {};
   const config = {};
 
-  function getMergedValue(target, source, caseless) {
+  function getMergedValue(target, source, prop, caseless) {
     if (utils$1.isPlainObject(target) && utils$1.isPlainObject(source)) {
       return utils$1.merge.call({caseless}, target, source);
     } else if (utils$1.isPlainObject(source)) {
@@ -44414,11 +45979,11 @@ function mergeConfig(config1, config2) {
   }
 
   // eslint-disable-next-line consistent-return
-  function mergeDeepProperties(a, b, caseless) {
+  function mergeDeepProperties(a, b, prop , caseless) {
     if (!utils$1.isUndefined(b)) {
-      return getMergedValue(a, b, caseless);
+      return getMergedValue(a, b, prop , caseless);
     } else if (!utils$1.isUndefined(a)) {
-      return getMergedValue(undefined, a, caseless);
+      return getMergedValue(undefined, a, prop , caseless);
     }
   }
 
@@ -44476,10 +46041,10 @@ function mergeConfig(config1, config2) {
     socketPath: defaultToConfig2,
     responseEncoding: defaultToConfig2,
     validateStatus: mergeDirectKeys,
-    headers: (a, b) => mergeDeepProperties(headersToObject(a), headersToObject(b), true)
+    headers: (a, b , prop) => mergeDeepProperties(headersToObject(a), headersToObject(b),prop, true)
   };
 
-  utils$1.forEach(Object.keys(Object.assign({}, config1, config2)), function computeConfigValue(prop) {
+  utils$1.forEach(Object.keys({...config1, ...config2}), function computeConfigValue(prop) {
     const merge = mergeMap[prop] || mergeDeepProperties;
     const configValue = merge(config1[prop], config2[prop], prop);
     (utils$1.isUndefined(configValue) && merge !== mergeDirectKeys) || (config[prop] = configValue);
@@ -44495,7 +46060,7 @@ const resolveConfig = (config) => {
 
   newConfig.headers = headers = AxiosHeaders$1.from(headers);
 
-  newConfig.url = buildURL(buildFullPath(newConfig.baseURL, newConfig.url), config.params, config.paramsSerializer);
+  newConfig.url = buildURL(buildFullPath(newConfig.baseURL, newConfig.url, newConfig.allowAbsoluteUrls), config.params, config.paramsSerializer);
 
   // HTTP basic authentication
   if (auth) {
@@ -44543,16 +46108,18 @@ const xhrAdapter = isXHRAdapterSupported && function (config) {
     const _config = resolveConfig(config);
     let requestData = _config.data;
     const requestHeaders = AxiosHeaders$1.from(_config.headers).normalize();
-    let {responseType} = _config;
+    let {responseType, onUploadProgress, onDownloadProgress} = _config;
     let onCanceled;
-    function done() {
-      if (_config.cancelToken) {
-        _config.cancelToken.unsubscribe(onCanceled);
-      }
+    let uploadThrottled, downloadThrottled;
+    let flushUpload, flushDownload;
 
-      if (_config.signal) {
-        _config.signal.removeEventListener('abort', onCanceled);
-      }
+    function done() {
+      flushUpload && flushUpload(); // flush events
+      flushDownload && flushDownload(); // flush events
+
+      _config.cancelToken && _config.cancelToken.unsubscribe(onCanceled);
+
+      _config.signal && _config.signal.removeEventListener('abort', onCanceled);
     }
 
     let request = new XMLHttpRequest();
@@ -44622,7 +46189,7 @@ const xhrAdapter = isXHRAdapterSupported && function (config) {
         return;
       }
 
-      reject(new AxiosError('Request aborted', AxiosError.ECONNABORTED, _config, request));
+      reject(new AxiosError('Request aborted', AxiosError.ECONNABORTED, config, request));
 
       // Clean up request
       request = null;
@@ -44632,7 +46199,7 @@ const xhrAdapter = isXHRAdapterSupported && function (config) {
     request.onerror = function handleError() {
       // Real errors are hidden from us by the browser
       // onerror should only fire if it's a network error
-      reject(new AxiosError('Network Error', AxiosError.ERR_NETWORK, _config, request));
+      reject(new AxiosError('Network Error', AxiosError.ERR_NETWORK, config, request));
 
       // Clean up request
       request = null;
@@ -44648,7 +46215,7 @@ const xhrAdapter = isXHRAdapterSupported && function (config) {
       reject(new AxiosError(
         timeoutErrorMessage,
         transitional.clarifyTimeoutError ? AxiosError.ETIMEDOUT : AxiosError.ECONNABORTED,
-        _config,
+        config,
         request));
 
       // Clean up request
@@ -44676,13 +46243,18 @@ const xhrAdapter = isXHRAdapterSupported && function (config) {
     }
 
     // Handle progress if needed
-    if (typeof _config.onDownloadProgress === 'function') {
-      request.addEventListener('progress', progressEventReducer(_config.onDownloadProgress, true));
+    if (onDownloadProgress) {
+      ([downloadThrottled, flushDownload] = progressEventReducer(onDownloadProgress, true));
+      request.addEventListener('progress', downloadThrottled);
     }
 
     // Not all browsers support upload events
-    if (typeof _config.onUploadProgress === 'function' && request.upload) {
-      request.upload.addEventListener('progress', progressEventReducer(_config.onUploadProgress));
+    if (onUploadProgress && request.upload) {
+      ([uploadThrottled, flushUpload] = progressEventReducer(onUploadProgress));
+
+      request.upload.addEventListener('progress', uploadThrottled);
+
+      request.upload.addEventListener('loadend', flushUpload);
     }
 
     if (_config.cancelToken || _config.signal) {
@@ -44717,45 +46289,46 @@ const xhrAdapter = isXHRAdapterSupported && function (config) {
 };
 
 const composeSignals = (signals, timeout) => {
-  let controller = new AbortController();
+  const {length} = (signals = signals ? signals.filter(Boolean) : []);
 
-  let aborted;
+  if (timeout || length) {
+    let controller = new AbortController();
 
-  const onabort = function (cancel) {
-    if (!aborted) {
-      aborted = true;
-      unsubscribe();
-      const err = cancel instanceof Error ? cancel : this.reason;
-      controller.abort(err instanceof AxiosError ? err : new CanceledError(err instanceof Error ? err.message : err));
-    }
-  };
+    let aborted;
 
-  let timer = timeout && setTimeout(() => {
-    onabort(new AxiosError(`timeout ${timeout} of ms exceeded`, AxiosError.ETIMEDOUT));
-  }, timeout);
+    const onabort = function (reason) {
+      if (!aborted) {
+        aborted = true;
+        unsubscribe();
+        const err = reason instanceof Error ? reason : this.reason;
+        controller.abort(err instanceof AxiosError ? err : new CanceledError(err instanceof Error ? err.message : err));
+      }
+    };
 
-  const unsubscribe = () => {
-    if (signals) {
-      timer && clearTimeout(timer);
+    let timer = timeout && setTimeout(() => {
       timer = null;
-      signals.forEach(signal => {
-        signal &&
-        (signal.removeEventListener ? signal.removeEventListener('abort', onabort) : signal.unsubscribe(onabort));
-      });
-      signals = null;
-    }
-  };
+      onabort(new AxiosError(`timeout ${timeout} of ms exceeded`, AxiosError.ETIMEDOUT));
+    }, timeout);
 
-  signals.forEach((signal) => signal && signal.addEventListener && signal.addEventListener('abort', onabort));
+    const unsubscribe = () => {
+      if (signals) {
+        timer && clearTimeout(timer);
+        timer = null;
+        signals.forEach(signal => {
+          signal.unsubscribe ? signal.unsubscribe(onabort) : signal.removeEventListener('abort', onabort);
+        });
+        signals = null;
+      }
+    };
 
-  const {signal} = controller;
+    signals.forEach((signal) => signal.addEventListener('abort', onabort));
 
-  signal.unsubscribe = unsubscribe;
+    const {signal} = controller;
 
-  return [signal, () => {
-    timer && clearTimeout(timer);
-    timer = null;
-  }];
+    signal.unsubscribe = () => utils$1.asap(unsubscribe);
+
+    return signal;
+  }
 };
 
 const composeSignals$1 = composeSignals;
@@ -44778,49 +46351,73 @@ const streamChunk = function* (chunk, chunkSize) {
   }
 };
 
-const readBytes = async function* (iterable, chunkSize, encode) {
-  for await (const chunk of iterable) {
-    yield* streamChunk(ArrayBuffer.isView(chunk) ? chunk : (await encode(String(chunk))), chunkSize);
+const readBytes = async function* (iterable, chunkSize) {
+  for await (const chunk of readStream(iterable)) {
+    yield* streamChunk(chunk, chunkSize);
   }
 };
 
-const trackStream = (stream, chunkSize, onProgress, onFinish, encode) => {
-  const iterator = readBytes(stream, chunkSize, encode);
+const readStream = async function* (stream) {
+  if (stream[Symbol.asyncIterator]) {
+    yield* stream;
+    return;
+  }
+
+  const reader = stream.getReader();
+  try {
+    for (;;) {
+      const {done, value} = await reader.read();
+      if (done) {
+        break;
+      }
+      yield value;
+    }
+  } finally {
+    await reader.cancel();
+  }
+};
+
+const trackStream = (stream, chunkSize, onProgress, onFinish) => {
+  const iterator = readBytes(stream, chunkSize);
 
   let bytes = 0;
+  let done;
+  let _onFinish = (e) => {
+    if (!done) {
+      done = true;
+      onFinish && onFinish(e);
+    }
+  };
 
   return new ReadableStream({
-    type: 'bytes',
-
     async pull(controller) {
-      const {done, value} = await iterator.next();
+      try {
+        const {done, value} = await iterator.next();
 
-      if (done) {
-        controller.close();
-        onFinish();
-        return;
+        if (done) {
+         _onFinish();
+          controller.close();
+          return;
+        }
+
+        let len = value.byteLength;
+        if (onProgress) {
+          let loadedBytes = bytes += len;
+          onProgress(loadedBytes);
+        }
+        controller.enqueue(new Uint8Array(value));
+      } catch (err) {
+        _onFinish(err);
+        throw err;
       }
-
-      let len = value.byteLength;
-      onProgress && onProgress(bytes += len);
-      controller.enqueue(new Uint8Array(value));
     },
     cancel(reason) {
-      onFinish(reason);
+      _onFinish(reason);
       return iterator.return();
     }
   }, {
     highWaterMark: 2
   })
-};
-
-const fetchProgressDecorator = (total, fn) => {
-  const lengthComputable = total != null;
-  return (loaded) => setTimeout(() => fn({
-    lengthComputable,
-    total,
-    loaded
-  }));
 };
 
 const isFetchSupported = typeof fetch === 'function' && typeof Request === 'function' && typeof Response === 'function';
@@ -44832,7 +46429,15 @@ const encodeText = isFetchSupported && (typeof TextEncoder === 'function' ?
     async (str) => new Uint8Array(await new Response(str).arrayBuffer())
 );
 
-const supportsRequestStream = isReadableStreamSupported && (() => {
+const test = (fn, ...args) => {
+  try {
+    return !!fn(...args);
+  } catch (e) {
+    return false
+  }
+};
+
+const supportsRequestStream = isReadableStreamSupported && test(() => {
   let duplexAccessed = false;
 
   const hasContentType = new Request(platform.origin, {
@@ -44845,17 +46450,13 @@ const supportsRequestStream = isReadableStreamSupported && (() => {
   }).headers.has('Content-Type');
 
   return duplexAccessed && !hasContentType;
-})();
+});
 
 const DEFAULT_CHUNK_SIZE = 64 * 1024;
 
-const supportsResponseStream = isReadableStreamSupported && !!(()=> {
-  try {
-    return utils$1.isReadableStream(new Response('').body);
-  } catch(err) {
-    // return undefined
-  }
-})();
+const supportsResponseStream = isReadableStreamSupported &&
+  test(() => utils$1.isReadableStream(new Response('').body));
+
 
 const resolvers = {
   stream: supportsResponseStream && ((res) => res.body)
@@ -44880,10 +46481,14 @@ const getBodyLength = async (body) => {
   }
 
   if(utils$1.isSpecCompliantForm(body)) {
-    return (await new Request(body).arrayBuffer()).byteLength;
+    const _request = new Request(platform.origin, {
+      method: 'POST',
+      body,
+    });
+    return (await _request.arrayBuffer()).byteLength;
   }
 
-  if(utils$1.isArrayBufferView(body)) {
+  if(utils$1.isArrayBufferView(body) || utils$1.isArrayBuffer(body)) {
     return body.byteLength;
   }
 
@@ -44920,18 +46525,13 @@ const fetchAdapter = isFetchSupported && (async (config) => {
 
   responseType = responseType ? (responseType + '').toLowerCase() : 'text';
 
-  let [composedSignal, stopTimeout] = (signal || cancelToken || timeout) ?
-    composeSignals$1([signal, cancelToken], timeout) : [];
+  let composedSignal = composeSignals$1([signal, cancelToken && cancelToken.toAbortSignal()], timeout);
 
-  let finished, request;
+  let request;
 
-  const onFinish = () => {
-    !finished && setTimeout(() => {
-      composedSignal && composedSignal.unsubscribe();
-    });
-
-    finished = true;
-  };
+  const unsubscribe = composedSignal && composedSignal.unsubscribe && (() => {
+      composedSignal.unsubscribe();
+  });
 
   let requestContentLength;
 
@@ -44953,17 +46553,22 @@ const fetchAdapter = isFetchSupported && (async (config) => {
       }
 
       if (_request.body) {
-        data = trackStream(_request.body, DEFAULT_CHUNK_SIZE, fetchProgressDecorator(
+        const [onProgress, flush] = progressEventDecorator(
           requestContentLength,
-          progressEventReducer(onUploadProgress)
-        ), null, encodeText);
+          progressEventReducer(asyncDecorator(onUploadProgress))
+        );
+
+        data = trackStream(_request.body, DEFAULT_CHUNK_SIZE, onProgress, flush);
       }
     }
 
     if (!utils$1.isString(withCredentials)) {
-      withCredentials = withCredentials ? 'cors' : 'omit';
+      withCredentials = withCredentials ? 'include' : 'omit';
     }
 
+    // Cloudflare Workers throws when credentials are defined
+    // see https://github.com/cloudflare/workerd/issues/902
+    const isCredentialsSupported = "credentials" in Request.prototype;
     request = new Request(url, {
       ...fetchOptions,
       signal: composedSignal,
@@ -44971,14 +46576,14 @@ const fetchAdapter = isFetchSupported && (async (config) => {
       headers: headers.normalize().toJSON(),
       body: data,
       duplex: "half",
-      withCredentials
+      credentials: isCredentialsSupported ? withCredentials : undefined
     });
 
-    let response = await fetch(request);
+    let response = await fetch(request, fetchOptions);
 
     const isStreamResponse = supportsResponseStream && (responseType === 'stream' || responseType === 'response');
 
-    if (supportsResponseStream && (onDownloadProgress || isStreamResponse)) {
+    if (supportsResponseStream && (onDownloadProgress || (isStreamResponse && unsubscribe))) {
       const options = {};
 
       ['status', 'statusText', 'headers'].forEach(prop => {
@@ -44987,11 +46592,16 @@ const fetchAdapter = isFetchSupported && (async (config) => {
 
       const responseContentLength = utils$1.toFiniteNumber(response.headers.get('content-length'));
 
+      const [onProgress, flush] = onDownloadProgress && progressEventDecorator(
+        responseContentLength,
+        progressEventReducer(asyncDecorator(onDownloadProgress), true)
+      ) || [];
+
       response = new Response(
-        trackStream(response.body, DEFAULT_CHUNK_SIZE, onDownloadProgress && fetchProgressDecorator(
-          responseContentLength,
-          progressEventReducer(onDownloadProgress, true)
-        ), isStreamResponse && onFinish, encodeText),
+        trackStream(response.body, DEFAULT_CHUNK_SIZE, onProgress, () => {
+          flush && flush();
+          unsubscribe && unsubscribe();
+        }),
         options
       );
     }
@@ -45000,9 +46610,7 @@ const fetchAdapter = isFetchSupported && (async (config) => {
 
     let responseData = await resolvers[utils$1.findKey(resolvers, responseType) || 'text'](response, config);
 
-    !isStreamResponse && onFinish();
-
-    stopTimeout && stopTimeout();
+    !isStreamResponse && unsubscribe && unsubscribe();
 
     return await new Promise((resolve, reject) => {
       settle(resolve, reject, {
@@ -45015,9 +46623,9 @@ const fetchAdapter = isFetchSupported && (async (config) => {
       });
     })
   } catch (err) {
-    onFinish();
+    unsubscribe && unsubscribe();
 
-    if (err && err.name === 'TypeError' && /fetch/i.test(err.message)) {
+    if (err && err.name === 'TypeError' && /Load failed|fetch/i.test(err.message)) {
       throw Object.assign(
         new AxiosError('Network Error', AxiosError.ERR_NETWORK, config, request),
         {
@@ -45226,6 +46834,14 @@ validators$1.transitional = function transitional(validator, version, message) {
   };
 };
 
+validators$1.spelling = function spelling(correctSpelling) {
+  return (value, opt) => {
+    // eslint-disable-next-line no-console
+    console.warn(`${opt} is likely a misspelling of ${correctSpelling}`);
+    return true;
+  }
+};
+
 /**
  * Assert object's properties type
  *
@@ -45275,7 +46891,7 @@ const validators = validator.validators;
  */
 class Axios {
   constructor(instanceConfig) {
-    this.defaults = instanceConfig;
+    this.defaults = instanceConfig || {};
     this.interceptors = {
       request: new InterceptorManager$1(),
       response: new InterceptorManager$1()
@@ -45295,9 +46911,9 @@ class Axios {
       return await this._request(configOrUrl, config);
     } catch (err) {
       if (err instanceof Error) {
-        let dummy;
+        let dummy = {};
 
-        Error.captureStackTrace ? Error.captureStackTrace(dummy = {}) : (dummy = new Error());
+        Error.captureStackTrace ? Error.captureStackTrace(dummy) : (dummy = new Error());
 
         // slice off the Error: ... line
         const stack = dummy.stack ? dummy.stack.replace(/^.+\n/, '') : '';
@@ -45352,6 +46968,18 @@ class Axios {
       }
     }
 
+    // Set config.allowAbsoluteUrls
+    if (config.allowAbsoluteUrls !== undefined) ; else if (this.defaults.allowAbsoluteUrls !== undefined) {
+      config.allowAbsoluteUrls = this.defaults.allowAbsoluteUrls;
+    } else {
+      config.allowAbsoluteUrls = true;
+    }
+
+    validator.assertOptions(config, {
+      baseUrl: validators.spelling('baseURL'),
+      withXsrfToken: validators.spelling('withXSRFToken')
+    }, true);
+
     // Set config.method
     config.method = (config.method || this.defaults.method || 'get').toLowerCase();
 
@@ -45394,8 +47022,8 @@ class Axios {
 
     if (!synchronousRequestInterceptors) {
       const chain = [dispatchRequest.bind(this), undefined];
-      chain.unshift.apply(chain, requestInterceptorChain);
-      chain.push.apply(chain, responseInterceptorChain);
+      chain.unshift(...requestInterceptorChain);
+      chain.push(...responseInterceptorChain);
       len = chain.length;
 
       promise = Promise.resolve(config);
@@ -45442,7 +47070,7 @@ class Axios {
 
   getUri(config) {
     config = mergeConfig(this.defaults, config);
-    const fullPath = buildFullPath(config.baseURL, config.url);
+    const fullPath = buildFullPath(config.baseURL, config.url, config.allowAbsoluteUrls);
     return buildURL(fullPath, config.params, config.paramsSerializer);
   }
 }
@@ -45580,6 +47208,20 @@ class CancelToken {
     if (index !== -1) {
       this._listeners.splice(index, 1);
     }
+  }
+
+  toAbortSignal() {
+    const controller = new AbortController();
+
+    const abort = (err) => {
+      controller.abort(err);
+    };
+
+    this.subscribe(abort);
+
+    controller.signal.unsubscribe = () => this.unsubscribe(abort);
+
+    return controller.signal;
   }
 
   /**
@@ -67610,11 +69252,11 @@ function yearsToQuarters(years) {
 
 /***/ }),
 
-/***/ 48133:
+/***/ 42397:
 /***/ ((module) => {
 
 "use strict";
-module.exports = /*#__PURE__*/JSON.parse('{"name":"@slack/web-api","version":"7.3.1","description":"Official library for using the Slack Platform\'s Web API","author":"Slack Technologies, LLC","license":"MIT","keywords":["slack","web-api","bot","client","http","api","proxy","rate-limiting","pagination"],"main":"dist/index.js","types":"./dist/index.d.ts","files":["dist/**/*"],"engines":{"node":">= 18","npm":">= 8.6.0"},"repository":"slackapi/node-slack-sdk","homepage":"https://slack.dev/node-slack-sdk/web-api","publishConfig":{"access":"public"},"bugs":{"url":"https://github.com/slackapi/node-slack-sdk/issues"},"scripts":{"prepare":"npm run build","build":"npm run build:clean && tsc","build:clean":"shx rm -rf ./dist ./coverage","lint":"eslint --fix --ext .ts src","mocha":"mocha --config .mocharc.json src/*.spec.js","test":"npm run lint && npm run test:types && npm run test:integration && npm run test:unit","test:integration":"npm run build && node test/integration/commonjs-project/index.js && node test/integration/esm-project/index.mjs && npm run test:integration:ts","test:integration:ts":"cd test/integration/ts-4.7-project && npm i && npm run build","test:unit":"npm run build && c8 npm run mocha","test:types":"tsd","ref-docs:model":"api-extractor run","watch":"npx nodemon --watch \'src\' --ext \'ts\' --exec npm run build"},"dependencies":{"@slack/logger":"^4.0.0","@slack/types":"^2.9.0","@types/node":">=18.0.0","@types/retry":"0.12.0","axios":"^1.6.5","eventemitter3":"^5.0.1","form-data":"^4.0.0","is-electron":"2.2.2","is-stream":"^2","p-queue":"^6","p-retry":"^4","retry":"^0.13.1"},"devDependencies":{"@microsoft/api-extractor":"^7","@tsconfig/recommended":"^1","@types/chai":"^4","@types/mocha":"^10","@types/sinon":"^17","@typescript-eslint/eslint-plugin":"^6","@typescript-eslint/parser":"^6","busboy":"^1","c8":"^9.1.0","chai":"^4","eslint":"^8","eslint-config-airbnb-base":"^15","eslint-config-airbnb-typescript":"^17","eslint-plugin-import":"^2","eslint-plugin-import-newlines":"^1.3.4","eslint-plugin-jsdoc":"^48","eslint-plugin-node":"^11","mocha":"^10","nock":"^13","shx":"^0.3.2","sinon":"^17","source-map-support":"^0.5.21","ts-node":"^10","tsd":"^0.30.0","typescript":"5.3.3"},"tsd":{"directory":"test/types"}}');
+module.exports = /*#__PURE__*/JSON.parse('{"name":"@slack/web-api","version":"7.9.3","description":"Official library for using the Slack Platform\'s Web API","author":"Slack Technologies, LLC","license":"MIT","keywords":["slack","web-api","bot","client","http","api","proxy","rate-limiting","pagination"],"main":"dist/index.js","types":"./dist/index.d.ts","files":["dist/**/*"],"engines":{"node":">= 18","npm":">= 8.6.0"},"repository":"slackapi/node-slack-sdk","homepage":"https://tools.slack.dev/node-slack-sdk/web-api","publishConfig":{"access":"public"},"bugs":{"url":"https://github.com/slackapi/node-slack-sdk/issues"},"scripts":{"prepare":"npm run build","build":"npm run build:clean && tsc","build:clean":"shx rm -rf ./dist ./coverage","lint":"npx @biomejs/biome check .","lint:fix":"npx @biomejs/biome check --write .","mocha":"mocha --config ./test/.mocharc.json \\"./src/**/*.spec.ts\\"","test":"npm run lint && npm run test:types && npm run test:integration && npm run test:unit","test:integration":"npm run build && node test/integration/commonjs-project/index.js && node test/integration/esm-project/index.mjs && npm run test:integration:ts","test:integration:ts":"cd test/integration/ts-4.7-project && npm i && npm run build","test:unit":"npm run build && c8 --config ./test/.c8rc.json npm run mocha","test:types":"tsd","watch":"npx nodemon --watch \'src\' --ext \'ts\' --exec npm run build"},"dependencies":{"@slack/logger":"^4.0.0","@slack/types":"^2.9.0","@types/node":">=18.0.0","@types/retry":"0.12.0","axios":"^1.8.3","eventemitter3":"^5.0.1","form-data":"^4.0.0","is-electron":"2.2.2","is-stream":"^2","p-queue":"^6","p-retry":"^4","retry":"^0.13.1"},"devDependencies":{"@biomejs/biome":"^1.8.3","@tsconfig/recommended":"^1","@types/busboy":"^1.5.4","@types/chai":"^4","@types/mocha":"^10","@types/sinon":"^17","busboy":"^1","c8":"^10.1.2","chai":"^4","mocha":"^11","mocha-junit-reporter":"^2.2.1","mocha-multi-reporters":"^1.5.1","nock":"^14","shx":"^0.4.0","sinon":"^21","source-map-support":"^0.5.21","ts-node":"^10","tsd":"^0.32.0","typescript":"5.8.3"},"tsd":{"directory":"test/types"}}');
 
 /***/ }),
 
