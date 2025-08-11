@@ -50,7 +50,7 @@
     "@jest/globals": "^30.0.5",
     "@octokit/types": "^13.5.0",
     "@octokit/webhooks-types": "^7.5.1",
-    "@types/node": "^20.12.11",
+    "@types/node": "^24.2.1",
     "@typescript-eslint/parser": "^7.9.0",
     "@vercel/ncc": "^0.38.1",
     "eslint": "^8.57.0",
