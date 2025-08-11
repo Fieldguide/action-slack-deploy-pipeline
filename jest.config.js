@@ -1,4 +1,5 @@
-module.exports = {
+/** @type {import('jest').Config} */
+export default {
   clearMocks: true,
   moduleFileExtensions: ['js', 'ts'],
   testMatch: ['**/*.test.ts'],
