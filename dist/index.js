@@ -39667,7 +39667,7 @@ function wrappy (fn, cb) {
 
 /***/ }),
 
-/***/ 45021:
+/***/ 50835:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -39683,20 +39683,32 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.GH_MERGE_QUEUE_BOT_USERNAME = void 0;
-exports.getMessageAuthor = getMessageAuthor;
+exports.getMessageAuthorFactory = getMessageAuthorFactory;
 const core_1 = __nccwpck_require__(59999);
 const github_1 = __nccwpck_require__(75380);
 const webhook_1 = __nccwpck_require__(45568);
 exports.GH_MERGE_QUEUE_BOT_USERNAME = 'github-merge-queue[bot]';
-function getMessageAuthor(octokit, slack) {
+function getMessageAuthorFactory(octokit, slack) {
+    return (...args_1) => __awaiter(this, [...args_1], void 0, function* ({ withSlackUserId } = { withSlackUserId: false }) {
+        return getMessageAuthor(octokit, slack, withSlackUserId);
+    });
+}
+function getMessageAuthor(octokit, slack, withSlackUserId) {
     return __awaiter(this, void 0, void 0, function* () {
         (0, core_1.startGroup)('Getting message author');
         const githubSender = yield getGitHubSender(octokit);
         if (!githubSender) {
             (0, core_1.warning)('Unexpected GitHub sender payload.');
+            (0, core_1.endGroup)();
             return null;
         }
         try {
+            if (!withSlackUserId) {
+                return {
+                    username: githubSender.login,
+                    icon_url: githubSender.avatar_url
+                };
+            }
             (0, core_1.info)('Fetching Slack users');
             const slackUsers = yield slack.getRealUsers();
             (0, core_1.info)(`Fetching GitHub user: ${githubSender.login}`);
@@ -39901,10 +39913,11 @@ const types_1 = __nccwpck_require__(83712);
  * Return a progressed stage message, posted via threaded reply.
  */
 function getStageMessage(_a) {
-    return __awaiter(this, arguments, void 0, function* ({ octokit, status, now, author }) {
+    return __awaiter(this, arguments, void 0, function* ({ octokit, status, now, getMessageAuthor }) {
         const text = getText(status);
         const duration = yield computeDuration(octokit, now);
         const contextBlock = (0, getContextBlock_1.getContextBlock)(duration);
+        const author = yield getMessageAuthor();
         return Object.assign(Object.assign({}, (0, message_1.createMessage)({ text, contextBlock, author })), { successful: (0, types_1.isSuccessfulStatus)(status) });
     });
 }
@@ -40013,8 +40026,9 @@ const webhook_1 = __nccwpck_require__(45568);
  * Return the initial summary message.
  */
 function getSummaryMessage(_a) {
-    return __awaiter(this, arguments, void 0, function* ({ octokit, options, author }) {
+    return __awaiter(this, arguments, void 0, function* ({ octokit, options, getMessageAuthor }) {
         var _b;
+        const author = yield getMessageAuthor({ withSlackUserId: true });
         const text = yield getText(octokit, (_b = options === null || options === void 0 ? void 0 : options.status) !== null && _b !== void 0 ? _b : null, author);
         const duration = options
             ? (0, date_fns_1.intervalToDuration)({
@@ -40316,7 +40330,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core_1 = __nccwpck_require__(59999);
 const github_1 = __nccwpck_require__(75380);
-const getMessageAuthor_1 = __nccwpck_require__(45021);
+const getMessageAuthorFactory_1 = __nccwpck_require__(50835);
 const input_1 = __nccwpck_require__(15229);
 const postMessage_1 = __nccwpck_require__(70352);
 const SlackClient_1 = __nccwpck_require__(84713);
@@ -40326,8 +40340,8 @@ function run() {
         try {
             const octokit = createOctokitClient();
             const slack = createSlackClient();
-            const author = yield (0, getMessageAuthor_1.getMessageAuthor)(octokit, slack);
-            const ts = yield (0, postMessage_1.postMessage)({ octokit, slack, author });
+            const getMessageAuthor = (0, getMessageAuthorFactory_1.getMessageAuthorFactory)(octokit, slack);
+            const ts = yield (0, postMessage_1.postMessage)({ octokit, slack, getMessageAuthor });
             if (ts) {
                 (0, core_1.setOutput)('ts', ts);
             }
@@ -40397,11 +40411,11 @@ const types_1 = __nccwpck_require__(83712);
  * @returns message timestamp ID
  */
 function postMessage(_a) {
-    return __awaiter(this, arguments, void 0, function* ({ octokit, slack, author }) {
+    return __awaiter(this, arguments, void 0, function* ({ octokit, slack, getMessageAuthor }) {
         const threadTs = (0, core_1.getInput)('thread_ts');
         if (!threadTs) {
             (0, core_1.info)('Posting summary message');
-            const message = yield (0, getSummaryMessage_1.getSummaryMessage)({ octokit, author });
+            const message = yield (0, getSummaryMessage_1.getSummaryMessage)({ octokit, getMessageAuthor });
             return slack.postMessage(message);
         }
         const status = (0, core_1.getInput)('status', { required: true });
@@ -40410,7 +40424,7 @@ function postMessage(_a) {
             octokit,
             status,
             now,
-            author
+            getMessageAuthor
         }), { successful } = _b, stageMessage = __rest(_b, ["successful"]);
         (0, core_1.info)(`Posting stage message in thread: ${threadTs}`);
         yield slack.postMessage(Object.assign(Object.assign({}, stageMessage), { reply_broadcast: !successful, thread_ts: threadTs }));
@@ -40421,7 +40435,7 @@ function postMessage(_a) {
             const summaryMessage = yield (0, getSummaryMessage_1.getSummaryMessage)({
                 octokit,
                 options: { status, threadTs, now },
-                author
+                getMessageAuthor
             });
             yield slack.updateMessage(Object.assign(Object.assign({}, summaryMessage), { ts: threadTs }));
         }
@@ -40483,7 +40497,8 @@ class SlackClient {
         this.channel = channel;
         this.errorReaction = errorReaction;
         this.web = new web_api_1.WebClient(token, {
-            logLevel: (0, core_1.isDebug)() ? web_api_1.LogLevel.DEBUG : web_api_1.LogLevel.INFO
+            logLevel: (0, core_1.isDebug)() ? web_api_1.LogLevel.DEBUG : web_api_1.LogLevel.INFO,
+            rejectRateLimitedCalls: true
         });
         this.logRateLimits();
     }
@@ -40562,8 +40577,8 @@ class SlackClient {
      * @see https://slack.dev/node-slack-sdk/web-api#rate-limits
      */
     logRateLimits() {
-        this.web.on(web_api_1.WebClientEvent.RATE_LIMITED, numSeconds => {
-            (0, core_1.warning)(`Slack API call failed due to rate limiting. Retrying in ${numSeconds} seconds.`);
+        this.web.on(web_api_1.WebClientEvent.RATE_LIMITED, () => {
+            (0, core_1.warning)('Slack API call failed due to rate limiting.');
         });
     }
 }

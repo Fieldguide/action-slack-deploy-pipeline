@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as github from '@actions/github'
 import {afterAll, beforeEach, describe, expect, it, jest} from '@jest/globals'
+import {GetMessageAuthor} from '../getMessageAuthorFactory'
 import {EVENT_NAME_IMAGE_MAP} from '../github/getContextBlock'
-import {OctokitClient} from '../github/types'
+import type {OctokitClient} from '../github/types'
 import {postMessage} from '../postMessage'
-import {SlackClient} from '../slack/SlackClient'
+import type {SlackClient} from '../slack/SlackClient'
 
 describe('postMessage', () => {
   let octokit: OctokitClient
@@ -65,9 +66,11 @@ describe('postMessage', () => {
       ts = await postMessage({
         octokit,
         slack,
-        author: {
-          username: 'namoscato',
-          icon_url: 'github.com/namoscato'
+        async getMessageAuthor() {
+          return Promise.resolve({
+            username: 'namoscato',
+            icon_url: 'github.com/namoscato'
+          })
         }
       })
     })
@@ -121,7 +124,11 @@ describe('postMessage', () => {
         }
       }
 
-      ts = await postMessage({octokit, slack, author: null})
+      ts = await postMessage({
+        octokit,
+        slack,
+        getMessageAuthor: getNullMessageAuthor
+      })
     })
 
     it('should post slack message', () => {
@@ -174,11 +181,7 @@ describe('postMessage', () => {
       ts = await postMessage({
         octokit,
         slack,
-        author: {
-          slack_user_id: 'U123',
-          username: 'Nick',
-          icon_url: 'slack.com/nick'
-        }
+        getMessageAuthor
       })
     })
 
@@ -238,7 +241,11 @@ describe('postMessage', () => {
         }
       })) as any
 
-      ts = await postMessage({octokit, slack, author: null})
+      ts = await postMessage({
+        octokit,
+        slack,
+        getMessageAuthor: getNullMessageAuthor
+      })
     })
 
     it('should fetch commit', () => {
@@ -320,10 +327,7 @@ describe('postMessage', () => {
         ts = await postMessage({
           octokit,
           slack,
-          author: {
-            username: 'namoscato',
-            icon_url: 'github.com/namoscato'
-          }
+          getMessageAuthor
         })
       })
 
@@ -389,7 +393,11 @@ describe('postMessage', () => {
       beforeEach(async () => {
         process.env.INPUT_STATUS = 'cancelled'
 
-        ts = await postMessage({octokit, slack, author: null})
+        ts = await postMessage({
+          octokit,
+          slack,
+          getMessageAuthor: getNullMessageAuthor
+        })
       })
 
       it('should post slack message', () => {
@@ -458,11 +466,7 @@ describe('postMessage', () => {
         ts = await postMessage({
           octokit,
           slack,
-          author: {
-            slack_user_id: 'U123',
-            username: 'Nick',
-            icon_url: 'slack.com/nick'
-          }
+          getMessageAuthor
         })
       })
 
@@ -513,7 +517,11 @@ describe('postMessage', () => {
         process.env.INPUT_STATUS = 'failure'
         process.env.INPUT_CONCLUSION = 'true'
 
-        ts = await postMessage({octokit, slack, author: null})
+        ts = await postMessage({
+          octokit,
+          slack,
+          getMessageAuthor: getNullMessageAuthor
+        })
       })
 
       it('should post slack message', () => {
@@ -565,7 +573,11 @@ describe('postMessage', () => {
 
         process.env.INPUT_STATUS = 'success'
 
-        ts = await postMessage({octokit, slack, author: null})
+        ts = await postMessage({
+          octokit,
+          slack,
+          getMessageAuthor: getNullMessageAuthor
+        })
       })
 
       it('should post slack message', () => {
@@ -599,7 +611,11 @@ describe('postMessage', () => {
 
         process.env.INPUT_STATUS = 'success'
 
-        ts = await postMessage({octokit, slack, author: null})
+        ts = await postMessage({
+          octokit,
+          slack,
+          getMessageAuthor: getNullMessageAuthor
+        })
       })
 
       it('should post slack message', () => {
@@ -635,7 +651,11 @@ describe('postMessage', () => {
       github.context.eventName = 'issues'
 
       try {
-        await postMessage({octokit, slack, author: null})
+        await postMessage({
+          octokit,
+          slack,
+          getMessageAuthor: getNullMessageAuthor
+        })
       } catch (err) {
         error = err as Error
       }
@@ -648,3 +668,24 @@ describe('postMessage', () => {
     })
   })
 })
+
+const getNullMessageAuthor: GetMessageAuthor = async () => {
+  return null
+}
+
+const getMessageAuthor: GetMessageAuthor = async (
+  {withSlackUserId} = {withSlackUserId: false}
+) => {
+  if (withSlackUserId) {
+    return {
+      slack_user_id: 'U123',
+      username: 'Nick',
+      icon_url: 'slack.com/nick'
+    }
+  }
+
+  return {
+    username: 'namoscato',
+    icon_url: 'github.com/namoscato'
+  }
+}

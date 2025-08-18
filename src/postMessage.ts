@@ -1,14 +1,14 @@
 import {getInput, info} from '@actions/core'
+import type {GetMessageAuthor} from './getMessageAuthorFactory'
 import {getStageMessage} from './github/getStageMessage'
 import {getSummaryMessage} from './github/getSummaryMessage'
 import {OctokitClient, isSuccessfulStatus} from './github/types'
-import {SlackClient} from './slack/SlackClient'
-import {MessageAuthor} from './slack/types'
+import type {SlackClient} from './slack/SlackClient'
 
 interface Dependencies {
   octokit: OctokitClient
   slack: SlackClient
-  author: MessageAuthor | null
+  getMessageAuthor: GetMessageAuthor
 }
 
 /**
@@ -21,13 +21,13 @@ interface Dependencies {
 export async function postMessage({
   octokit,
   slack,
-  author
+  getMessageAuthor
 }: Dependencies): Promise<string | null> {
   const threadTs = getInput('thread_ts')
 
   if (!threadTs) {
     info('Posting summary message')
-    const message = await getSummaryMessage({octokit, author})
+    const message = await getSummaryMessage({octokit, getMessageAuthor})
 
     return slack.postMessage(message)
   }
@@ -38,7 +38,7 @@ export async function postMessage({
     octokit,
     status,
     now,
-    author
+    getMessageAuthor
   })
 
   info(`Posting stage message in thread: ${threadTs}`)
@@ -56,7 +56,7 @@ export async function postMessage({
     const summaryMessage = await getSummaryMessage({
       octokit,
       options: {status, threadTs, now},
-      author
+      getMessageAuthor
     })
 
     await slack.updateMessage({
