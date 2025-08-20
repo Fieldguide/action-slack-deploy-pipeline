@@ -8,9 +8,30 @@ import {MemberWithProfile, MessageAuthor} from './slack/types'
 
 export const GH_MERGE_QUEUE_BOT_USERNAME = 'github-merge-queue[bot]'
 
-export async function getMessageAuthor(
+export type GetMessageAuthor = (
+  options?: GetMessageAuthorOptions
+) => Promise<MessageAuthor | null>
+
+interface GetMessageAuthorOptions {
+  /** `false` falls back to GitHub username, skipping a conservatively rate-limited Slack API call */
+  withSlackUserId: boolean
+}
+
+export function getMessageAuthorFactory(
   octokit: OctokitClient,
   slack: SlackClient
+): GetMessageAuthor {
+  return async (
+    {withSlackUserId}: GetMessageAuthorOptions = {withSlackUserId: false}
+  ): Promise<MessageAuthor | null> => {
+    return getMessageAuthor(octokit, slack, withSlackUserId)
+  }
+}
+
+async function getMessageAuthor(
+  octokit: OctokitClient,
+  slack: SlackClient,
+  withSlackUserId: boolean
 ): Promise<MessageAuthor | null> {
   startGroup('Getting message author')
 
@@ -18,10 +39,18 @@ export async function getMessageAuthor(
 
   if (!githubSender) {
     warning('Unexpected GitHub sender payload.')
+    endGroup()
     return null
   }
 
   try {
+    if (!withSlackUserId) {
+      return {
+        username: githubSender.login,
+        icon_url: githubSender.avatar_url
+      }
+    }
+
     info('Fetching Slack users')
     const slackUsers = await slack.getRealUsers()
 

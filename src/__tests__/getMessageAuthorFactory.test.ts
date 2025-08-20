@@ -1,14 +1,17 @@
 import * as github from '@actions/github'
 import {afterEach, beforeEach, describe, expect, it, jest} from '@jest/globals'
 import {
-  getMessageAuthor,
+  GetMessageAuthor,
+  getMessageAuthorFactory,
   GH_MERGE_QUEUE_BOT_USERNAME
-} from '../getMessageAuthor'
+} from '../getMessageAuthorFactory'
 import {OctokitClient} from '../github/types'
 import {SlackClient} from '../slack/SlackClient'
 import {Member, MessageAuthor} from '../slack/types'
 
-describe('getMessageAuthor', () => {
+describe('getMessageAuthorFactory', () => {
+  let getMessageAuthor: GetMessageAuthor
+
   let octokit: OctokitClient
   let slack: SlackClient
   let messageAuthor: MessageAuthor | null
@@ -55,6 +58,8 @@ describe('getMessageAuthor', () => {
     slack = {
       getRealUsers: jest.fn()
     } as unknown as SlackClient
+
+    getMessageAuthor = getMessageAuthorFactory(octokit, slack)
   })
 
   afterEach(() => {
@@ -64,7 +69,7 @@ describe('getMessageAuthor', () => {
 
   describe('missing Slack OAuth scope', () => {
     beforeEach(async () => {
-      messageAuthor = await getMessageAuthor(octokit, slack)
+      messageAuthor = await getMessageAuthor({withSlackUserId: true})
     })
 
     it('should fetch Slack users', () => {
@@ -72,6 +77,23 @@ describe('getMessageAuthor', () => {
     })
 
     it('should fallback to GitHub username', () => {
+      expect(messageAuthor).toStrictEqual({
+        username: 'namoscato',
+        icon_url: 'github.com/namoscato'
+      })
+    })
+  })
+
+  describe('without Slack user ID', () => {
+    beforeEach(async () => {
+      messageAuthor = await getMessageAuthor({withSlackUserId: false})
+    })
+
+    it('should not fetch Slack users', () => {
+      expect(slack.getRealUsers).not.toHaveBeenCalled()
+    })
+
+    it('should return GitHub username', () => {
       expect(messageAuthor).toStrictEqual({
         username: 'namoscato',
         icon_url: 'github.com/namoscato'
@@ -103,7 +125,7 @@ describe('getMessageAuthor', () => {
 
     describe('with GitHub context', () => {
       beforeEach(async () => {
-        messageAuthor = await getMessageAuthor(octokit, slack)
+        messageAuthor = await getMessageAuthor({withSlackUserId: true})
       })
 
       it('should fallback to GitHub username', () => {
@@ -115,7 +137,7 @@ describe('getMessageAuthor', () => {
       beforeEach(async () => {
         github.context.payload = {}
 
-        messageAuthor = await getMessageAuthor(octokit, slack)
+        messageAuthor = await getMessageAuthor({withSlackUserId: true})
       })
 
       it('should return null', () => {
@@ -147,7 +169,7 @@ describe('getMessageAuthor', () => {
         ])
       )
 
-      messageAuthor = await getMessageAuthor(octokit, slack)
+      messageAuthor = await getMessageAuthor({withSlackUserId: true})
     })
 
     it('should fallback to GitHub username', () => {
@@ -178,7 +200,7 @@ describe('getMessageAuthor', () => {
         ])
       )
 
-      messageAuthor = await getMessageAuthor(octokit, slack)
+      messageAuthor = await getMessageAuthor({withSlackUserId: true})
     })
 
     it('should return Slack user', () => {
@@ -224,7 +246,7 @@ describe('getMessageAuthor', () => {
           ])
         )
 
-        messageAuthor = await getMessageAuthor(octokit, slack)
+        messageAuthor = await getMessageAuthor({withSlackUserId: true})
       })
 
       it('fetches the GH user that merged the PR', () => {
@@ -258,7 +280,7 @@ describe('getMessageAuthor', () => {
       })
 
       it('does not fallback on the merge queue user', async () => {
-        expect(await getMessageAuthor(octokit, slack)).toStrictEqual({
+        expect(await getMessageAuthor({withSlackUserId: true})).toStrictEqual({
           username: 'mdavis',
           icon_url: 'github.com/mdavis'
         })
@@ -271,9 +293,9 @@ describe('getMessageAuthor', () => {
       })
 
       it('falls back on merge queue user', async () => {
-        expect((await getMessageAuthor(octokit, slack))?.username).toBe(
-          GH_MERGE_QUEUE_BOT_USERNAME
-        )
+        expect(
+          (await getMessageAuthor({withSlackUserId: true}))?.username
+        ).toBe(GH_MERGE_QUEUE_BOT_USERNAME)
       })
     })
 
@@ -286,7 +308,7 @@ describe('getMessageAuthor', () => {
       })
 
       it('does not fallback on the merge queue user', async () => {
-        expect(await getMessageAuthor(octokit, slack)).toStrictEqual({
+        expect(await getMessageAuthor({withSlackUserId: true})).toStrictEqual({
           username: 'mdavis',
           icon_url: 'github.com/mdavis'
         })
@@ -303,9 +325,9 @@ describe('getMessageAuthor', () => {
       })
 
       it('falls back on merge queue user', async () => {
-        expect((await getMessageAuthor(octokit, slack))?.username).toBe(
-          GH_MERGE_QUEUE_BOT_USERNAME
-        )
+        expect(
+          (await getMessageAuthor({withSlackUserId: true}))?.username
+        ).toBe(GH_MERGE_QUEUE_BOT_USERNAME)
       })
     })
   })

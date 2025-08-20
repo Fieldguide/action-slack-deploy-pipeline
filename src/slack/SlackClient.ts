@@ -25,7 +25,8 @@ export class SlackClient {
     this.errorReaction = errorReaction
 
     this.web = new WebClient(token, {
-      logLevel: isDebug() ? LogLevel.DEBUG : LogLevel.INFO
+      logLevel: isDebug() ? LogLevel.DEBUG : LogLevel.INFO,
+      rejectRateLimitedCalls: true
     })
     this.logRateLimits()
   }
@@ -115,10 +116,8 @@ export class SlackClient {
    * @see https://slack.dev/node-slack-sdk/web-api#rate-limits
    */
   private logRateLimits(): void {
-    this.web.on(WebClientEvent.RATE_LIMITED, numSeconds => {
-      warning(
-        `Slack API call failed due to rate limiting. Retrying in ${numSeconds} seconds.`
-      )
+    this.web.on(WebClientEvent.RATE_LIMITED, () => {
+      warning('Slack API call failed due to rate limiting.')
     })
   }
 }

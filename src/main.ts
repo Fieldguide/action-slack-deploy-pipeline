@@ -1,6 +1,6 @@
 import {error, getInput, isDebug, setFailed, setOutput} from '@actions/core'
 import {getOctokit} from '@actions/github'
-import {getMessageAuthor} from './getMessageAuthor'
+import {getMessageAuthorFactory} from './getMessageAuthorFactory'
 import {OctokitClient} from './github/types'
 import {EnvironmentVariable, getEnv, getRequiredEnv} from './input'
 import {postMessage} from './postMessage'
@@ -13,8 +13,8 @@ async function run(): Promise<void> {
     const octokit = createOctokitClient()
     const slack = createSlackClient()
 
-    const author = await getMessageAuthor(octokit, slack)
-    const ts = await postMessage({octokit, slack, author})
+    const getMessageAuthor = getMessageAuthorFactory(octokit, slack)
+    const ts = await postMessage({octokit, slack, getMessageAuthor})
 
     if (ts) {
       setOutput('ts', ts)

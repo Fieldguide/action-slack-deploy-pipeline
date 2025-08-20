@@ -1,5 +1,6 @@
 import * as github from '@actions/github'
 import {intervalToDuration} from 'date-fns'
+import type {GetMessageAuthor} from '../getMessageAuthorFactory'
 import {bold, emoji, link} from '../slack/mrkdwn'
 import {Link, MessageAuthor} from '../slack/types'
 import {dateFromTs} from '../slack/utils/dateFromTs'
@@ -25,7 +26,7 @@ interface Options {
 interface Dependencies {
   octokit: OctokitClient
   options?: Options
-  author: MessageAuthor | null
+  getMessageAuthor: GetMessageAuthor
 }
 
 /**
@@ -34,8 +35,9 @@ interface Dependencies {
 export async function getSummaryMessage({
   octokit,
   options,
-  author
+  getMessageAuthor
 }: Dependencies): Promise<Message> {
+  const author = await getMessageAuthor({withSlackUserId: true})
   const text = await getText(octokit, options?.status ?? null, author)
 
   const duration = options
