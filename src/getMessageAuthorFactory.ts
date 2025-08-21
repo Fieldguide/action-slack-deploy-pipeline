@@ -13,24 +13,26 @@ export type GetMessageAuthor = (
   options?: GetMessageAuthorOptions
 ) => Promise<MessageAuthor | null>
 
-interface GetMessageAuthorOptions {
+interface GetMessageAuthorOptions extends GetMessageAuthorFactoryOptions {
   /** `false` falls back to GitHub username, skipping a conservatively rate-limited Slack API call */
-  withSlackUserId: boolean
-  userMappingFilepath: string
+  withSlackUserId?: boolean
+}
+
+interface GetMessageAuthorFactoryOptions {
+  userMappingFilepath?: string
 }
 
 export function getMessageAuthorFactory(
   octokit: OctokitClient,
   slack: SlackClient,
-  options: GetMessageAuthorOptions = {
-    withSlackUserId: false,
-    userMappingFilepath: ''
+  options: GetMessageAuthorFactoryOptions = {
+    userMappingFilepath: undefined
   }
 ): GetMessageAuthor {
   return async (
-    messageAuthorOptions: GetMessageAuthorOptions = options
+    {withSlackUserId}: GetMessageAuthorOptions = {withSlackUserId: false}
   ): Promise<MessageAuthor | null> => {
-    return getMessageAuthor(octokit, slack, messageAuthorOptions)
+    return getMessageAuthor(octokit, slack, {withSlackUserId, ...options})
   }
 }
 
