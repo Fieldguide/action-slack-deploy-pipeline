@@ -48,8 +48,8 @@ async function generateMapping(
   slack: SlackClient
 ): Promise<void> {
   const org = getInput('org', {required: true})
-
   const outputPath = getInput('output_path')
+
   await generateGithubToSlackMapping(octokit, slack, org, outputPath)
   setOutput('output_path', outputPath)
 }
@@ -58,7 +58,7 @@ async function notifySlack(
   octokit: OctokitClient,
   slack: SlackClient
 ): Promise<void> {
-  const getMessageAuthor = getMessageAuthorFactory(octokit, slack)
+  const getMessageAuthor = getMessageAuthorFactory(octokit, slack, {userMappingFilepath: getInput(user_mapping_filepath)})
   const ts = await postMessage({octokit, slack, getMessageAuthor})
 
   if (ts) {

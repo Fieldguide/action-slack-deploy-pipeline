@@ -16,9 +16,13 @@ inputs:
     description: 'The current status of the job'
     required: false
     default: ${{ job.status }}
+  user_mapping_filepath:
+    description: 'Optional slack details user mapping by github login to avoid calling slack + github APIs'
+    default: ''
+    required: false
   __mode:
-    description: "Internal mode flag"
-    default: "notify"
+    description: 'Internal mode flag'
+    default: 'notify'
     required: false
 outputs:
   ts:

@@ -1,4 +1,5 @@
 import {endGroup, info, isDebug, startGroup, warning} from '@actions/core'
+import {readFileSync} from 'fs'
 import {context} from '@actions/github'
 import type {Commit} from '@octokit/webhooks-types'
 import {OctokitClient} from './github/types'
@@ -15,23 +16,52 @@ export type GetMessageAuthor = (
 interface GetMessageAuthorOptions {
   /** `false` falls back to GitHub username, skipping a conservatively rate-limited Slack API call */
   withSlackUserId: boolean
+  userMappingFilepath: string
 }
 
 export function getMessageAuthorFactory(
   octokit: OctokitClient,
-  slack: SlackClient
+  slack: SlackClient,
+  options: GetMessageAuthorOptions = {
+    withSlackUserId: false,
+    userMappingFilepath: ''
+  }
 ): GetMessageAuthor {
   return async (
-    {withSlackUserId}: GetMessageAuthorOptions = {withSlackUserId: false}
+    messageAuthorOptions: GetMessageAuthorOptions = options
   ): Promise<MessageAuthor | null> => {
-    return getMessageAuthor(octokit, slack, withSlackUserId)
+    return getMessageAuthor(octokit, slack, messageAuthorOptions)
   }
+}
+
+function getMessageAuthorFromUserMapping(
+  githubUserLogin: string,
+  userMappingFilepath: string
+): MessageAuthor | null {
+  if (!userMappingFilepath) {
+    return null
+  }
+
+  try {
+    const mapping = JSON.parse(
+      readFileSync(userMappingFilepath, 'utf-8')
+    ) as Record<string, MessageAuthor>
+
+    if (mapping[githubUserLogin]) {
+      return mapping[githubUserLogin]
+    }
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err)
+    warning(`Failed to read cache mapping: ${message}`)
+  }
+
+  return null
 }
 
 async function getMessageAuthor(
   octokit: OctokitClient,
   slack: SlackClient,
-  withSlackUserId: boolean
+  {withSlackUserId, userMappingFilepath}: GetMessageAuthorOptions
 ): Promise<MessageAuthor | null> {
   startGroup('Getting message author')
 
@@ -49,6 +79,19 @@ async function getMessageAuthor(
         username: githubSender.login,
         icon_url: githubSender.avatar_url
       }
+    }
+
+    let messageAuthor: MessageAuthor | null
+    if (userMappingFilepath && userMappingFilepath !== '') {
+      messageAuthor = getMessageAuthorFromUserMapping(
+        githubSender.login,
+        userMappingFilepath
+      )
+
+      if (messageAuthor) {
+        return messageAuthor
+      }
+      warning('No cached mapping found, fetching Slack user by GitHub name.')
     }
 
     info('Fetching Slack users')
