@@ -97,4 +97,5 @@ export async function generateGithubToSlackMapping(
   info(`Writing mapping to ${outputPath}`)
   fs.mkdirSync(outputPath.split('/')[0], {recursive: true})
   fs.writeFileSync(outputPath, JSON.stringify(mapping, null, 2))
+  info(JSON.stringify(mapping, null, 2))
 }

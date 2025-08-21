@@ -26,7 +26,7 @@ export function getMessageAuthorFactory(
   octokit: OctokitClient,
   slack: SlackClient,
   options: GetMessageAuthorFactoryOptions = {
-    userMappingFilepath: undefined
+    userMappingFilepath: ''
   }
 ): GetMessageAuthor {
   return async (
@@ -85,6 +85,7 @@ async function getMessageAuthor(
 
     let messageAuthor: MessageAuthor | null
     if (userMappingFilepath && userMappingFilepath !== '') {
+      info(`message author login is ${githubSender.login}`)
       messageAuthor = getMessageAuthorFromUserMapping(
         githubSender.login,
         userMappingFilepath

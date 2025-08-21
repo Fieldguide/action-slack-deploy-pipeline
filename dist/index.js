@@ -39690,7 +39690,7 @@ const github_1 = __nccwpck_require__(75380);
 const webhook_1 = __nccwpck_require__(45568);
 exports.GH_MERGE_QUEUE_BOT_USERNAME = 'github-merge-queue[bot]';
 function getMessageAuthorFactory(octokit, slack, options = {
-    userMappingFilepath: undefined
+    userMappingFilepath: ''
 }) {
     return (...args_1) => __awaiter(this, [...args_1], void 0, function* ({ withSlackUserId } = { withSlackUserId: false }) {
         return getMessageAuthor(octokit, slack, Object.assign({ withSlackUserId }, options));
@@ -39730,6 +39730,7 @@ function getMessageAuthor(octokit_1, slack_1, _a) {
             }
             let messageAuthor;
             if (userMappingFilepath && userMappingFilepath !== '') {
+                (0, core_1.info)(`message author login is ${githubSender.login}`);
                 messageAuthor = getMessageAuthorFromUserMapping(githubSender.login, userMappingFilepath);
                 if (messageAuthor) {
                     return messageAuthor;
@@ -40410,6 +40411,7 @@ function generateGithubToSlackMapping(octokit, slack, org, outputPath) {
         (0, core_1.info)(`Writing mapping to ${outputPath}`);
         fs.mkdirSync(outputPath.split('/')[0], { recursive: true });
         fs.writeFileSync(outputPath, JSON.stringify(mapping, null, 2));
+        (0, core_1.info)(JSON.stringify(mapping, null, 2));
     });
 }
 
