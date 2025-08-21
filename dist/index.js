@@ -40358,6 +40358,10 @@ function listOrgMembersWithNames(octokit, org) {
             org,
             per_page: 100
         });
+        if (!members || members.length === 0) {
+            (0, core_1.error)(`No members found for organization: ${org}`);
+            return [];
+        }
         const humanUsers = (yield Promise.all(members
             .filter(user => user.type === 'User')
             .map((m) => __awaiter(this, void 0, void 0, function* () {
@@ -40388,6 +40392,10 @@ function generateGithubToSlackMapping(octokit, slack, org, outputPath) {
         const githubOrgUsers = yield listOrgMembersWithNames(octokit, org);
         const githubUsersByLogin = githubOrgUsers.reduce((acc, user) => (Object.assign(Object.assign({}, acc), { [user.login]: user })), {});
         const slackUsers = yield slack.getRealUsers();
+        if (slackUsers.length === 0) {
+            (0, core_1.error)('No Slack users found. Exiting mapping generation.');
+            return;
+        }
         const mapping = {};
         for (const ghUserDetails of Object.values(githubUsersByLogin)) {
             const slackMatch = ((_a = slackUsers.filter((user) => {
