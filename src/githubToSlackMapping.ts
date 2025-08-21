@@ -3,7 +3,7 @@ import {OctokitClient} from './github/types'
 import {SlackClient} from './slack/SlackClient'
 import type {Member, MemberWithProfile} from './slack/types'
 import * as fs from 'fs'
-import {User as GithubUser} from '@octokit/webhooks-types'
+import type {User as GithubUser} from '@octokit/webhooks-types'
 
 async function listOrgMembersWithNames(
   octokit: OctokitClient,
