@@ -39685,16 +39685,35 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.GH_MERGE_QUEUE_BOT_USERNAME = void 0;
 exports.getMessageAuthorFactory = getMessageAuthorFactory;
 const core_1 = __nccwpck_require__(59999);
+const fs_1 = __nccwpck_require__(79896);
 const github_1 = __nccwpck_require__(75380);
 const webhook_1 = __nccwpck_require__(45568);
 exports.GH_MERGE_QUEUE_BOT_USERNAME = 'github-merge-queue[bot]';
-function getMessageAuthorFactory(octokit, slack) {
+function getMessageAuthorFactory(octokit, slack, options = {
+    userMappingFilepath: undefined
+}) {
     return (...args_1) => __awaiter(this, [...args_1], void 0, function* ({ withSlackUserId } = { withSlackUserId: false }) {
-        return getMessageAuthor(octokit, slack, withSlackUserId);
+        return getMessageAuthor(octokit, slack, Object.assign({ withSlackUserId }, options));
     });
 }
-function getMessageAuthor(octokit, slack, withSlackUserId) {
-    return __awaiter(this, void 0, void 0, function* () {
+function getMessageAuthorFromUserMapping(githubUserLogin, userMappingFilepath) {
+    if (!userMappingFilepath) {
+        return null;
+    }
+    try {
+        const mapping = JSON.parse((0, fs_1.readFileSync)(userMappingFilepath, 'utf-8'));
+        if (mapping[githubUserLogin]) {
+            return mapping[githubUserLogin];
+        }
+    }
+    catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        (0, core_1.warning)(`Failed to read cache mapping: ${message}`);
+    }
+    return null;
+}
+function getMessageAuthor(octokit_1, slack_1, _a) {
+    return __awaiter(this, arguments, void 0, function* (octokit, slack, { withSlackUserId, userMappingFilepath }) {
         (0, core_1.startGroup)('Getting message author');
         const githubSender = yield getGitHubSender(octokit);
         if (!githubSender) {
@@ -39708,6 +39727,14 @@ function getMessageAuthor(octokit, slack, withSlackUserId) {
                     username: githubSender.login,
                     icon_url: githubSender.avatar_url
                 };
+            }
+            let messageAuthor;
+            if (userMappingFilepath && userMappingFilepath !== '') {
+                messageAuthor = getMessageAuthorFromUserMapping(githubSender.login, userMappingFilepath);
+                if (messageAuthor) {
+                    return messageAuthor;
+                }
+                (0, core_1.warning)('No cached mapping found, fetching Slack user by GitHub name.');
             }
             (0, core_1.info)('Fetching Slack users');
             const slackUsers = yield slack.getRealUsers();
@@ -40273,6 +40300,122 @@ function senderFromPayload({ sender }) {
 
 /***/ }),
 
+/***/ 92365:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.generateGithubToSlackMapping = generateGithubToSlackMapping;
+const core_1 = __nccwpck_require__(59999);
+const fs = __importStar(__nccwpck_require__(79896));
+function listOrgMembersWithNames(octokit, org) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const members = yield octokit.paginate(octokit.rest.orgs.listMembers, {
+            org,
+            per_page: 100
+        });
+        const humanUsers = (yield Promise.all(members
+            .filter(user => user.type === 'User')
+            .map((m) => __awaiter(this, void 0, void 0, function* () {
+            const getUserResponse = yield octokit.rest.users.getByUsername({
+                username: m.login
+            });
+            if (getUserResponse.status !== 200) {
+                (0, core_1.warning)(`Failed to fetch user details for ${m.login}`);
+                return null;
+            }
+            return getUserResponse.data;
+        })))).filter(Boolean);
+        return humanUsers;
+    });
+}
+/**
+ * Fetch all GitHub users for the organization, match to Slack users, and output mapping as JSON.
+ * @param octokit OctokitClient instance
+ * @param slack SlackClient instance
+ * @param org GitHub organization name
+ * @param outputPath Path to output JSON file
+ */
+function generateGithubToSlackMapping(octokit, slack, org, outputPath) {
+    return __awaiter(this, void 0, void 0, function* () {
+        var _a, _b;
+        (0, core_1.info)(`Fetching GitHub users for org: ${org}`);
+        // Fetch from GitHub and save
+        const githubOrgUsers = yield listOrgMembersWithNames(octokit, org);
+        const githubUsersByLogin = githubOrgUsers.reduce((acc, user) => (Object.assign(Object.assign({}, acc), { [user.login]: user })), {});
+        const slackUsers = yield slack.getRealUsers();
+        const mapping = {};
+        for (const ghUserDetails of Object.values(githubUsersByLogin)) {
+            const slackMatch = ((_a = slackUsers.filter((user) => {
+                var _a, _b, _c;
+                return Boolean(((_b = (_a = user.profile) === null || _a === void 0 ? void 0 : _a.real_name) === null || _b === void 0 ? void 0 : _b.toLowerCase()) ===
+                    (ghUserDetails.name
+                        ? ghUserDetails.name.toLowerCase()
+                        : undefined) && ((_c = user.profile) === null || _c === void 0 ? void 0 : _c.display_name));
+            })) !== null && _a !== void 0 ? _a : [undefined])[0];
+            if (slackMatch !== undefined) {
+                mapping[ghUserDetails.login] = {
+                    slack_user_id: (slackMatch === null || slackMatch === void 0 ? void 0 : slackMatch.id) || '',
+                    username: (slackMatch === null || slackMatch === void 0 ? void 0 : slackMatch.profile.display_name) || '',
+                    icon_url: (slackMatch === null || slackMatch === void 0 ? void 0 : slackMatch.profile.image_48) || ''
+                };
+            }
+            else {
+                (0, core_1.warning)(`No matching Slack user found for GitHub user: ${ghUserDetails.login} (${(_b = ghUserDetails.name) !== null && _b !== void 0 ? _b : ''})`);
+            }
+        }
+        (0, core_1.info)(`Writing mapping to ${outputPath}`);
+        fs.mkdirSync(outputPath.split('/')[0], { recursive: true });
+        fs.writeFileSync(outputPath, JSON.stringify(mapping, null, 2));
+    });
+}
+
+
+/***/ }),
+
 /***/ 15229:
 /***/ ((__unused_webpack_module, exports) => {
 
@@ -40334,23 +40477,51 @@ const getMessageAuthorFactory_1 = __nccwpck_require__(50835);
 const input_1 = __nccwpck_require__(15229);
 const postMessage_1 = __nccwpck_require__(70352);
 const SlackClient_1 = __nccwpck_require__(84713);
+const githubToSlackMapping_1 = __nccwpck_require__(92365);
 run();
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
+            const mode = (0, core_1.getInput)('__mode');
             const octokit = createOctokitClient();
             const slack = createSlackClient();
-            const getMessageAuthor = (0, getMessageAuthorFactory_1.getMessageAuthorFactory)(octokit, slack);
-            const ts = yield (0, postMessage_1.postMessage)({ octokit, slack, getMessageAuthor });
-            if (ts) {
-                (0, core_1.setOutput)('ts', ts);
+            switch (mode) {
+                case 'notify':
+                    yield notifySlack(octokit, slack);
+                    break;
+                case 'generate-mapping':
+                    yield generateMapping(octokit, slack);
+                    break;
+                default:
+                    throw new Error(`Unknown mode: ${mode}. Expected 'notify' or 'generate-mapping'.`);
             }
         }
         catch (err) {
-            (0, core_1.setFailed)(err instanceof Error ? err : String(err));
+            const errMsg = err instanceof Error ? err.message : String(err);
+            (0, core_1.error)(`Error: ${errMsg}`);
+            (0, core_1.setFailed)(errMsg);
             if ((0, core_1.isDebug)() && err instanceof Error && err.stack) {
                 (0, core_1.error)(err.stack);
             }
+        }
+    });
+}
+function generateMapping(octokit, slack) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const org = (0, core_1.getInput)('org', { required: true });
+        const outputPath = (0, core_1.getInput)('output_path');
+        yield (0, githubToSlackMapping_1.generateGithubToSlackMapping)(octokit, slack, org, outputPath);
+        (0, core_1.setOutput)('output_path', outputPath);
+    });
+}
+function notifySlack(octokit, slack) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const getMessageAuthor = (0, getMessageAuthorFactory_1.getMessageAuthorFactory)(octokit, slack, {
+            userMappingFilepath: (0, core_1.getInput)('user_mapping_filepath')
+        });
+        const ts = yield (0, postMessage_1.postMessage)({ octokit, slack, getMessageAuthor });
+        if (ts) {
+            (0, core_1.setOutput)('ts', ts);
         }
     });
 }
