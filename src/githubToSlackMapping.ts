@@ -1,4 +1,4 @@
-import {info, warning} from '@actions/core'
+import {info, warning, error} from '@actions/core'
 import {OctokitClient} from './github/types'
 import {SlackClient} from './slack/SlackClient'
 import type {Member, MemberWithProfile} from './slack/types'
@@ -13,6 +13,11 @@ async function listOrgMembersWithNames(
     org,
     per_page: 100
   })
+
+  if (!members || members.length === 0) {
+    error(`No members found for organization: ${org}`)
+    return []
+  }
 
   const humanUsers = (
     await Promise.all(
@@ -60,6 +65,10 @@ export async function generateGithubToSlackMapping(
   )
 
   const slackUsers: Member[] = await slack.getRealUsers()
+  if (slackUsers.length === 0) {
+    error('No Slack users found. Exiting mapping generation.')
+    return
+  }
 
   const mapping: Record<
     string,
