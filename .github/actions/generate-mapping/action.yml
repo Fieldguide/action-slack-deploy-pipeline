@@ -1,0 +1,29 @@
+---
+name: 'Generate User Cache Mapping'
+description: 'Creates json file of slack users by github or member login'
+author: 'Fieldguide'
+inputs:
+  github_token:
+    description: 'Repository GITHUB_TOKEN or personal access token secret'
+    required: false
+    default: ${{ github.token }}
+  org:
+    description: 'name of github org to fetch user list'
+    required: true
+  output_path:
+    description: 'output of cache mapping'
+    required: false
+    default: 'data/github_to_slack.json'
+  __mode:
+    description: 'Internal mode flag'
+    default: 'generate-mapping'
+    required: false
+outputs:
+  output_path:
+    description: 'output path of json mapping of slack user details by github user'
+runs:
+  using: 'node20'
+  main: '../../../dist/index.js'
+branding:
+  icon: bell
+  color: purple

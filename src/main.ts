@@ -5,26 +5,64 @@ import {OctokitClient} from './github/types'
 import {EnvironmentVariable, getEnv, getRequiredEnv} from './input'
 import {postMessage} from './postMessage'
 import {SlackClient} from './slack/SlackClient'
+import {generateGithubToSlackMapping} from './githubToSlackMapping'
 
 run()
 
+type ModeInput = 'notify' | 'generate-mapping'
+
 async function run(): Promise<void> {
   try {
+    const mode = getInput('__mode') as ModeInput
+
     const octokit = createOctokitClient()
     const slack = createSlackClient()
 
-    const getMessageAuthor = getMessageAuthorFactory(octokit, slack)
-    const ts = await postMessage({octokit, slack, getMessageAuthor})
+    switch (mode) {
+      case 'notify':
+        await notifySlack(octokit, slack)
+        break
 
-    if (ts) {
-      setOutput('ts', ts)
+      case 'generate-mapping':
+        await generateMapping(octokit, slack)
+        break
+
+      default:
+        throw new Error(
+          `Unknown mode: ${mode}. Expected 'notify' or 'generate-mapping'.`
+        )
     }
   } catch (err) {
-    setFailed(err instanceof Error ? err : String(err))
+    const errMsg = err instanceof Error ? err.message : String(err)
+    error(`Error: ${errMsg}`)
+    setFailed(errMsg)
 
     if (isDebug() && err instanceof Error && err.stack) {
       error(err.stack)
     }
+  }
+}
+
+async function generateMapping(
+  octokit: OctokitClient,
+  slack: SlackClient
+): Promise<void> {
+  const org = getInput('org', {required: true})
+
+  const outputPath = getInput('output_path')
+  await generateGithubToSlackMapping(octokit, slack, org, outputPath)
+  setOutput('output_path', outputPath)
+}
+
+async function notifySlack(
+  octokit: OctokitClient,
+  slack: SlackClient
+): Promise<void> {
+  const getMessageAuthor = getMessageAuthorFactory(octokit, slack)
+  const ts = await postMessage({octokit, slack, getMessageAuthor})
+
+  if (ts) {
+    setOutput('ts', ts)
   }
 }
 

@@ -16,6 +16,10 @@ inputs:
     description: 'The current status of the job'
     required: false
     default: ${{ job.status }}
+  __mode:
+    description: "Internal mode flag"
+    default: "notify"
+    required: false
 outputs:
   ts:
     description: 'Slack message timestamp ID'
