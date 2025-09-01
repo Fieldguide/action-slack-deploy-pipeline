@@ -15,8 +15,8 @@ importers:
         specifier: ^6.0.1
         version: 6.0.1
       '@slack/web-api':
-        specifier: ^7.9.3
-        version: 7.9.3
+        specifier: ^7.10.0
+        version: 7.10.0
       date-fns:
         specifier: ^4.1.0
         version: 4.1.0
@@ -505,12 +505,12 @@ packages:
     resolution: {integrity: sha512-Wz7QYfPAlG/DR+DfABddUZeNgoeY7d1J39OCR2jR+v7VBsB8ezulDK5szTnDDPDwLH5IWhLvXIHlCFZV7MSKgA==}
     engines: {node: '>= 18', npm: '>= 8.6.0'}
 
-  '@slack/types@2.15.0':
-    resolution: {integrity: sha512-livb1gyG3J8ATLBJ3KjZfjHpTRz9btY1m5cgNuXxWJbhwRB1Gwb8Ly6XLJm2Sy1W6h+vLgqIHg7IwKrF1C1Szg==}
+  '@slack/types@2.16.0':
+    resolution: {integrity: sha512-bICnyukvdklXhwxprR3uF1+ZFkTvWTZge4evlCS4G1H1HU6QLY68AcjqzQRymf7/5gNt6Y4OBb4NdviheyZcAg==}
     engines: {node: '>= 12.13.0', npm: '>= 6.12.0'}
 
-  '@slack/web-api@7.9.3':
-    resolution: {integrity: sha512-xjnoldVJyoUe61Ltqjr2UVYBolcsTpp5ottqzSI3l41UCaJgHSHIOpGuYps+nhLFvDfGGpDGUeQ7BWiq3+ypqA==}
+  '@slack/web-api@7.10.0':
+    resolution: {integrity: sha512-kT+07JvOqpYH3b/ttVo3iqKIFiHV2NKmD6QUc/F7HrjCgSdSA10zxqi0euXEF2prB49OU7SfjadzQ0WhNc7tiw==}
     engines: {node: '>= 18', npm: '>= 8.6.0'}
 
   '@tybys/wasm-util@0.10.0':
@@ -3102,12 +3102,12 @@ snapshots:
     dependencies:
       '@types/node': 20.12.11
 
-  '@slack/types@2.15.0': {}
+  '@slack/types@2.16.0': {}
 
-  '@slack/web-api@7.9.3':
+  '@slack/web-api@7.10.0':
     dependencies:
       '@slack/logger': 4.0.0
-      '@slack/types': 2.15.0
+      '@slack/types': 2.16.0
       '@types/node': 20.12.11
       '@types/retry': 0.12.0
       axios: 1.11.0
