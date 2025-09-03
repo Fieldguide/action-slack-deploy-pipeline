@@ -27,8 +27,9 @@ async function notifySlack(
   octokit: OctokitClient,
   slack: SlackClient
 ): Promise<void> {
+  const rawMapping = process.env.SLACK_GITHUB_MAPPING_RAW || ''
   const getMessageAuthor = getMessageAuthorFactory(octokit, slack, {
-    userMappingFilepath: getInput('user_mapping_filepath')
+    rawMapping
   })
   const ts = await postMessage({octokit, slack, getMessageAuthor})
   if (ts) {

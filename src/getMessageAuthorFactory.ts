@@ -19,14 +19,14 @@ interface GetMessageAuthorOptions extends GetMessageAuthorFactoryOptions {
 }
 
 interface GetMessageAuthorFactoryOptions {
-  userMappingFilepath?: string
+  rawMapping?: string
 }
 
 export function getMessageAuthorFactory(
   octokit: OctokitClient,
   slack: SlackClient,
   options: GetMessageAuthorFactoryOptions = {
-    userMappingFilepath: ''
+    rawMapping: ''
   }
 ): GetMessageAuthor {
   return async (
@@ -36,34 +36,43 @@ export function getMessageAuthorFactory(
   }
 }
 
-function getMessageAuthorFromUserMapping(
+function getMessageAuthorFromRawMapping(
   githubUserLogin: string,
-  userMappingFilepath: string
+  rawMapping: string
 ): MessageAuthor | null {
-  if (!userMappingFilepath) {
+  if (!rawMapping) {
     return null
   }
-
   try {
-    const mapping = JSON.parse(
-      readFileSync(userMappingFilepath, 'utf-8')
-    ) as Record<string, MessageAuthor>
-
+    // Try JSON first
+    let mapping: Record<string, MessageAuthor> = {}
+    if (rawMapping.trim().startsWith('{')) {
+      mapping = JSON.parse(rawMapping) as Record<string, MessageAuthor>
+    } else {
+      // Try YAML if not JSON
+      // Only attempt if yaml is available
+      try {
+        // @ts-ignore
+        const yaml = require('js-yaml')
+        mapping = yaml.load(rawMapping) as Record<string, MessageAuthor>
+      } catch (yamlErr) {
+        warning('Failed to parse mapping as YAML.')
+      }
+    }
     if (mapping[githubUserLogin]) {
       return mapping[githubUserLogin]
     }
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
-    warning(`Failed to read cache mapping: ${message}`)
+    warning(`Failed to parse raw mapping: ${message}`)
   }
-
   return null
 }
 
 async function getMessageAuthor(
   octokit: OctokitClient,
   slack: SlackClient,
-  {withSlackUserId, userMappingFilepath}: GetMessageAuthorOptions
+  {withSlackUserId, rawMapping}: GetMessageAuthorOptions
 ): Promise<MessageAuthor | null> {
   startGroup('Getting message author')
 
@@ -84,13 +93,12 @@ async function getMessageAuthor(
     }
 
     let messageAuthor: MessageAuthor | null
-    if (userMappingFilepath && userMappingFilepath !== '') {
+    if (rawMapping && rawMapping !== '') {
       info(`message author login is ${githubSender.login}`)
-      messageAuthor = getMessageAuthorFromUserMapping(
+      messageAuthor = getMessageAuthorFromRawMapping(
         githubSender.login,
-        userMappingFilepath
+        rawMapping
       )
-
       if (messageAuthor) {
         return messageAuthor
       }

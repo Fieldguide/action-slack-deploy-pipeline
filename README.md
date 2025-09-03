@@ -47,6 +47,9 @@ env:
   SLACK_DEPLOY_CHANNEL: 'C040YVCUDRR' # required - replace with your Slack Channel ID
   SLACK_DEPLOY_ERROR_REACTION: 'x' # optional emoji name added as non-successful summary message reaction
 
+  # Optional: Provide raw mapping of GitHub login to Slack user details as JSON or YAML
+  SLACK_GITHUB_MAPPING_RAW: ${{ secrets.SLACK_GITHUB_MAPPING_RAW }} # optional, see below
+
 jobs:
   staging:
     runs-on: ubuntu-latest
@@ -97,6 +100,7 @@ jobs:
 | `SLACK_DEPLOY_BOT_TOKEN`      | **Required** Slack bot user OAuth token |
 | `SLACK_DEPLOY_CHANNEL`        | **Required** Slack channel ID           |
 | `SLACK_DEPLOY_ERROR_REACTION` | Optional Slack emoji name               |
+| `SLACK_GITHUB_MAPPING_RAW`    | Optional: Raw mapping (JSON or YAML) of Slack user details by GitHub login. If set, avoids Slack/GitHub API calls for user mapping. |
 
 ## Inputs
 
@@ -106,6 +110,29 @@ jobs:
 | `conclusion`   | `true` denotes last stage                                                                                                                                                |
 | `github_token` | Repository `GITHUB_TOKEN` or personal access token secret; defaults to [`github.token`](https://docs.github.com/en/actions/learn-github-actions/contexts#github-context) |
 | `status`       | The current status of the job; defaults to [`job.status`](https://docs.github.com/en/actions/learn-github-actions/contexts#job-context)                                  |
+
+### User Mapping (Optional)
+
+To avoid Slack and GitHub API calls for mapping GitHub users to Slack users, you can provide a raw mapping as a JSON or YAML string in the `SLACK_GITHUB_MAPPING_RAW` environment variable. The mapping should be an object keyed by GitHub login, with Slack user details as values. Example:
+
+```json
+{
+  "octocat": {
+    "slack_user_id": "U12345678",
+    "username": "Octo Cat",
+    "icon_url": "https://avatars.slack-edge.com/...
+  }
+}
+```
+
+Or YAML:
+
+```yaml
+octocat:
+  slack_user_id: U12345678
+  username: Octo Cat
+  icon_url: https://avatars.slack-edge.com/...
+```
 
 ## Outputs
 
