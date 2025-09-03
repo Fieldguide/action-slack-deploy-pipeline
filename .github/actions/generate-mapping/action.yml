@@ -15,8 +15,8 @@ inputs:
     required: false
     default: 'data/github_to_slack.json'
 outputs:
-  output_path:
-    description: 'output path of json mapping of slack user details by github user'
+  raw_mapping_json:
+    description: 'Raw JSON mapping of Slack user details by GitHub user'
 runs:
   using: 'node20'
   main: '../../../dist/generateMapping/index.js'

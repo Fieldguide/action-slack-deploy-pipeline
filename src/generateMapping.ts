@@ -27,9 +27,8 @@ async function generateMapping(
   slack: SlackClient
 ): Promise<void> {
   const org = getInput('org', {required: true})
-  const outputPath = getInput('output_path')
-  await generateGithubToSlackMapping(octokit, slack, org, outputPath)
-  setOutput('output_path', outputPath)
+  const mappingJson = await generateGithubToSlackMapping(octokit, slack, org)
+  setOutput('raw_mapping_json', mappingJson)
 }
 
 function createSlackClient(): SlackClient {

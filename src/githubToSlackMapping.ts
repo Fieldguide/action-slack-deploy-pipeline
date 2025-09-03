@@ -49,9 +49,8 @@ async function listOrgMembersWithNames(
 export async function generateGithubToSlackMapping(
   octokit: OctokitClient,
   slack: SlackClient,
-  org: string,
-  outputPath: string
-): Promise<void> {
+  org: string
+): Promise<string> {
   info(`Fetching GitHub users for org: ${org}`)
 
   // Fetch from GitHub and save
@@ -67,7 +66,7 @@ export async function generateGithubToSlackMapping(
   const slackUsers: Member[] = await slack.getRealUsers()
   if (slackUsers.length === 0) {
     error('No Slack users found. Exiting mapping generation.')
-    return
+    return '{}'
   }
 
   const mapping: Record<
@@ -103,8 +102,8 @@ export async function generateGithubToSlackMapping(
     }
   }
 
-  info(`Writing mapping to ${outputPath}`)
-  fs.mkdirSync(outputPath.split('/')[0], {recursive: true})
-  fs.writeFileSync(outputPath, JSON.stringify(mapping, null, 2))
-  info(JSON.stringify(mapping, null, 2))
+  info(`Returning mapping as raw JSON string`)
+  const mappingJson = JSON.stringify(mapping, null, 2)
+  info(mappingJson)
+  return mappingJson
 }
