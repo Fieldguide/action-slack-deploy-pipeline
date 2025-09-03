@@ -14,16 +14,12 @@ inputs:
     description: 'output of cache mapping'
     required: false
     default: 'data/github_to_slack.json'
-  __mode:
-    description: 'Internal mode flag'
-    default: 'generate-mapping'
-    required: false
 outputs:
   output_path:
     description: 'output path of json mapping of slack user details by github user'
 runs:
   using: 'node20'
-  main: '../../../dist/index.js'
+  main: '../../../dist/generateMapping/index.js'
 branding:
   icon: bell
   color: purple

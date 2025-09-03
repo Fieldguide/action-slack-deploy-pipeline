@@ -20,16 +20,12 @@ inputs:
     description: 'Optional slack details user mapping by github login to avoid calling slack + github APIs'
     default: ''
     required: false
-  __mode:
-    description: 'Internal mode flag'
-    default: 'notify'
-    required: false
 outputs:
   ts:
     description: 'Slack message timestamp ID'
 runs:
   using: 'node20'
-  main: 'dist/index.js'
+  main: 'dist/notify/index.js'
 branding:
   icon: bell
   color: purple

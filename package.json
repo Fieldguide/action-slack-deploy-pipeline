@@ -22,22 +22,24 @@
     "progress"
   ],
   "exports": {
-    ".": "./dist/index.js"
+    "notify": "./dist/notify/index.js",
+    "generateMapping": "./dist/generateMapping/index.js"
   },
   "engines": {
     "node": ">=20"
   },
   "packageManager": "pnpm@10.12.4",
   "scripts": {
-    "dev": "pnpm package --watch",
-    "bundle": "pnpm format:write && pnpm package",
+    "dev": "pnpm package:notify --watch & pnpm package:generateMapping --watch",
+    "bundle": "pnpm format:write && pnpm package:notify && pnpm package:generateMapping",
     "format:write": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint . --ext .ts",
-    "package": "ncc build src/main.ts --license licenses.txt",
+    "package:notify": "ncc build src/notify.ts -o dist/notify --license licenses.txt",
+    "package:generateMapping": "ncc build src/generateMapping.ts -o dist/generateMapping --license licenses.txt",
     "test": "jest --watch",
     "test:ci": "jest",
-    "all": "pnpm format:check && pnpm lint && pnpm test:ci && pnpm package"
+    "all": "pnpm format:check && pnpm lint && pnpm test:ci && pnpm package:notify && pnpm package:generateMapping"
   },
   "license": "MIT",
   "dependencies": {
