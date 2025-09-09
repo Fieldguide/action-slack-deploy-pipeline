@@ -1,54 +1,61 @@
-[![ci](https://github.com/Fieldguide/action-slack-deploy-pipeline/actions/workflows/ci.yml/badge.svg)](https://github.com/Fieldguide/action-slack-deploy-pipeline/actions/workflows/ci.yml)
-
 # Slack Deploy Pipeline Notifications
 
-Post [GitHub Action](https://github.com/features/actions) deploy workflow progress notifications to [Slack](https://slack.com/).
-
-<br />
+[![ci](https://github.com/Fieldguide/action-slack-deploy-pipeline/actions/workflows/ci.yml/badge.svg)](https://github.com/Fieldguide/action-slack-deploy-pipeline/actions/workflows/ci.yml)
 
 <img width="524" alt="Slack Deploy Pipeline Notifications example thread" src="https://user-images.githubusercontent.com/847532/230737887-1d18a062-af7f-4c7f-a78c-e604fc9803c2.jpg">
 
+## Table of Contents
+
+- [Features](#features)
+- [Slack Notify Workflow](#slack-notify-workflow)
+- [Generate Mapping Workflow](#generate-mapping-workflow)
+- [Environment Variables](#environment-variables)
+- [Inputs](#inputs)
+- [Outputs](#outputs)
+- [User Mapping](#user-mapping-optional)
+
+---
+
 ## Features
 
-- Posts summary message at beginning of the deploy workflow, surfacing commit message and author
+- Posts a summary message at the beginning of the deploy workflow, surfacing the commit message and author
 - Maps GitHub actor to Slack user by full name, mentioning them in the summary message
-- Threads intermediate stage completions, sending unexpected failures back to the channel
+- Threads intermediate stage completions, notifies the channel of unexpected failures
 - Adds summary message reaction to unsuccessful jobs (useful with [Reacji Channeler](https://reacji-channeler.builtbyslack.com/))
-- Updates summary message duration at conclusion of the workflow
-- Supports `pull_request`, `push`, `release`, `schedule`, and `workflow_dispatch` [event types](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows)
+- Updates the summary message with the workflow duration at its conclusion
+- Supports [`pull_request`, `push`, `release`, `schedule`, and `workflow_dispatch`](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows) event types
 
-## Setup
+---
+
+## Slack Notify Workflow
+
+### Setup
 
 1. [Create a Slack App](https://api.slack.com/apps) for your workspace
-1. Under **OAuth & Permissions**, add two Bot Token Scopes:
-   1. [`chat:write`](https://api.slack.com/scopes/chat:write) to post messages
-   1. [`chat:write.customize`](https://api.slack.com/scopes/chat:write.customize) to customize messages with GitHub actor
-   1. [`reactions:write`](https://api.slack.com/scopes/reactions:write) to add summary message error reactions
-   1. [`users:read`](https://api.slack.com/scopes/users:read) to map GitHub user to Slack user
-1. Install the app to your workspace
-1. Copy the app's **Bot User OAuth Token** from the **OAuth & Permissions** page
-1. [Create a GitHub secret](https://docs.github.com/en/actions/security-guides/encrypted-secrets) with this token, named `SLACK_DEPLOY_BOT_TOKEN`
-1. Invite the bot user into the Slack channel you will post messages to (`/invite @bot_user_name`)
-1. Click the Slack channel name in the header, and copy its **Channel ID** from the bottom of the dialog
+2. Under **OAuth & Permissions**, add Bot Token Scopes:
+   - [`chat:write`](https://api.slack.com/scopes/chat:write) to post messages
+   - [`chat:write.customize`](https://api.slack.com/scopes/chat:write.customize) to customize messages with GitHub actor
+   - [`reactions:write`](https://api.slack.com/scopes/reactions:write) to add summary message error reactions
+   - [`users:read`](https://api.slack.com/scopes/users:read) to map GitHub user to Slack user
+3. Install the app to your workspace
+4. Copy the app's **Bot User OAuth Token** from the **OAuth & Permissions** page
+5. [Create a GitHub secret](https://docs.github.com/en/actions/security-guides/encrypted-secrets) with this token, named `SLACK_DEPLOY_BOT_TOKEN`
+6. Invite the bot user into the Slack channel you will post messages to (`/invite @bot_user_name`)
+7. Click the Slack channel name in the header, and copy its **Channel ID** from the bottom of the dialog
 
-## Usage
+### Minimal Example
 
 ```yaml
 name: Deploy
-
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
-# 1. Configure environment variables
 env:
-  SLACK_DEPLOY_BOT_TOKEN: ${{ secrets.SLACK_DEPLOY_BOT_TOKEN }} # required
-  SLACK_DEPLOY_CHANNEL: 'C040YVCUDRR' # required - replace with your Slack Channel ID
-  SLACK_DEPLOY_ERROR_REACTION: 'x' # optional emoji name added as non-successful summary message reaction
-
-  # Optional: Provide raw mapping of GitHub login to Slack user details as JSON or YAML
-  SLACK_GITHUB_MAPPING_RAW: ${{ secrets.SLACK_GITHUB_MAPPING_RAW }} # optional, see below
+  SLACK_DEPLOY_BOT_TOKEN: ${{ secrets.SLACK_DEPLOY_BOT_TOKEN }}
+  SLACK_DEPLOY_CHANNEL: 'C040YVCUDRR' # replace with your Slack Channel ID
 
 jobs:
   staging:
@@ -56,16 +63,14 @@ jobs:
     outputs:
       slack_ts: ${{ steps.slack.outputs.ts }}
     steps:
-      # 2. Post summary message at the beginning of your workflow
-      - name: Post to Slack
+      - name: Post summary message to Slack
         uses: Fieldguide/action-slack-deploy-pipeline@v2
         id: slack
 
       - name: Deploy to staging
         run: sleep 10 # replace with your deploy steps
 
-      # 3. Post threaded stage updates throughout
-      - name: Post to Slack
+      - name: Post threaded stage update
         uses: Fieldguide/action-slack-deploy-pipeline@v2
         if: always()
         with:
@@ -79,8 +84,7 @@ jobs:
       - name: Deploy to production
         run: sleep 5 # replace with your deploy steps
 
-      # 4. Post last "conclusion" stage
-      - name: Post to Slack
+      - name: Post conclusion to Slack
         uses: Fieldguide/action-slack-deploy-pipeline@v2
         if: always()
         with:
@@ -88,30 +92,74 @@ jobs:
           conclusion: true
 ```
 
-1. Configure required `SLACK_DEPLOY_BOT_TOKEN` and `SLACK_DEPLOY_CHANNEL` [environment variables](https://docs.github.com/en/actions/learn-github-actions/environment-variables).
-1. Use this action at the beginning of your workflow to post a "Deploying" message in your configured channel.
-1. As your workflow progresses, use this action with the `thread_ts` input to post threaded replies.
-1. Denote the last step with the `conclusion` input to update the initial message's status.
+---
+
+## Generate Mapping Workflow
+
+You can provide a raw mapping of GitHub logins to Slack user details to avoid Slack and GitHub API calls for user mapping. This can be done manually, or generated automatically using the included mapping action.
+
+### Generate Mapping Automatically
+
+Use the included composite action to generate a mapping of Slack users by GitHub login:
+
+```yaml
+name: Generate Slack User Mapping
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+env:
+  SLACK_DEPLOY_BOT_TOKEN: ${{ secrets.SLACK_DEPLOY_BOT_TOKEN }}
+  SLACK_DEPLOY_CHANNEL: 'C040YVCUDRR' # replace with your Slack Channel ID
+jobs:
+  generate-mapping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate mapping
+        uses: Fieldguide/action-slack-deploy-pipeline/.github/actions/generate-mapping
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          org: your-org-name
+        id: mapping
+      - name: Use mapping in deploy workflow
+        env:
+          SLACK_GITHUB_MAPPING_RAW: ${{ steps.mapping.outputs.raw_mapping_json }}
+        run: echo "$SLACK_GITHUB_MAPPING_RAW"
+```
+
+You can then pass `SLACK_GITHUB_MAPPING_RAW` to your deploy workflow as shown above.
+
+---
 
 ## Environment Variables
 
-| variable                      | description                             |
-| ----------------------------- | --------------------------------------- |
-| `SLACK_DEPLOY_BOT_TOKEN`      | **Required** Slack bot user OAuth token |
-| `SLACK_DEPLOY_CHANNEL`        | **Required** Slack channel ID           |
-| `SLACK_DEPLOY_ERROR_REACTION` | Optional Slack emoji name               |
-| `SLACK_GITHUB_MAPPING_RAW`    | Optional: Raw mapping (JSON or YAML) of Slack user details by GitHub login. If set, avoids Slack/GitHub API calls for user mapping. |
+| Variable                      | Description                                                                                                                                                                                  |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `SLACK_DEPLOY_BOT_TOKEN`      | **Required** Slack bot user OAuth token                                                                                                                                                      |
+| `SLACK_DEPLOY_CHANNEL`        | **Required** Slack channel ID                                                                                                                                                                |
+| `SLACK_DEPLOY_ERROR_REACTION` | Optional Slack emoji name                                                                                                                                                                    |
+| `SLACK_GITHUB_MAPPING_RAW`    | Optional: Raw mapping (JSON or YAML) of Slack user details by GitHub login. If set, avoids Slack/GitHub API calls for user mapping. Can be generated automatically using the mapping action. |
 
 ## Inputs
 
-| input          | description                                                                                                                                                              |
+| Input          | Description                                                                                                                                                              |
 | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `thread_ts`    | Initial Slack message timestamp ID                                                                                                                                       |
 | `conclusion`   | `true` denotes last stage                                                                                                                                                |
 | `github_token` | Repository `GITHUB_TOKEN` or personal access token secret; defaults to [`github.token`](https://docs.github.com/en/actions/learn-github-actions/contexts#github-context) |
 | `status`       | The current status of the job; defaults to [`job.status`](https://docs.github.com/en/actions/learn-github-actions/contexts#job-context)                                  |
 
-### User Mapping (Optional)
+## Outputs
+
+| Output             | Description                                           |
+| ------------------ | ----------------------------------------------------- |
+| `ts`               | Slack message timestamp ID                            |
+| `raw_mapping_json` | Raw JSON mapping of Slack user details by GitHub user |
+
+---
+
+## User Mapping (Optional)
 
 To avoid Slack and GitHub API calls for mapping GitHub users to Slack users, you can provide a raw mapping as a JSON or YAML string in the `SLACK_GITHUB_MAPPING_RAW` environment variable. The mapping should be an object keyed by GitHub login, with Slack user details as values. Example:
 
@@ -120,7 +168,7 @@ To avoid Slack and GitHub API calls for mapping GitHub users to Slack users, you
   "octocat": {
     "slack_user_id": "U12345678",
     "username": "Octo Cat",
-    "icon_url": "https://avatars.slack-edge.com/...
+    "icon_url": "https://avatars.slack-edge.com/..."
   }
 }
 ```
@@ -134,8 +182,4 @@ octocat:
   icon_url: https://avatars.slack-edge.com/...
 ```
 
-## Outputs
-
-| output | description                |
-| ------ | -------------------------- |
-| `ts`   | Slack message timestamp ID |
+You can generate this mapping automatically using the included mapping action, and pass its output to your deploy workflow as `SLACK_GITHUB_MAPPING_RAW`.
