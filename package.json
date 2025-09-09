@@ -46,12 +46,14 @@
     "@actions/core": "^1.11.1",
     "@actions/github": "^6.0.1",
     "@slack/web-api": "^7.9.3",
-    "date-fns": "^4.1.0"
+    "date-fns": "^4.1.0",
+    "js-yaml": "^4.1.0"
   },
   "devDependencies": {
     "@jest/globals": "^30.0.5",
     "@octokit/types": "^14.1.0",
     "@octokit/webhooks-types": "^7.6.1",
+    "@types/js-yaml": "^4.0.9",
     "@types/node": "^20.12.11",
     "@typescript-eslint/parser": "^7.9.0",
     "@vercel/ncc": "^0.38.3",

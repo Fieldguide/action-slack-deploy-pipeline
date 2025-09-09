@@ -1,11 +1,11 @@
 import {endGroup, info, isDebug, startGroup, warning} from '@actions/core'
-import {readFileSync} from 'fs'
 import {context} from '@actions/github'
 import type {Commit} from '@octokit/webhooks-types'
 import {OctokitClient} from './github/types'
 import {GitHubSender, isPushEvent, senderFromPayload} from './github/webhook'
 import {SlackClient} from './slack/SlackClient'
 import {MemberWithProfile, MessageAuthor} from './slack/types'
+import * as yaml from 'js-yaml'
 
 export const GH_MERGE_QUEUE_BOT_USERNAME = 'github-merge-queue[bot]'
 
@@ -49,11 +49,7 @@ function getMessageAuthorFromRawMapping(
     if (rawMapping.trim().startsWith('{')) {
       mapping = JSON.parse(rawMapping) as Record<string, MessageAuthor>
     } else {
-      // Try YAML if not JSON
-      // Only attempt if yaml is available
       try {
-        // @ts-ignore
-        const yaml = require('js-yaml')
         mapping = yaml.load(rawMapping) as Record<string, MessageAuthor>
       } catch (yamlErr) {
         warning('Failed to parse mapping as YAML.')
