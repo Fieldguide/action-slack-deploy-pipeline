@@ -2,7 +2,6 @@ import {info, warning, error} from '@actions/core'
 import {OctokitClient} from './github/types'
 import {SlackClient} from './slack/SlackClient'
 import type {Member, MemberWithProfile} from './slack/types'
-import * as fs from 'fs'
 import type {User as GithubUser} from '@octokit/webhooks-types'
 
 async function listOrgMembersWithNames(
@@ -102,8 +101,6 @@ export async function generateGithubToSlackMapping(
     }
   }
 
-  info(`Returning mapping as raw JSON string`)
   const mappingJson = JSON.stringify(mapping, null, 2)
-  info(mappingJson)
   return mappingJson
 }

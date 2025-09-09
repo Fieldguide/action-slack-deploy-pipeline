@@ -39811,9 +39811,7 @@ function generateGithubToSlackMapping(octokit, slack, org) {
                 (0, core_1.warning)(`No matching Slack user found for GitHub user: ${ghUserDetails.login} (${(_b = ghUserDetails.name) !== null && _b !== void 0 ? _b : ''})`);
             }
         }
-        (0, core_1.info)(`Returning mapping as raw JSON string`);
         const mappingJson = JSON.stringify(mapping, null, 2);
-        (0, core_1.info)(mappingJson);
         return mappingJson;
     });
 }
