@@ -7,6 +7,7 @@ import {
   type MessageAuthor
 } from './slack/types'
 import type {User as GithubUser} from '@octokit/webhooks-types'
+import {getSlackUserFromGithubName} from './getMessageAuthorFactory'
 
 async function listOrgMembersWithNames(
   octokit: OctokitClient,
@@ -76,20 +77,21 @@ export async function generateGithubToSlackMapping(
 
   const membersWithProfile = slackUsers.filter(isMemberWithProfile)
 
-  for (const ghUserDetails of Object.values(githubUsersByLogin)) {
-    const slackMatch = membersWithProfile.find(
-      user => user.profile.real_name === ghUserDetails.name
+  for (const githubUser of Object.values(githubUsersByLogin)) {
+    const slackMatch = getSlackUserFromGithubName(
+      githubUser.name as string,
+      membersWithProfile
     )
 
     if (slackMatch !== undefined) {
-      mapping[ghUserDetails.login] = {
+      mapping[githubUser.login] = {
         slack_user_id: slackMatch?.id || '',
         username: slackMatch?.profile.display_name || '',
         icon_url: slackMatch?.profile.image_48 || ''
       }
     } else {
       warning(
-        `No matching Slack user found for GitHub user: ${ghUserDetails.login} (${ghUserDetails.name ?? ''})`
+        `No matching Slack user found for GitHub user: ${githubUser.login} (${githubUser.name ?? ''})`
       )
     }
   }

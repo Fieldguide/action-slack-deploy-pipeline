@@ -11,11 +11,7 @@ export interface MemberWithProfile extends Member {
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export function isMemberWithProfile(user: any): user is MemberWithProfile {
-  return (
-    user?.profile?.real_name !== null &&
-    user?.profile?.display_name != null &&
-    user?.profile?.image_48 != null
-  )
+  return user?.profile?.display_name != null && user?.profile?.image_48 != null
 }
 
 /**

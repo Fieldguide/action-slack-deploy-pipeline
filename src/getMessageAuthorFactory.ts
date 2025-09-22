@@ -1,4 +1,5 @@
 import {
+  debug,
   endGroup,
   error,
   info,
@@ -14,6 +15,7 @@ import {SlackClient} from './slack/SlackClient'
 import {
   isMemberWithProfile,
   isMessageAuthor,
+  MemberWithProfile,
   MessageAuthor
 } from './slack/types'
 import * as yaml from 'js-yaml'
@@ -33,11 +35,37 @@ interface GetMessageAuthorFactoryOptions {
   githubUserMapping?: string | null
 }
 
+export function getSlackUserFromGithubName(
+  githubUsername: string,
+  slackProfileMembers: MemberWithProfile[]
+): MemberWithProfile {
+  debug(`Finding Slack user by name: ${githubUsername}`)
+  const matchingSlackUsers = slackProfileMembers.filter(
+    user => user.profile.real_name === githubUsername
+  )
+
+  const matchingSlackUser = matchingSlackUsers[0]
+
+  if (!matchingSlackUser) {
+    throw new Error(
+      `Unable to match GitHub user "${githubUsername}" to Slack user by name.`
+    )
+  }
+
+  if (matchingSlackUsers.length > 1) {
+    throw new Error(
+      `${matchingSlackUsers.length} Slack users match GitHub user name "${githubUsername}".`
+    )
+  }
+
+  return matchingSlackUser
+}
+
 export function getMessageAuthorFactory(
   octokit: OctokitClient,
   slack: SlackClient,
   options: GetMessageAuthorFactoryOptions = {
-    githubUserMapping: ''
+    githubUserMapping: undefined
   }
 ): GetMessageAuthor {
   return async (
@@ -121,17 +149,10 @@ async function getMessageAuthor(
     ).data
 
     const membersWithProfile = slackUsers.filter(isMemberWithProfile)
-
-    info(`Finding Slack user by name: ${githubUser.name}`)
-    const matchingSlackUser = membersWithProfile.find(
-      user => user.profile.real_name === githubUser.name
+    const matchingSlackUser = getSlackUserFromGithubName(
+      githubUser.name as string,
+      membersWithProfile
     )
-
-    if (!matchingSlackUser) {
-      throw new Error(
-        `Unable to match GitHub user "${githubUser.name}" to Slack user by name.`
-      )
-    }
 
     return {
       slack_user_id: matchingSlackUser.id,
