@@ -122,10 +122,13 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           org: your-org-name
         id: mapping
-      - name: Use mapping in deploy workflow
+
+        # Use mapping in deploy workflow
+      - name: Post to Slack
+        uses: Fieldguide/action-slack-deploy-pipeline@main
+        id: slack
         env:
-          SLACK_DEPLOY_GITHUB_USERS: ${{ steps.mapping.outputs.raw_mapping_json }}
-        run: echo "$SLACK_DEPLOY_GITHUB_USERS"
+          SLACK_DEPLOY_GITHUB_USERS: ${{ steps.generate-mapping.outputs.raw_mapping_json }}
 ```
 
 You can then pass `SLACK_GITHUB_MAPPING_RAW` to your deploy workflow as shown above.
