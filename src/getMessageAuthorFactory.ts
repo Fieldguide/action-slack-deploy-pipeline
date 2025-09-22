@@ -75,6 +75,23 @@ export function getMessageAuthorFactory(
   }
 }
 
+function maybeGetMessageAuthorFromGithubUserMapping(
+  githubUserLogin: string,
+  githubUserMapping: string | null | undefined
+): MessageAuthor | null {
+  const hasMapping = githubUserMapping && githubUserMapping !== undefined
+
+  if (hasMapping) {
+    return getMessageAuthorFromGithubUserMapping(
+      githubUserLogin,
+      githubUserMapping
+    )
+  }
+
+  warning('No cached mapping found, fetching Slack user by GitHub name.')
+  return null
+}
+
 function getMessageAuthorFromGithubUserMapping(
   githubUserLogin: string,
   githubUserMapping: string
@@ -126,16 +143,13 @@ async function getMessageAuthor(
       }
     }
 
-    let messageAuthor: MessageAuthor | null
-    if (githubUserMapping && githubUserMapping !== '') {
-      messageAuthor = getMessageAuthorFromGithubUserMapping(
-        githubSender.login,
-        githubUserMapping
-      )
-      if (messageAuthor) {
-        return messageAuthor
-      }
-      warning('No cached mapping found, fetching Slack user by GitHub name.')
+    const messageAuthor = maybeGetMessageAuthorFromGithubUserMapping(
+      githubSender.login,
+      githubUserMapping
+    )
+
+    if (messageAuthor) {
+      return messageAuthor
     }
 
     info('Fetching Slack users')
