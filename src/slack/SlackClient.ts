@@ -44,10 +44,11 @@ export class SlackClient {
         throw new Error('Error fetching users')
       }
 
-      return members.filter(({id, is_bot}) => {
+      return members.filter(({id, is_bot, deleted}) => {
         return (
           'USLACKBOT' !== id && // USLACKBOT is a special user ID for @SlackBot
-          !is_bot
+          !is_bot &&
+          (deleted === false || deleted === undefined)
         )
       })
     } catch (error) {
