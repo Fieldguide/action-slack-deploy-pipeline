@@ -1,10 +1,21 @@
-import {endGroup, info, isDebug, startGroup, warning} from '@actions/core'
+import {
+  endGroup,
+  error,
+  info,
+  isDebug,
+  startGroup,
+  warning
+} from '@actions/core'
 import {context} from '@actions/github'
 import type {Commit} from '@octokit/webhooks-types'
 import {OctokitClient} from './github/types'
 import {GitHubSender, isPushEvent, senderFromPayload} from './github/webhook'
 import {SlackClient} from './slack/SlackClient'
-import {MemberWithProfile, MessageAuthor} from './slack/types'
+import {
+  isMemberWithProfile,
+  isMessageAuthor,
+  MessageAuthor
+} from './slack/types'
 import * as yaml from 'js-yaml'
 
 export const GH_MERGE_QUEUE_BOT_USERNAME = 'github-merge-queue[bot]'
@@ -19,14 +30,14 @@ interface GetMessageAuthorOptions extends GetMessageAuthorFactoryOptions {
 }
 
 interface GetMessageAuthorFactoryOptions {
-  rawMapping?: string
+  githubUserMapping?: string | null
 }
 
 export function getMessageAuthorFactory(
   octokit: OctokitClient,
   slack: SlackClient,
   options: GetMessageAuthorFactoryOptions = {
-    rawMapping: ''
+    githubUserMapping: ''
   }
 ): GetMessageAuthor {
   return async (
@@ -36,39 +47,38 @@ export function getMessageAuthorFactory(
   }
 }
 
-function getMessageAuthorFromRawMapping(
+function getMessageAuthorFromGithubUserMapping(
   githubUserLogin: string,
-  rawMapping: string
+  githubUserMapping: string
 ): MessageAuthor | null {
-  if (!rawMapping) {
+  if (!githubUserMapping) {
     return null
   }
-  try {
-    // Try JSON first
-    let mapping: Record<string, MessageAuthor> = {}
-    if (rawMapping.trim().startsWith('{')) {
-      mapping = JSON.parse(rawMapping) as Record<string, MessageAuthor>
-    } else {
-      try {
-        mapping = yaml.load(rawMapping) as Record<string, MessageAuthor>
-      } catch (yamlErr) {
-        warning('Failed to parse mapping as YAML.')
-      }
-    }
-    if (mapping[githubUserLogin]) {
-      return mapping[githubUserLogin]
-    }
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err)
-    warning(`Failed to parse raw mapping: ${message}`)
+  // Try JSON first
+  let mapping: Record<string, MessageAuthor> = {}
+  if (githubUserMapping.trim().startsWith('{')) {
+    mapping = JSON.parse(githubUserMapping) as Record<string, MessageAuthor>
+  } else {
+    mapping = yaml.load(githubUserMapping) as Record<string, MessageAuthor>
   }
+
+  // validate mapping shape
+  const isValidShapeMapping = Object.values(mapping).every(isMessageAuthor)
+  if (!isValidShapeMapping) {
+    error('Invalid shape for GitHub to Slack user mapping.')
+  }
+
+  if (mapping[githubUserLogin]) {
+    return mapping[githubUserLogin]
+  }
+
   return null
 }
 
 async function getMessageAuthor(
   octokit: OctokitClient,
   slack: SlackClient,
-  {withSlackUserId, rawMapping}: GetMessageAuthorOptions
+  {withSlackUserId, githubUserMapping}: GetMessageAuthorOptions
 ): Promise<MessageAuthor | null> {
   startGroup('Getting message author')
 
@@ -89,11 +99,10 @@ async function getMessageAuthor(
     }
 
     let messageAuthor: MessageAuthor | null
-    if (rawMapping && rawMapping !== '') {
-      info(`message author login is ${githubSender.login}`)
-      messageAuthor = getMessageAuthorFromRawMapping(
+    if (githubUserMapping && githubUserMapping !== '') {
+      messageAuthor = getMessageAuthorFromGithubUserMapping(
         githubSender.login,
-        rawMapping
+        githubUserMapping
       )
       if (messageAuthor) {
         return messageAuthor
@@ -111,28 +120,16 @@ async function getMessageAuthor(
       })
     ).data
 
-    info(`Finding Slack user by name: ${githubUser.name}`)
-    const matchingSlackUsers = slackUsers.filter(
-      (user): user is MemberWithProfile => {
-        return Boolean(
-          user.profile?.real_name === githubUser.name &&
-            user.profile.display_name &&
-            user.profile.image_48
-        )
-      }
-    )
+    const membersWithProfile = slackUsers.filter(isMemberWithProfile)
 
-    const matchingSlackUser = matchingSlackUsers[0]
+    info(`Finding Slack user by name: ${githubUser.name}`)
+    const matchingSlackUser = membersWithProfile.find(
+      user => user.profile.real_name === githubUser.name
+    )
 
     if (!matchingSlackUser) {
       throw new Error(
         `Unable to match GitHub user "${githubUser.name}" to Slack user by name.`
-      )
-    }
-
-    if (matchingSlackUsers.length > 1) {
-      throw new Error(
-        `${matchingSlackUsers.length} Slack users match GitHub user name "${githubUser.name}".`
       )
     }
 

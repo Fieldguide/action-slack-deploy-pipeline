@@ -1,7 +1,11 @@
 import {info, warning, error} from '@actions/core'
 import {OctokitClient} from './github/types'
 import {SlackClient} from './slack/SlackClient'
-import type {Member, MemberWithProfile} from './slack/types'
+import {
+  isMemberWithProfile,
+  type Member,
+  type MessageAuthor
+} from './slack/types'
 import type {User as GithubUser} from '@octokit/webhooks-types'
 
 async function listOrgMembersWithNames(
@@ -49,7 +53,7 @@ export async function generateGithubToSlackMapping(
   octokit: OctokitClient,
   slack: SlackClient,
   org: string
-): Promise<string> {
+): Promise<Record<string, MessageAuthor>> {
   info(`Fetching GitHub users for org: ${org}`)
 
   // Fetch from GitHub and save
@@ -62,31 +66,20 @@ export async function generateGithubToSlackMapping(
     {}
   )
 
+  const mapping: Record<string, MessageAuthor> = {}
+
   const slackUsers: Member[] = await slack.getRealUsers()
   if (slackUsers.length === 0) {
     error('No Slack users found. Exiting mapping generation.')
-    return '{}'
+    return mapping
   }
 
-  const mapping: Record<
-    string,
-    {
-      slack_user_id: string
-      username: string
-      icon_url: string
-    }
-  > = {}
+  const membersWithProfile = slackUsers.filter(isMemberWithProfile)
 
   for (const ghUserDetails of Object.values(githubUsersByLogin)) {
-    const slackMatch: MemberWithProfile | undefined = (slackUsers.filter(
-      (user): user is MemberWithProfile =>
-        Boolean(
-          user.profile?.real_name?.toLowerCase() ===
-            (ghUserDetails.name
-              ? ghUserDetails.name.toLowerCase()
-              : undefined) && user.profile?.display_name
-        )
-    ) ?? [undefined])[0]
+    const slackMatch = membersWithProfile.find(
+      user => user.profile.real_name === ghUserDetails.name
+    )
 
     if (slackMatch !== undefined) {
       mapping[ghUserDetails.login] = {
@@ -101,6 +94,5 @@ export async function generateGithubToSlackMapping(
     }
   }
 
-  const mappingJson = JSON.stringify(mapping, null, 2)
-  return mappingJson
+  return mapping
 }

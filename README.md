@@ -124,8 +124,8 @@ jobs:
         id: mapping
       - name: Use mapping in deploy workflow
         env:
-          SLACK_GITHUB_MAPPING_RAW: ${{ steps.mapping.outputs.raw_mapping_json }}
-        run: echo "$SLACK_GITHUB_MAPPING_RAW"
+          SLACK_DEPLOY_GITHUB_USERS: ${{ steps.mapping.outputs.raw_mapping_json }}
+        run: echo "$SLACK_DEPLOY_GITHUB_USERS"
 ```
 
 You can then pass `SLACK_GITHUB_MAPPING_RAW` to your deploy workflow as shown above.
@@ -139,7 +139,7 @@ You can then pass `SLACK_GITHUB_MAPPING_RAW` to your deploy workflow as shown ab
 | `SLACK_DEPLOY_BOT_TOKEN`      | **Required** Slack bot user OAuth token                                                                                                                                                      |
 | `SLACK_DEPLOY_CHANNEL`        | **Required** Slack channel ID                                                                                                                                                                |
 | `SLACK_DEPLOY_ERROR_REACTION` | Optional Slack emoji name                                                                                                                                                                    |
-| `SLACK_GITHUB_MAPPING_RAW`    | Optional: Raw mapping (JSON or YAML) of Slack user details by GitHub login. If set, avoids Slack/GitHub API calls for user mapping. Can be generated automatically using the mapping action. |
+| `SLACK_DEPLOY_GITHUB_USERS`   | Optional: Raw mapping (JSON or YAML) of Slack user details by GitHub login. If set, avoids Slack/GitHub API calls for user mapping. Can be generated automatically using the mapping action. |
 
 ## Inputs
 
