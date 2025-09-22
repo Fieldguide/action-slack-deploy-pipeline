@@ -3,7 +3,7 @@ import {getOctokit} from '@actions/github'
 import {OctokitClient} from './github/types'
 import {SlackClient} from './slack/SlackClient'
 import {EnvironmentVariable, getEnv, getRequiredEnv} from './input'
-import {generateGithubToSlackMapping} from './githubToSlackMapping'
+import {githubToSlackMapping} from './githubToSlackMapping'
 
 run()
 
@@ -27,7 +27,7 @@ async function generateMapping(
   slack: SlackClient
 ): Promise<void> {
   const github_org = getInput('github_org', {required: true})
-  const mapping = await generateGithubToSlackMapping(octokit, slack, github_org)
+  const mapping = await githubToSlackMapping(octokit, slack, github_org)
   const mappingJson = JSON.stringify(mapping, null, 2)
 
   setOutput('json', mappingJson)

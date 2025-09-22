@@ -35,6 +35,20 @@ interface GetMessageAuthorFactoryOptions {
   githubUserMapping?: string | null
 }
 
+export function getMessageAuthorFactory(
+  octokit: OctokitClient,
+  slack: SlackClient,
+  options: GetMessageAuthorFactoryOptions = {
+    githubUserMapping: undefined
+  }
+): GetMessageAuthor {
+  return async (
+    {withSlackUserId}: GetMessageAuthorOptions = {withSlackUserId: false}
+  ): Promise<MessageAuthor | null> => {
+    return getMessageAuthor(octokit, slack, {withSlackUserId, ...options})
+  }
+}
+
 export function getSlackUserFromGithubName(
   githubUsername: string,
   slackProfileMembers: MemberWithProfile[]
@@ -59,20 +73,6 @@ export function getSlackUserFromGithubName(
   }
 
   return matchingSlackUser
-}
-
-export function getMessageAuthorFactory(
-  octokit: OctokitClient,
-  slack: SlackClient,
-  options: GetMessageAuthorFactoryOptions = {
-    githubUserMapping: undefined
-  }
-): GetMessageAuthor {
-  return async (
-    {withSlackUserId}: GetMessageAuthorOptions = {withSlackUserId: false}
-  ): Promise<MessageAuthor | null> => {
-    return getMessageAuthor(octokit, slack, {withSlackUserId, ...options})
-  }
 }
 
 function maybeGetMessageAuthorFromGithubUserMapping(

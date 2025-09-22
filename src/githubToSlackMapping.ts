@@ -9,47 +9,13 @@ import {
 import type {User as GithubUser} from '@octokit/webhooks-types'
 import {getSlackUserFromGithubName} from './getMessageAuthorFactory'
 
-async function listOrgMembersWithNames(
-  octokit: OctokitClient,
-  org: string
-): Promise<GithubUser[]> {
-  const members = await octokit.paginate(octokit.rest.orgs.listMembers, {
-    org,
-    per_page: 100
-  })
-
-  if (!members || members.length === 0) {
-    error(`No members found for organization: ${org}`)
-    return []
-  }
-
-  const humanUsers = (
-    await Promise.all(
-      members
-        .filter(user => user.type === 'User')
-        .map(async m => {
-          const getUserResponse = await octokit.rest.users.getByUsername({
-            username: m.login
-          })
-          if (getUserResponse.status !== 200) {
-            warning(`Failed to fetch user details for ${m.login}`)
-            return null
-          }
-          return getUserResponse.data
-        })
-    )
-  ).filter(Boolean) as GithubUser[]
-
-  return humanUsers
-}
-
 /**
  * Fetch all GitHub users for the organization, match to Slack users, and output mapping as JSON.
  * @param octokit OctokitClient instance
  * @param slack SlackClient instance
  * @param github_org GitHub organization name
  */
-export async function generateGithubToSlackMapping(
+export async function githubToSlackMapping(
   octokit: OctokitClient,
   slack: SlackClient,
   github_org: string
@@ -96,4 +62,38 @@ export async function generateGithubToSlackMapping(
   }
 
   return mapping
+}
+
+async function listOrgMembersWithNames(
+  octokit: OctokitClient,
+  org: string
+): Promise<GithubUser[]> {
+  const members = await octokit.paginate(octokit.rest.orgs.listMembers, {
+    org,
+    per_page: 100
+  })
+
+  if (!members || members.length === 0) {
+    error(`No members found for organization: ${org}`)
+    return []
+  }
+
+  const humanUsers = (
+    await Promise.all(
+      members
+        .filter(user => user.type === 'User')
+        .map(async m => {
+          const getUserResponse = await octokit.rest.users.getByUsername({
+            username: m.login
+          })
+          if (getUserResponse.status !== 200) {
+            warning(`Failed to fetch user details for ${m.login}`)
+            return null
+          }
+          return getUserResponse.data
+        })
+    )
+  ).filter(Boolean) as GithubUser[]
+
+  return humanUsers
 }
