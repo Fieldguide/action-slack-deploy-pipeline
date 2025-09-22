@@ -47,18 +47,17 @@ async function listOrgMembersWithNames(
  * Fetch all GitHub users for the organization, match to Slack users, and output mapping as JSON.
  * @param octokit OctokitClient instance
  * @param slack SlackClient instance
- * @param org GitHub organization name
- * @param outputPath Path to output JSON file
+ * @param github_org GitHub organization name
  */
 export async function generateGithubToSlackMapping(
   octokit: OctokitClient,
   slack: SlackClient,
-  org: string
+  github_org: string
 ): Promise<Record<string, MessageAuthor>> {
-  info(`Fetching GitHub users for org: ${org}`)
+  info(`Fetching GitHub users for org: ${github_org}`)
 
   // Fetch from GitHub and save
-  const githubOrgUsers = await listOrgMembersWithNames(octokit, org)
+  const githubOrgUsers = await listOrgMembersWithNames(octokit, github_org)
   const githubUsersByLogin = githubOrgUsers.reduce(
     (acc: Record<GithubUser['login'], GithubUser>, user: GithubUser) => ({
       ...acc,

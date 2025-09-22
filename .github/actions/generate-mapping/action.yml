@@ -7,15 +7,11 @@ inputs:
     description: 'Repository GITHUB_TOKEN or personal access token secret'
     required: false
     default: ${{ github.token }}
-  org:
+  github_org:
     description: 'name of github org to fetch user list'
     required: true
-  output_path:
-    description: 'output of cache mapping'
-    required: false
-    default: 'data/github_to_slack.json'
 outputs:
-  raw_mapping_json:
+  json:
     description: 'Raw JSON mapping of Slack user details by GitHub user'
 runs:
   using: 'node20'

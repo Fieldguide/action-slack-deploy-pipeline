@@ -26,11 +26,11 @@ async function generateMapping(
   octokit: OctokitClient,
   slack: SlackClient
 ): Promise<void> {
-  const org = getInput('org', {required: true})
-  const mapping = await generateGithubToSlackMapping(octokit, slack, org)
+  const github_org = getInput('github_org', {required: true})
+  const mapping = await generateGithubToSlackMapping(octokit, slack, github_org)
   const mappingJson = JSON.stringify(mapping, null, 2)
 
-  setOutput('raw_mapping_json', mappingJson)
+  setOutput('json', mappingJson)
 }
 
 function createSlackClient(): SlackClient {
