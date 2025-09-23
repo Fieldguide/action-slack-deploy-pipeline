@@ -3,6 +3,7 @@ import {OctokitClient} from './github/types'
 import {SlackClient} from './slack/SlackClient'
 import {
   isMemberWithProfile,
+  MemberWithProfile,
   type Member,
   type MessageAuthor
 } from './slack/types'
@@ -43,10 +44,18 @@ export async function githubToSlackMapping(
   const membersWithProfile = slackUsers.filter(isMemberWithProfile)
 
   for (const githubUser of Object.values(githubUsersByLogin)) {
-    const slackMatch = getSlackUserFromGithubName(
-      githubUser.name as string,
-      membersWithProfile
-    )
+    let slackMatch: MemberWithProfile | undefined
+    try {
+      slackMatch = getSlackUserFromGithubName(
+        githubUser.name as string,
+        membersWithProfile
+      )
+    } catch (e) {
+      warning(
+        `Error finding Slack user for GitHub user ${githubUser.login} (${githubUser.name}): ${e}`
+      )
+      continue
+    }
 
     if (slackMatch !== undefined) {
       mapping[githubUser.login] = {
