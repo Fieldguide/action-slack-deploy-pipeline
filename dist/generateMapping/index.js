@@ -44161,7 +44161,14 @@ function githubToSlackMapping(octokit, slack, github_org) {
         }
         const membersWithProfile = slackUsers.filter(types_1.isMemberWithProfile);
         for (const githubUser of Object.values(githubUsersByLogin)) {
-            const slackMatch = (0, getMessageAuthorFactory_1.getSlackUserFromGithubName)(githubUser.name, membersWithProfile);
+            let slackMatch;
+            try {
+                slackMatch = (0, getMessageAuthorFactory_1.getSlackUserFromGithubName)(githubUser.name, membersWithProfile);
+            }
+            catch (e) {
+                (0, core_1.warning)(`Error finding Slack user for GitHub user ${githubUser.login} (${githubUser.name}): ${e}`);
+                continue;
+            }
             if (slackMatch !== undefined) {
                 mapping[githubUser.login] = {
                     slack_user_id: (slackMatch === null || slackMatch === void 0 ? void 0 : slackMatch.id) || '',
