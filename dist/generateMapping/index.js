@@ -44399,10 +44399,10 @@ exports.SlackClient = SlackClient;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.isMemberWithProfile = isMemberWithProfile;
 exports.isMessageAuthor = isMessageAuthor;
-/* eslint-disable @typescript-eslint/no-explicit-any */
 function isMemberWithProfile(user) {
     var _a, _b;
-    return ((_a = user === null || user === void 0 ? void 0 : user.profile) === null || _a === void 0 ? void 0 : _a.display_name) != null && ((_b = user === null || user === void 0 ? void 0 : user.profile) === null || _b === void 0 ? void 0 : _b.image_48) != null;
+    return ('string' === typeof ((_a = user.profile) === null || _a === void 0 ? void 0 : _a.display_name) &&
+        'string' === typeof ((_b = user.profile) === null || _b === void 0 ? void 0 : _b.image_48));
 }
 function isMessageAuthor(author) {
     return (typeof author === 'object' &&

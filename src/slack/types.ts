@@ -9,9 +9,11 @@ export interface MemberWithProfile extends Member {
   }
 }
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-export function isMemberWithProfile(user: any): user is MemberWithProfile {
-  return user?.profile?.display_name != null && user?.profile?.image_48 != null
+export function isMemberWithProfile(user: Member): user is MemberWithProfile {
+  return (
+    'string' === typeof user.profile?.display_name &&
+    'string' === typeof user.profile?.image_48
+  )
 }
 
 /**
@@ -26,11 +28,11 @@ export interface MessageAuthor {
   icon_url: string
 }
 
-export function isMessageAuthor(author: any): author is MessageAuthor {
+export function isMessageAuthor(author: unknown): author is MessageAuthor {
   return (
     typeof author === 'object' &&
-    typeof author.username === 'string' &&
-    typeof author.icon_url == 'string'
+    typeof (author as MessageAuthor).username === 'string' &&
+    typeof (author as MessageAuthor).icon_url == 'string'
   )
 }
 
