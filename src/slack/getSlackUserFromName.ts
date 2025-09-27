@@ -8,7 +8,7 @@ import {MemberWithProfile} from './types'
  */
 export function getSlackUserFromName(
   users: MemberWithProfile[],
-  name: string | null | undefined
+  name: string | null
 ): MemberWithProfile {
   info(`Finding Slack user by name: ${name}`)
   const matchingUsers = users.filter(user => user.profile.real_name === name)

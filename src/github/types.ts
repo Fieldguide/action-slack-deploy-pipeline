@@ -1,8 +1,8 @@
-import type {GitHub} from '@actions/github/lib/utils'
+import type {getOctokit} from '@actions/github'
 import type {Endpoints} from '@octokit/types'
 import type {KnownBlock} from '@slack/web-api'
 
-export type OctokitClient = InstanceType<typeof GitHub>
+export type OctokitClient = ReturnType<typeof getOctokit>
 
 export interface Text {
   plain: string

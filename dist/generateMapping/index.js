@@ -39748,27 +39748,28 @@ exports.githubToSlackMapping = githubToSlackMapping;
 const core_1 = __nccwpck_require__(9999);
 const getSlackUserFromName_1 = __nccwpck_require__(120);
 /**
- * Fetch all GitHub users for the organization, match to Slack users, and output mapping as JSON.
- * @param octokit OctokitClient instance
- * @param slack SlackClient instance
- * @param github_org GitHub organization name
+ * Return all GitHub usernames from the specified `github_org`, mapped to their Slack user.
+ *
+ * The users are matched by full name. If a match is not found, the value will be `null`.
  */
 function githubToSlackMapping(octokit, slack, github_org) {
     return __awaiter(this, void 0, void 0, function* () {
-        (0, core_1.info)(`Fetching GitHub users for org: ${github_org}`);
-        // Fetch from GitHub and save
-        const githubOrgUsers = yield listOrgMembersWithNames(octokit, github_org);
-        const githubUsersByLogin = githubOrgUsers.reduce((acc, user) => (Object.assign(Object.assign({}, acc), { [user.login]: user })), {});
-        const mapping = {};
+        const githubUsers = yield fetchGitHubUsers(octokit, github_org);
+        if (githubUsers.length === 0) {
+            (0, core_1.warning)('No GitHub members found.');
+            return {};
+        }
+        (0, core_1.info)('Fetching Slack users');
         const slackUsers = yield slack.getRealUsers();
         if (slackUsers.length === 0) {
-            (0, core_1.error)('No Slack users found. Exiting mapping generation.');
-            return mapping;
+            (0, core_1.warning)('No Slack users found.');
+            return {};
         }
-        for (const githubUser of Object.values(githubUsersByLogin)) {
+        const result = {};
+        for (const githubUser of githubUsers) {
             try {
                 const slackUser = (0, getSlackUserFromName_1.getSlackUserFromName)(slackUsers, githubUser.name);
-                mapping[githubUser.login] = {
+                result[githubUser.login] = {
                     slack_user_id: slackUser.id,
                     username: slackUser.profile.display_name,
                     icon_url: slackUser.profile.image_48
@@ -39776,34 +39777,31 @@ function githubToSlackMapping(octokit, slack, github_org) {
             }
             catch (err) {
                 (0, core_1.warning)(err instanceof Error ? err.message : String(err));
+                result[githubUser.login] = null;
             }
         }
-        return mapping;
+        return result;
     });
 }
-function listOrgMembersWithNames(octokit, org) {
+/**
+ * Fetch the GitHub user profiles for the specified `org`.
+ */
+function fetchGitHubUsers(octokit, org) {
     return __awaiter(this, void 0, void 0, function* () {
+        (0, core_1.info)(`Fetching GitHub members for org: ${org}`);
         const members = yield octokit.paginate(octokit.rest.orgs.listMembers, {
             org,
             per_page: 100
         });
-        if (!members || members.length === 0) {
-            (0, core_1.error)(`No members found for organization: ${org}`);
-            return [];
-        }
-        const humanUsers = (yield Promise.all(members
-            .filter(user => user.type === 'User')
-            .map((m) => __awaiter(this, void 0, void 0, function* () {
-            const getUserResponse = yield octokit.rest.users.getByUsername({
-                username: m.login
+        return yield Promise.all(members
+            .filter(member => member.type === 'User')
+            .map((member) => __awaiter(this, void 0, void 0, function* () {
+            (0, core_1.info)(`Fetching GitHub user: ${member.login}`);
+            const { data } = yield octokit.rest.users.getByUsername({
+                username: member.login
             });
-            if (getUserResponse.status !== 200) {
-                (0, core_1.warning)(`Failed to fetch user details for ${m.login}`);
-                return null;
-            }
-            return getUserResponse.data;
-        })))).filter(Boolean);
-        return humanUsers;
+            return data;
+        })));
     });
 }
 
