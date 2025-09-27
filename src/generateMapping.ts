@@ -1,9 +1,9 @@
 import {error, getInput, isDebug, setFailed, setOutput} from '@actions/core'
 import {getOctokit} from '@actions/github'
 import {OctokitClient} from './github/types'
-import {SlackClient} from './slack/SlackClient'
-import {EnvironmentVariable, getEnv, getRequiredEnv} from './input'
 import {githubToSlackMapping} from './githubToSlackMapping'
+import {EnvironmentVariable, getEnv, getRequiredEnv} from './input'
+import {SlackClient} from './slack/SlackClient'
 
 run()
 
@@ -13,9 +13,8 @@ async function run(): Promise<void> {
     const slack = createSlackClient()
     await generateMapping(octokit, slack)
   } catch (err) {
-    const errMsg = err instanceof Error ? err.message : String(err)
-    error(`Error: ${errMsg}`)
-    setFailed(errMsg)
+    setFailed(err instanceof Error ? err.message : String(err))
+
     if (isDebug() && err instanceof Error && err.stack) {
       error(err.stack)
     }

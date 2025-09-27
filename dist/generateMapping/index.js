@@ -39684,9 +39684,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core_1 = __nccwpck_require__(9999);
 const github_1 = __nccwpck_require__(5380);
-const SlackClient_1 = __nccwpck_require__(4713);
-const input_1 = __nccwpck_require__(5229);
 const githubToSlackMapping_1 = __nccwpck_require__(2365);
+const input_1 = __nccwpck_require__(5229);
+const SlackClient_1 = __nccwpck_require__(4713);
 run();
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -39696,9 +39696,7 @@ function run() {
             yield generateMapping(octokit, slack);
         }
         catch (err) {
-            const errMsg = err instanceof Error ? err.message : String(err);
-            (0, core_1.error)(`Error: ${errMsg}`);
-            (0, core_1.setFailed)(errMsg);
+            (0, core_1.setFailed)(err instanceof Error ? err.message : String(err));
             if ((0, core_1.isDebug)() && err instanceof Error && err.stack) {
                 (0, core_1.error)(err.stack);
             }

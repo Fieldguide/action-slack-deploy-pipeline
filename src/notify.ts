@@ -14,9 +14,8 @@ async function run(): Promise<void> {
     const slack = createSlackClient()
     await notifySlack(octokit, slack)
   } catch (err) {
-    const errMsg = err instanceof Error ? err.message : String(err)
-    error(`Error: ${errMsg}`)
-    setFailed(errMsg)
+    setFailed(err instanceof Error ? err.message : String(err))
+
     if (isDebug() && err instanceof Error && err.stack) {
       error(err.stack)
     }

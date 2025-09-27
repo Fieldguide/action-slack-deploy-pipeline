@@ -44511,9 +44511,7 @@ function run() {
             yield notifySlack(octokit, slack);
         }
         catch (err) {
-            const errMsg = err instanceof Error ? err.message : String(err);
-            (0, core_1.error)(`Error: ${errMsg}`);
-            (0, core_1.setFailed)(errMsg);
+            (0, core_1.setFailed)(err instanceof Error ? err.message : String(err));
             if ((0, core_1.isDebug)() && err instanceof Error && err.stack) {
                 (0, core_1.error)(err.stack);
             }
