@@ -13,7 +13,7 @@ async function run(): Promise<void> {
     const slack = createSlackClient()
     await generateMapping(octokit, slack)
   } catch (err) {
-    setFailed(err instanceof Error ? err.message : String(err))
+    setFailed(err instanceof Error ? err : String(err))
 
     if (isDebug() && err instanceof Error && err.stack) {
       error(err.stack)
