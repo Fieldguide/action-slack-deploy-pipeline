@@ -1,4 +1,4 @@
-import {describe, it, expect} from '@jest/globals'
+import {describe, expect, it} from '@jest/globals'
 import {isMemberWithProfile, isMessageAuthor} from '../types'
 
 describe('isMemberWithProfile', () => {
@@ -33,8 +33,8 @@ describe('isMemberWithProfile', () => {
     expect(isMemberWithProfile(missingImage)).toBe(false)
   })
 
-  it('returns false if profile is null', () => {
-    expect(isMemberWithProfile({profile: null})).toBe(false)
+  it('returns false if profile is undefined', () => {
+    expect(isMemberWithProfile({profile: undefined})).toBe(false)
   })
 
   it('returns false for empty object', () => {

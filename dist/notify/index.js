@@ -43825,12 +43825,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.GH_MERGE_QUEUE_BOT_USERNAME = void 0;
 exports.getMessageAuthorFactory = getMessageAuthorFactory;
-exports.getSlackUserFromGithubName = getSlackUserFromGithubName;
 const core_1 = __nccwpck_require__(59999);
 const github_1 = __nccwpck_require__(75380);
-const webhook_1 = __nccwpck_require__(45568);
-const types_1 = __nccwpck_require__(37539);
 const yaml = __importStar(__nccwpck_require__(39885));
+const webhook_1 = __nccwpck_require__(45568);
+const getSlackUserFromName_1 = __nccwpck_require__(90120);
+const types_1 = __nccwpck_require__(37539);
 exports.GH_MERGE_QUEUE_BOT_USERNAME = 'github-merge-queue[bot]';
 function getMessageAuthorFactory(octokit, slack, options = {
     githubUserMapping: undefined
@@ -43838,18 +43838,6 @@ function getMessageAuthorFactory(octokit, slack, options = {
     return (...args_1) => __awaiter(this, [...args_1], void 0, function* ({ withSlackUserId } = { withSlackUserId: false }) {
         return getMessageAuthor(octokit, slack, Object.assign({ withSlackUserId }, options));
     });
-}
-function getSlackUserFromGithubName(githubUsername, slackProfileMembers) {
-    (0, core_1.debug)(`Finding Slack user by name: ${githubUsername}`);
-    const matchingSlackUsers = slackProfileMembers.filter(user => user.profile.real_name === githubUsername);
-    const matchingSlackUser = matchingSlackUsers[0];
-    if (!matchingSlackUser) {
-        throw new Error(`Unable to match GitHub user "${githubUsername}" to Slack user by name.`);
-    }
-    if (matchingSlackUsers.length > 1) {
-        throw new Error(`${matchingSlackUsers.length} Slack users match GitHub user name "${githubUsername}".`);
-    }
-    return matchingSlackUser;
 }
 function maybeGetMessageAuthorFromGithubUserMapping(githubUserLogin, githubUserMapping) {
     const hasMapping = githubUserMapping && githubUserMapping !== undefined;
@@ -43907,12 +43895,11 @@ function getMessageAuthor(octokit_1, slack_1, _a) {
             const githubUser = (yield octokit.rest.users.getByUsername({
                 username: githubSender.login
             })).data;
-            const membersWithProfile = slackUsers.filter(types_1.isMemberWithProfile);
-            const matchingSlackUser = getSlackUserFromGithubName(githubUser.name, membersWithProfile);
+            const slackUser = (0, getSlackUserFromName_1.getSlackUserFromName)(slackUsers, githubUser.name);
             return {
-                slack_user_id: matchingSlackUser.id,
-                username: matchingSlackUser.profile.display_name,
-                icon_url: matchingSlackUser.profile.image_48
+                slack_user_id: slackUser.id,
+                username: slackUser.profile.display_name,
+                icon_url: slackUser.profile.image_48
             };
         }
         catch (err) {
@@ -44682,6 +44669,7 @@ exports.SlackClient = void 0;
 const core_1 = __nccwpck_require__(59999);
 const web_api_1 = __nccwpck_require__(51310);
 const MissingScopeError_1 = __nccwpck_require__(88424);
+const types_1 = __nccwpck_require__(37539);
 const isCodedPlatformError_1 = __nccwpck_require__(3176);
 class SlackClient {
     constructor({ token, channel, errorReaction }) {
@@ -44694,7 +44682,7 @@ class SlackClient {
         this.logRateLimits();
     }
     /**
-     * Return the set of non-bot users.
+     * Return the set of non-bot users with a defined profile.
      *
      * @throws {MissingScopeError} if the bot token is missing the required OAuth scope
      */
@@ -44705,9 +44693,10 @@ class SlackClient {
                 if (!members) {
                     throw new Error('Error fetching users');
                 }
-                return members.filter(({ id, is_bot }) => {
-                    return ('USLACKBOT' !== id && // USLACKBOT is a special user ID for @SlackBot
-                        !is_bot);
+                return members.filter((user) => {
+                    return ((0, types_1.isMemberWithProfile)(user) &&
+                        'USLACKBOT' !== user.id && // USLACKBOT is a special user ID for @SlackBot
+                        !user.is_bot);
                 });
             }
             catch (error) {
@@ -44774,6 +44763,35 @@ class SlackClient {
     }
 }
 exports.SlackClient = SlackClient;
+
+
+/***/ }),
+
+/***/ 90120:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getSlackUserFromName = getSlackUserFromName;
+const core_1 = __nccwpck_require__(59999);
+/**
+ * Return the Slack user with the specified GitHub `name`.
+ *
+ * @throws {Error} if a user is not found, or if multiple users have the same `name`
+ */
+function getSlackUserFromName(users, name) {
+    (0, core_1.info)(`Finding Slack user by name: ${name}`);
+    const matchingUsers = users.filter(user => user.profile.real_name === name);
+    const matchingUser = matchingUsers[0];
+    if (!matchingUser) {
+        throw new Error(`Unable to match GitHub user "${name}" to Slack user by name.`);
+    }
+    if (matchingUsers.length > 1) {
+        throw new Error(`${matchingUsers.length} Slack users match GitHub user name "${name}".`);
+    }
+    return matchingUser;
+}
 
 
 /***/ }),

@@ -1,5 +1,4 @@
 import {
-  debug,
   endGroup,
   error,
   info,
@@ -9,16 +8,12 @@ import {
 } from '@actions/core'
 import {context} from '@actions/github'
 import type {Commit} from '@octokit/webhooks-types'
+import * as yaml from 'js-yaml'
 import {OctokitClient} from './github/types'
 import {GitHubSender, isPushEvent, senderFromPayload} from './github/webhook'
+import {getSlackUserFromName} from './slack/getSlackUserFromName'
 import {SlackClient} from './slack/SlackClient'
-import {
-  isMemberWithProfile,
-  isMessageAuthor,
-  MemberWithProfile,
-  MessageAuthor
-} from './slack/types'
-import * as yaml from 'js-yaml'
+import {isMessageAuthor, MessageAuthor} from './slack/types'
 
 export const GH_MERGE_QUEUE_BOT_USERNAME = 'github-merge-queue[bot]'
 
@@ -47,32 +42,6 @@ export function getMessageAuthorFactory(
   ): Promise<MessageAuthor | null> => {
     return getMessageAuthor(octokit, slack, {withSlackUserId, ...options})
   }
-}
-
-export function getSlackUserFromGithubName(
-  githubUsername: string,
-  slackProfileMembers: MemberWithProfile[]
-): MemberWithProfile {
-  debug(`Finding Slack user by name: ${githubUsername}`)
-  const matchingSlackUsers = slackProfileMembers.filter(
-    user => user.profile.real_name === githubUsername
-  )
-
-  const matchingSlackUser = matchingSlackUsers[0]
-
-  if (!matchingSlackUser) {
-    throw new Error(
-      `Unable to match GitHub user "${githubUsername}" to Slack user by name.`
-    )
-  }
-
-  if (matchingSlackUsers.length > 1) {
-    throw new Error(
-      `${matchingSlackUsers.length} Slack users match GitHub user name "${githubUsername}".`
-    )
-  }
-
-  return matchingSlackUser
 }
 
 function maybeGetMessageAuthorFromGithubUserMapping(
@@ -162,16 +131,12 @@ async function getMessageAuthor(
       })
     ).data
 
-    const membersWithProfile = slackUsers.filter(isMemberWithProfile)
-    const matchingSlackUser = getSlackUserFromGithubName(
-      githubUser.name as string,
-      membersWithProfile
-    )
+    const slackUser = getSlackUserFromName(slackUsers, githubUser.name)
 
     return {
-      slack_user_id: matchingSlackUser.id,
-      username: matchingSlackUser.profile.display_name,
-      icon_url: matchingSlackUser.profile.image_48
+      slack_user_id: slackUser.id,
+      username: slackUser.profile.display_name,
+      icon_url: slackUser.profile.image_48
     }
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)

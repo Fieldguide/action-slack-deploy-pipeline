@@ -7,7 +7,7 @@ import {
 } from '../getMessageAuthorFactory'
 import {OctokitClient} from '../github/types'
 import {SlackClient} from '../slack/SlackClient'
-import {Member, MessageAuthor} from '../slack/types'
+import {MemberWithProfile, MessageAuthor} from '../slack/types'
 
 describe('getMessageAuthorFactory', () => {
   let getMessageAuthor: GetMessageAuthor
@@ -104,7 +104,7 @@ describe('getMessageAuthorFactory', () => {
   describe('Slack user not found', () => {
     beforeEach(async () => {
       jest.mocked(slack.getRealUsers).mockReturnValue(
-        Promise.resolve<Member[]>([
+        Promise.resolve<MemberWithProfile[]>([
           {
             profile: {
               real_name: 'first last 1',
@@ -149,7 +149,7 @@ describe('getMessageAuthorFactory', () => {
   describe('multiple Slack users with same name', () => {
     beforeEach(async () => {
       jest.mocked(slack.getRealUsers).mockReturnValue(
-        Promise.resolve<Member[]>([
+        Promise.resolve<MemberWithProfile[]>([
           {
             id: 'U1',
             profile: {
@@ -180,7 +180,7 @@ describe('getMessageAuthorFactory', () => {
   describe('Slack user found', () => {
     beforeEach(async () => {
       jest.mocked(slack.getRealUsers).mockReturnValue(
-        Promise.resolve<Member[]>([
+        Promise.resolve<MemberWithProfile[]>([
           {
             id: 'U1',
             profile: {
@@ -234,7 +234,7 @@ describe('getMessageAuthorFactory', () => {
     describe('when a slack user match is found', () => {
       beforeEach(async () => {
         jest.mocked(slack.getRealUsers).mockReturnValue(
-          Promise.resolve<Member[]>([
+          Promise.resolve<MemberWithProfile[]>([
             {
               id: 'U2',
               profile: {
@@ -276,7 +276,7 @@ describe('getMessageAuthorFactory', () => {
       beforeEach(() => {
         jest
           .mocked(slack.getRealUsers)
-          .mockReturnValue(Promise.resolve<Member[]>([]))
+          .mockReturnValue(Promise.resolve<MemberWithProfile[]>([]))
       })
 
       it('does not fallback on the merge queue user', async () => {

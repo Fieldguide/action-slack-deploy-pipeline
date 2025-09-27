@@ -1,11 +1,12 @@
 import {info, isDebug, warning} from '@actions/core'
 import {LogLevel, WebClient, WebClientEvent} from '@slack/web-api'
 import {isMissingScopeError, MissingScopeError} from './MissingScopeError'
-import type {
-  AddReactionArguments,
-  Member,
-  PostMessageArguments,
-  UpdateMessageArguments
+import {
+  isMemberWithProfile,
+  MemberWithProfile,
+  type AddReactionArguments,
+  type PostMessageArguments,
+  type UpdateMessageArguments
 } from './types'
 import {isCodedPlatformError} from './utils/isCodedPlatformError'
 
@@ -32,11 +33,11 @@ export class SlackClient {
   }
 
   /**
-   * Return the set of non-bot users.
+   * Return the set of non-bot users with a defined profile.
    *
    * @throws {MissingScopeError} if the bot token is missing the required OAuth scope
    */
-  async getRealUsers(): Promise<Member[]> {
+  async getRealUsers(): Promise<MemberWithProfile[]> {
     try {
       const {members} = await this.web.users.list({})
 
@@ -44,10 +45,11 @@ export class SlackClient {
         throw new Error('Error fetching users')
       }
 
-      return members.filter(({id, is_bot}) => {
+      return members.filter((user): user is MemberWithProfile => {
         return (
-          'USLACKBOT' !== id && // USLACKBOT is a special user ID for @SlackBot
-          !is_bot
+          isMemberWithProfile(user) &&
+          'USLACKBOT' !== user.id && // USLACKBOT is a special user ID for @SlackBot
+          !user.is_bot
         )
       })
     } catch (error) {

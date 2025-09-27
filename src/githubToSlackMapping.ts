@@ -1,14 +1,9 @@
-import {info, warning, error} from '@actions/core'
-import {OctokitClient} from './github/types'
-import {SlackClient} from './slack/SlackClient'
-import {
-  isMemberWithProfile,
-  MemberWithProfile,
-  type Member,
-  type MessageAuthor
-} from './slack/types'
+import {error, info, warning} from '@actions/core'
 import type {User as GithubUser} from '@octokit/webhooks-types'
-import {getSlackUserFromGithubName} from './getMessageAuthorFactory'
+import {OctokitClient} from './github/types'
+import {getSlackUserFromName} from './slack/getSlackUserFromName'
+import {SlackClient} from './slack/SlackClient'
+import {type MessageAuthor} from './slack/types'
 
 /**
  * Fetch all GitHub users for the organization, match to Slack users, and output mapping as JSON.
@@ -35,38 +30,23 @@ export async function githubToSlackMapping(
 
   const mapping: Record<string, MessageAuthor> = {}
 
-  const slackUsers: Member[] = await slack.getRealUsers()
+  const slackUsers = await slack.getRealUsers()
   if (slackUsers.length === 0) {
     error('No Slack users found. Exiting mapping generation.')
     return mapping
   }
 
-  const membersWithProfile = slackUsers.filter(isMemberWithProfile)
-
   for (const githubUser of Object.values(githubUsersByLogin)) {
-    let slackMatch: MemberWithProfile | undefined
     try {
-      slackMatch = getSlackUserFromGithubName(
-        githubUser.name as string,
-        membersWithProfile
-      )
-    } catch (e) {
-      warning(
-        `Error finding Slack user for GitHub user ${githubUser.login} (${githubUser.name}): ${e}`
-      )
-      continue
-    }
+      const slackUser = getSlackUserFromName(slackUsers, githubUser.name)
 
-    if (slackMatch !== undefined) {
       mapping[githubUser.login] = {
-        slack_user_id: slackMatch?.id || '',
-        username: slackMatch?.profile.display_name || '',
-        icon_url: slackMatch?.profile.image_48 || ''
+        slack_user_id: slackUser.id,
+        username: slackUser.profile.display_name,
+        icon_url: slackUser.profile.image_48
       }
-    } else {
-      warning(
-        `No matching Slack user found for GitHub user: ${githubUser.login} (${githubUser.name ?? ''})`
-      )
+    } catch (err) {
+      warning(err instanceof Error ? err.message : String(err))
     }
   }
 
