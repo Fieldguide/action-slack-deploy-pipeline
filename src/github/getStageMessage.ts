@@ -1,6 +1,6 @@
 import {context} from '@actions/github'
 import {type Duration, intervalToDuration} from 'date-fns'
-import type {GetMessageAuthor} from '../getMessageAuthorFactory'
+import type {GetMessageAuthor} from '../utils/getMessageAuthorFactory'
 import {bold} from '../slack/mrkdwn'
 import {getContextBlock} from './getContextBlock'
 import {createMessage, emojiFromStatus} from './message'

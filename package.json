@@ -22,24 +22,24 @@
     "progress"
   ],
   "exports": {
-    "notify": "./dist/notify/index.js",
-    "generateMapping": "./dist/generateMapping/index.js"
+    "notifySlack": "./dist/notifySlack/index.js",
+    "generateUserMapping": "./dist/generateUserMapping/index.js"
   },
   "engines": {
     "node": ">=20"
   },
   "packageManager": "pnpm@10.12.4",
   "scripts": {
-    "dev": "pnpm package:notify --watch & pnpm package:generateMapping --watch",
-    "bundle": "pnpm format:write && pnpm package:notify && pnpm package:generateMapping",
+    "dev": "pnpm package:notifySlack --watch & pnpm package:generateUserMapping --watch",
+    "bundle": "pnpm format:write && pnpm package:notifySlack && pnpm package:generateUserMapping",
     "format:write": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint . --ext .ts",
-    "package:notify": "ncc build src/notify.ts -o dist/notify --license licenses.txt",
-    "package:generateMapping": "ncc build src/generateMapping.ts -o dist/generateMapping --license licenses.txt",
+    "package:notifySlack": "ncc build src/notifySlack.ts -o dist/notifySlack --license licenses.txt",
+    "package:generateUserMapping": "ncc build src/generateUserMapping.ts -o dist/generateUserMapping --license licenses.txt",
     "test": "jest --watch",
     "test:ci": "jest",
-    "all": "pnpm format:check && pnpm lint && pnpm test:ci && pnpm package:notify && pnpm package:generateMapping"
+    "all": "pnpm format:check && pnpm lint && pnpm test:ci && pnpm package:notifySlack && pnpm package:generateUserMapping"
   },
   "license": "MIT",
   "dependencies": {

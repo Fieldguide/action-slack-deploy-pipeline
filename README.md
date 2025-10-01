@@ -8,7 +8,7 @@
 
 - [Features](#features)
 - [Slack Notify Workflow](#slack-notify-workflow)
-- [Generate Mapping Workflow](#generate-mapping-workflow)
+- [Generate User Mapping Workflow](#generate-user-mapping-workflow)
 - [Environment Variables](#environment-variables)
 - [Inputs](#inputs)
 - [Outputs](#outputs)
@@ -94,7 +94,7 @@ jobs:
 
 ---
 
-## Generate Mapping Workflow
+## Generate User Mapping Workflow
 
 You can provide a raw mapping of GitHub logins to Slack user details to avoid Slack and GitHub API calls for user mapping. This can be done manually, or generated automatically using the included mapping action.
 
@@ -113,22 +113,22 @@ env:
   SLACK_DEPLOY_BOT_TOKEN: ${{ secrets.SLACK_DEPLOY_BOT_TOKEN }}
   SLACK_DEPLOY_CHANNEL: 'C040YVCUDRR' # replace with your Slack Channel ID
 jobs:
-  generate-mapping:
+  generate-user-mapping:
     runs-on: ubuntu-latest
     steps:
-      - name: Generate mapping
-        uses: Fieldguide/action-slack-deploy-pipeline/.github/actions/generate-mapping
+      - name: Generate user mapping
+        uses: Fieldguide/action-slack-deploy-pipeline/.github/actions/generate-user-mapping
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           github_org: your-org-name
-        id: mapping
+        id: user-mapping
 
         # Use mapping in deploy workflow
       - name: Post to Slack
         uses: Fieldguide/action-slack-deploy-pipeline@main
         id: slack
         env:
-          SLACK_DEPLOY_GITHUB_USERS: ${{ steps.generate-mapping.outputs.json }}
+          SLACK_DEPLOY_GITHUB_USERS: ${{ steps.user-mapping.outputs.json }}
 ```
 
 You can then pass `SLACK_GITHUB_MAPPING_RAW` to your deploy workflow as shown above.

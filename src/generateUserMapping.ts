@@ -1,38 +1,28 @@
 import {error, getInput, isDebug, setFailed, setOutput} from '@actions/core'
 import {getOctokit} from '@actions/github'
-import {getMessageAuthorFactory} from './getMessageAuthorFactory'
 import {OctokitClient} from './github/types'
-import {EnvironmentVariable, getEnv, getRequiredEnv} from './input'
-import {postMessage} from './postMessage'
 import {SlackClient} from './slack/SlackClient'
+import {githubToSlackMapping} from './utils/githubToSlackMapping'
+import {EnvironmentVariable, getEnv, getRequiredEnv} from './utils/input'
 
-run()
+generateUserMapping()
 
-async function run(): Promise<void> {
+async function generateUserMapping(): Promise<void> {
   try {
     const octokit = createOctokitClient()
     const slack = createSlackClient()
-    await notifySlack(octokit, slack)
+
+    const github_org = getInput('github_org', {required: true})
+    const mapping = await githubToSlackMapping(octokit, slack, github_org)
+    const mappingJson = JSON.stringify(mapping, null, 2)
+
+    setOutput('json', mappingJson)
   } catch (err) {
     setFailed(err instanceof Error ? err : String(err))
 
     if (isDebug() && err instanceof Error && err.stack) {
       error(err.stack)
     }
-  }
-}
-
-async function notifySlack(
-  octokit: OctokitClient,
-  slack: SlackClient
-): Promise<void> {
-  const githubUserMapping = getEnv(EnvironmentVariable.SlackGithubUsers)
-  const getMessageAuthor = getMessageAuthorFactory(octokit, slack, {
-    githubUserMapping
-  })
-  const ts = await postMessage({octokit, slack, getMessageAuthor})
-  if (ts) {
-    setOutput('ts', ts)
   }
 }
 

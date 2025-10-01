@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as github from '@actions/github'
 import {afterAll, beforeEach, describe, expect, it, jest} from '@jest/globals'
+import {EVENT_NAME_IMAGE_MAP} from '../../github/getContextBlock'
+import type {OctokitClient} from '../../github/types'
+import type {SlackClient} from '../../slack/SlackClient'
 import {GetMessageAuthor} from '../getMessageAuthorFactory'
-import {EVENT_NAME_IMAGE_MAP} from '../github/getContextBlock'
-import type {OctokitClient} from '../github/types'
 import {postMessage} from '../postMessage'
-import type {SlackClient} from '../slack/SlackClient'
 
 describe('postMessage', () => {
   let octokit: OctokitClient

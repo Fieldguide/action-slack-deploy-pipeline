@@ -1,4 +1,4 @@
-import {EnvironmentVariable} from '../input'
+import {EnvironmentVariable} from '../utils/input'
 import {isCodedPlatformError} from './utils/isCodedPlatformError'
 
 export class MissingScopeError extends Error {

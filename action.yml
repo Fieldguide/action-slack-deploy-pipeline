@@ -21,7 +21,7 @@ outputs:
     description: 'Slack message timestamp ID'
 runs:
   using: 'node20'
-  main: 'dist/notify/index.js'
+  main: 'dist/notifySlack/index.js'
 branding:
   icon: bell
   color: purple

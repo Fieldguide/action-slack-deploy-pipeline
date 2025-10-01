@@ -5,9 +5,9 @@ import {
   getMessageAuthorFactory,
   GH_MERGE_QUEUE_BOT_USERNAME
 } from '../getMessageAuthorFactory'
-import {OctokitClient} from '../github/types'
-import {SlackClient} from '../slack/SlackClient'
-import {MemberWithProfile, MessageAuthor} from '../slack/types'
+import {OctokitClient} from '../../github/types'
+import {SlackClient} from '../../slack/SlackClient'
+import {MemberWithProfile, MessageAuthor} from '../../slack/types'
 
 describe('getMessageAuthorFactory', () => {
   let getMessageAuthor: GetMessageAuthor
