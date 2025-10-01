@@ -267,7 +267,7 @@ describe('getMessageAuthorFactory', () => {
       })
 
       describe('username not in mapping', () => {
-        beforeEach(async () => {
+        beforeEach(() => {
           getMessageAuthor = getMessageAuthorFactory(octokit, slack, {
             githubUserMapping: JSON.stringify({
               differentuser: {
@@ -277,29 +277,50 @@ describe('getMessageAuthorFactory', () => {
               }
             })
           })
-
-          jest.mocked(slack.getRealUsers).mockReturnValue(
-            Promise.resolve<MemberWithProfile[]>([
-              {
-                id: 'U2',
-                profile: {
-                  real_name: 'Miles Davis',
-                  display_name: 'Miles',
-                  image_48: 'slack.com/img-miles'
-                }
-              }
-            ])
-          )
-
-          messageAuthor = await getMessageAuthor({withSlackUserId: true})
         })
 
-        it('falls back to Slack API lookup', () => {
-          expect(slack.getRealUsers).toHaveBeenCalled()
-          expect(messageAuthor).toStrictEqual({
-            slack_user_id: 'U2',
-            username: 'Miles',
-            icon_url: 'slack.com/img-miles'
+        describe('with Slack user ID', () => {
+          beforeEach(async () => {
+            jest.mocked(slack.getRealUsers).mockReturnValue(
+              Promise.resolve<MemberWithProfile[]>([
+                {
+                  id: 'U2',
+                  profile: {
+                    real_name: 'Miles Davis',
+                    display_name: 'Miles',
+                    image_48: 'slack.com/img-miles'
+                  }
+                }
+              ])
+            )
+
+            messageAuthor = await getMessageAuthor({withSlackUserId: true})
+          })
+
+          it('falls back to Slack API lookup', () => {
+            expect(slack.getRealUsers).toHaveBeenCalled()
+            expect(messageAuthor).toStrictEqual({
+              slack_user_id: 'U2',
+              username: 'Miles',
+              icon_url: 'slack.com/img-miles'
+            })
+          })
+        })
+
+        describe('without Slack user ID', () => {
+          beforeEach(async () => {
+            messageAuthor = await getMessageAuthor({withSlackUserId: false})
+          })
+
+          it('falls back to GitHub username', () => {
+            expect(messageAuthor).toStrictEqual({
+              username: 'namoscato',
+              icon_url: 'github.com/namoscato'
+            })
+          })
+
+          it('does not call Slack API', async () => {
+            expect(slack.getRealUsers).not.toHaveBeenCalled()
           })
         })
       })

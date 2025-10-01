@@ -43848,18 +43848,19 @@ function getMessageAuthor(octokit_1, slack_1, _a) {
             return null;
         }
         try {
+            const messageAuthor = maybeGetMessageAuthorFromGithubUserMapping(githubSender.login, githubUserMapping);
+            if (messageAuthor) {
+                return messageAuthor; // favor githubUserMapping if defined
+            }
             if (!withSlackUserId) {
                 return {
                     username: githubSender.login,
                     icon_url: githubSender.avatar_url
                 };
             }
-            const messageAuthor = maybeGetMessageAuthorFromGithubUserMapping(githubSender.login, githubUserMapping);
             if (null === messageAuthor) {
+                // falls back to GitHub username below
                 throw new Error(`GitHub user "${githubSender.login}" not mapped to Slack user in ${input_1.EnvironmentVariable.SlackGithubUsers}.`);
-            }
-            if (messageAuthor) {
-                return messageAuthor;
             }
             (0, core_1.info)('Fetching Slack users');
             const slackUsers = yield slack.getRealUsers();
