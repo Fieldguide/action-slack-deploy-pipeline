@@ -1,8 +1,8 @@
 import {info, warning} from '@actions/core'
+import {GitHubUserMapping} from './getMessageAuthorFactory'
 import {OctokitClient} from './github/types'
 import {getSlackUserFromName} from './slack/getSlackUserFromName'
 import {SlackClient} from './slack/SlackClient'
-import {type MessageAuthor} from './slack/types'
 
 /**
  * Return all GitHub usernames from the specified `github_org`, mapped to their Slack user.
@@ -13,7 +13,7 @@ export async function githubToSlackMapping(
   octokit: OctokitClient,
   slack: SlackClient,
   github_org: string
-): Promise<Record<string, MessageAuthor | null>> {
+): Promise<GitHubUserMapping> {
   const githubUsers = await fetchGitHubUsers(octokit, github_org)
   if (githubUsers.length === 0) {
     warning('No GitHub members found.')
@@ -27,7 +27,7 @@ export async function githubToSlackMapping(
     return {}
   }
 
-  const result: Record<string, MessageAuthor | null> = {}
+  const result: GitHubUserMapping = {}
 
   for (const githubUser of githubUsers) {
     try {

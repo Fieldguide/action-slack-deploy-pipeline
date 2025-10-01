@@ -43829,45 +43829,14 @@ const core_1 = __nccwpck_require__(59999);
 const github_1 = __nccwpck_require__(75380);
 const yaml = __importStar(__nccwpck_require__(39885));
 const webhook_1 = __nccwpck_require__(45568);
+const input_1 = __nccwpck_require__(15229);
 const getSlackUserFromName_1 = __nccwpck_require__(90120);
 const types_1 = __nccwpck_require__(37539);
 exports.GH_MERGE_QUEUE_BOT_USERNAME = 'github-merge-queue[bot]';
-function getMessageAuthorFactory(octokit, slack, options = {
-    githubUserMapping: undefined
-}) {
+function getMessageAuthorFactory(octokit, slack, options) {
     return (...args_1) => __awaiter(this, [...args_1], void 0, function* ({ withSlackUserId } = { withSlackUserId: false }) {
         return getMessageAuthor(octokit, slack, Object.assign({ withSlackUserId }, options));
     });
-}
-function maybeGetMessageAuthorFromGithubUserMapping(githubUserLogin, githubUserMapping) {
-    const hasMapping = githubUserMapping && githubUserMapping !== undefined;
-    if (hasMapping) {
-        return getMessageAuthorFromGithubUserMapping(githubUserLogin, githubUserMapping);
-    }
-    (0, core_1.warning)('No cached mapping found, fetching Slack user by GitHub name.');
-    return null;
-}
-function getMessageAuthorFromGithubUserMapping(githubUserLogin, githubUserMapping) {
-    if (!githubUserMapping) {
-        return null;
-    }
-    // Try JSON first
-    let mapping = {};
-    if (githubUserMapping.trim().startsWith('{')) {
-        mapping = JSON.parse(githubUserMapping);
-    }
-    else {
-        mapping = yaml.load(githubUserMapping);
-    }
-    // validate mapping shape
-    const isValidShapeMapping = Object.values(mapping).every(types_1.isMessageAuthor);
-    if (!isValidShapeMapping) {
-        (0, core_1.error)('Invalid shape for GitHub to Slack user mapping.');
-    }
-    if (mapping[githubUserLogin]) {
-        return mapping[githubUserLogin];
-    }
-    return null;
 }
 function getMessageAuthor(octokit_1, slack_1, _a) {
     return __awaiter(this, arguments, void 0, function* (octokit, slack, { withSlackUserId, githubUserMapping }) {
@@ -43886,6 +43855,9 @@ function getMessageAuthor(octokit_1, slack_1, _a) {
                 };
             }
             const messageAuthor = maybeGetMessageAuthorFromGithubUserMapping(githubSender.login, githubUserMapping);
+            if (null === messageAuthor) {
+                throw new Error(`GitHub user "${githubSender.login}" not mapped to Slack user in ${input_1.EnvironmentVariable.SlackGithubUsers}.`);
+            }
             if (messageAuthor) {
                 return messageAuthor;
             }
@@ -43965,6 +43937,48 @@ function getPullRequestMergerFromPushCommit(octokit) {
         }
         return mergedBy;
     });
+}
+/**
+ * Parse `githubUserMapping`, and return the Slack {@link MessageAuthor}
+ * associated with the specified `username`.
+ *
+ * - `null` indicates no matching Slack user
+ * - `undefined` indicates unknown `username`
+ */
+function maybeGetMessageAuthorFromGithubUserMapping(username, githubUserMapping) {
+    if (!githubUserMapping) {
+        return undefined;
+    }
+    let messageAuthor;
+    let warningMessage = '';
+    try {
+        let mapping;
+        if (githubUserMapping.trim().startsWith('{')) {
+            (0, core_1.info)(`Parsing ${input_1.EnvironmentVariable.SlackGithubUsers} JSON`);
+            mapping = JSON.parse(githubUserMapping);
+        }
+        else {
+            (0, core_1.info)(`Parsing ${input_1.EnvironmentVariable.SlackGithubUsers} YAML`);
+            mapping = yaml.load(githubUserMapping);
+        }
+        if (!isGitHubUserMapping(mapping)) {
+            throw new Error('Expected author objects, keyed by GitHub username');
+        }
+        messageAuthor = mapping[username];
+    }
+    catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        warningMessage = `${input_1.EnvironmentVariable.SlackGithubUsers} is invalid: ${message}. `;
+    }
+    if (undefined === messageAuthor) {
+        (0, core_1.warning)(`${warningMessage}Falling back to name matching via Slack API.`);
+    }
+    return messageAuthor;
+}
+function isGitHubUserMapping(mapping) {
+    return ('object' === typeof mapping &&
+        null !== mapping &&
+        Object.values(mapping).every(value => null === value || (0, types_1.isMessageAuthor)(value)));
 }
 
 
