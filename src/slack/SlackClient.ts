@@ -12,14 +12,14 @@ import {isCodedPlatformError} from './utils/isCodedPlatformError'
 
 interface Dependencies {
   token: string
-  channel: string
-  errorReaction: string | null
+  channel?: string
+  errorReaction?: string | null
 }
 
 export class SlackClient {
   private readonly web: WebClient
-  private readonly channel: string
-  private readonly errorReaction: string | null
+  private readonly channel?: string
+  private readonly errorReaction?: string | null
 
   constructor({token, channel, errorReaction}: Dependencies) {
     this.channel = channel
@@ -65,6 +65,10 @@ export class SlackClient {
    * @returns message timestamp ID
    */
   async postMessage(options: PostMessageArguments): Promise<string> {
+    if (!this.channel) {
+      throw new Error('channel dependency is required')
+    }
+
     const {ts} = await this.web.chat.postMessage({
       ...options,
       channel: this.channel
@@ -78,6 +82,10 @@ export class SlackClient {
   }
 
   async updateMessage(options: UpdateMessageArguments): Promise<void> {
+    if (!this.channel) {
+      throw new Error('channel dependency is required')
+    }
+
     await this.web.chat.update({...options, channel: this.channel})
   }
 
@@ -85,6 +93,10 @@ export class SlackClient {
    * @throws {MissingScopeError} if the bot token is missing the required OAuth scope
    */
   async maybeAddErrorReaction({ts}: AddReactionArguments): Promise<void> {
+    if (!this.channel) {
+      throw new Error('channel dependency is required')
+    }
+
     if (!this.errorReaction) {
       return
     }

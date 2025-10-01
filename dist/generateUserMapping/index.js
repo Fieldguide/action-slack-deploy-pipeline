@@ -39708,13 +39708,7 @@ function generateUserMapping() {
 }
 function createSlackClient() {
     const token = (0, input_1.getRequiredEnv)(input_1.EnvironmentVariable.SlackBotToken);
-    const channel = (0, input_1.getRequiredEnv)(input_1.EnvironmentVariable.SlackChannel);
-    const errorReaction = (0, input_1.getEnv)(input_1.EnvironmentVariable.SlackErrorReaction);
-    return new SlackClient_1.SlackClient({
-        token,
-        channel,
-        errorReaction
-    });
+    return new SlackClient_1.SlackClient({ token });
 }
 function createOctokitClient() {
     const token = (0, core_1.getInput)('github_token', { required: true });
@@ -39809,6 +39803,9 @@ class SlackClient {
      */
     postMessage(options) {
         return __awaiter(this, void 0, void 0, function* () {
+            if (!this.channel) {
+                throw new Error('channel dependency is required');
+            }
             const { ts } = yield this.web.chat.postMessage(Object.assign(Object.assign({}, options), { channel: this.channel }));
             if (!ts) {
                 throw new Error('Response timestamp ID undefined');
@@ -39818,6 +39815,9 @@ class SlackClient {
     }
     updateMessage(options) {
         return __awaiter(this, void 0, void 0, function* () {
+            if (!this.channel) {
+                throw new Error('channel dependency is required');
+            }
             yield this.web.chat.update(Object.assign(Object.assign({}, options), { channel: this.channel }));
         });
     }
@@ -39826,6 +39826,9 @@ class SlackClient {
      */
     maybeAddErrorReaction(_a) {
         return __awaiter(this, arguments, void 0, function* ({ ts }) {
+            if (!this.channel) {
+                throw new Error('channel dependency is required');
+            }
             if (!this.errorReaction) {
                 return;
             }

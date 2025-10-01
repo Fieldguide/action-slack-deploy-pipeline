@@ -3,7 +3,7 @@ import {getOctokit} from '@actions/github'
 import {OctokitClient} from './github/types'
 import {SlackClient} from './slack/SlackClient'
 import {githubToSlackMapping} from './utils/githubToSlackMapping'
-import {EnvironmentVariable, getEnv, getRequiredEnv} from './utils/input'
+import {EnvironmentVariable, getRequiredEnv} from './utils/input'
 
 generateUserMapping()
 
@@ -28,13 +28,7 @@ async function generateUserMapping(): Promise<void> {
 
 function createSlackClient(): SlackClient {
   const token = getRequiredEnv(EnvironmentVariable.SlackBotToken)
-  const channel = getRequiredEnv(EnvironmentVariable.SlackChannel)
-  const errorReaction = getEnv(EnvironmentVariable.SlackErrorReaction)
-  return new SlackClient({
-    token,
-    channel,
-    errorReaction
-  })
+  return new SlackClient({token})
 }
 
 function createOctokitClient(): OctokitClient {

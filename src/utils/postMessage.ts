@@ -1,9 +1,9 @@
 import {getInput, info} from '@actions/core'
-import type {GetMessageAuthor} from './getMessageAuthorFactory'
 import {getStageMessage} from '../github/getStageMessage'
 import {getSummaryMessage} from '../github/getSummaryMessage'
 import {OctokitClient, isSuccessfulStatus} from '../github/types'
 import type {SlackClient} from '../slack/SlackClient'
+import type {GetMessageAuthor} from './getMessageAuthorFactory'
 
 interface Dependencies {
   octokit: OctokitClient

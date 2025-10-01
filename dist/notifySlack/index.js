@@ -44392,6 +44392,9 @@ class SlackClient {
      */
     postMessage(options) {
         return __awaiter(this, void 0, void 0, function* () {
+            if (!this.channel) {
+                throw new Error('channel dependency is required');
+            }
             const { ts } = yield this.web.chat.postMessage(Object.assign(Object.assign({}, options), { channel: this.channel }));
             if (!ts) {
                 throw new Error('Response timestamp ID undefined');
@@ -44401,6 +44404,9 @@ class SlackClient {
     }
     updateMessage(options) {
         return __awaiter(this, void 0, void 0, function* () {
+            if (!this.channel) {
+                throw new Error('channel dependency is required');
+            }
             yield this.web.chat.update(Object.assign(Object.assign({}, options), { channel: this.channel }));
         });
     }
@@ -44409,6 +44415,9 @@ class SlackClient {
      */
     maybeAddErrorReaction(_a) {
         return __awaiter(this, arguments, void 0, function* ({ ts }) {
+            if (!this.channel) {
+                throw new Error('channel dependency is required');
+            }
             if (!this.errorReaction) {
                 return;
             }
@@ -44652,9 +44661,9 @@ const core_1 = __nccwpck_require__(59999);
 const github_1 = __nccwpck_require__(75380);
 const yaml = __importStar(__nccwpck_require__(39885));
 const webhook_1 = __nccwpck_require__(45568);
-const input_1 = __nccwpck_require__(6507);
 const getSlackUserFromName_1 = __nccwpck_require__(90120);
 const types_1 = __nccwpck_require__(37539);
+const input_1 = __nccwpck_require__(6507);
 exports.GH_MERGE_QUEUE_BOT_USERNAME = 'github-merge-queue[bot]';
 function getMessageAuthorFactory(octokit, slack, options) {
     return (...args_1) => __awaiter(this, [...args_1], void 0, function* ({ withSlackUserId } = { withSlackUserId: false }) {

@@ -1,8 +1,8 @@
 import {info, warning} from '@actions/core'
-import {GitHubUserMapping} from './getMessageAuthorFactory'
 import {OctokitClient} from '../github/types'
 import {getSlackUserFromName} from '../slack/getSlackUserFromName'
-import {SlackClient} from '../slack/SlackClient'
+import type {SlackClient} from '../slack/SlackClient'
+import {GitHubUserMapping} from './getMessageAuthorFactory'
 
 /**
  * Return all GitHub usernames from the specified `github_org`, mapped to their Slack user.

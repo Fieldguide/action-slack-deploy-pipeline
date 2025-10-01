@@ -27,18 +27,24 @@ jest.mock('@slack/web-api', () => ({
 }))
 
 describe('SlackClient', () => {
-  const client = new SlackClient({
-    token: 'TOKEN',
-    channel: 'CHANNEL',
-    errorReaction: 'REACTION'
-  })
+  let client: SlackClient
 
   beforeEach(() => {
     jest.resetAllMocks()
+
+    client = new SlackClient({
+      token: 'TOKEN',
+      channel: 'CHANNEL',
+      errorReaction: 'REACTION'
+    })
   })
 
   describe('getRealUsers', () => {
     let users: Member[] | null
+
+    beforeEach(() => {
+      client = new SlackClient({token: 'TOKEN'}) // inherently assert optional dependencies
+    })
 
     describe('unexpected response', () => {
       let error: unknown

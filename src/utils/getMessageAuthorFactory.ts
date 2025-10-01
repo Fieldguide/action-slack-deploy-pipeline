@@ -4,10 +4,10 @@ import type {Commit} from '@octokit/webhooks-types'
 import * as yaml from 'js-yaml'
 import {OctokitClient} from '../github/types'
 import {GitHubSender, isPushEvent, senderFromPayload} from '../github/webhook'
-import {EnvironmentVariable} from './input'
 import {getSlackUserFromName} from '../slack/getSlackUserFromName'
-import {SlackClient} from '../slack/SlackClient'
+import type {SlackClient} from '../slack/SlackClient'
 import {isMessageAuthor, MessageAuthor} from '../slack/types'
+import {EnvironmentVariable} from './input'
 
 export const GH_MERGE_QUEUE_BOT_USERNAME = 'github-merge-queue[bot]'
 
