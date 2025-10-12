@@ -91,8 +91,10 @@ jobs:
         with:
           workflow: slack_deploy_user_mapping.yaml
           name: slack-deploy-user-mapping
+          if_no_artifact_found: warn
 
       - name: Set Slack deploy user mapping environment variable
+        if: hashFiles('slack-deploy-user-mapping.json') != ''
         run: |
           echo "SLACK_DEPLOY_GITHUB_USERS<<EOF" >> $GITHUB_ENV
           cat slack-deploy-user-mapping.json >> $GITHUB_ENV
