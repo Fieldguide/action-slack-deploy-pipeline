@@ -48,7 +48,7 @@
   },
   "devDependencies": {
     "@jest/globals": "^30.2.0",
-    "@octokit/types": "^14.1.0",
+    "@octokit/types": "^15.0.0",
     "@octokit/webhooks-types": "^7.6.1",
     "@types/node": "^20.19.21",
     "@typescript-eslint/parser": "^7.9.0",
