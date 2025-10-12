@@ -4,9 +4,8 @@ description: 'Generate mapping of Slack user details by GitHub username for use 
 author: 'Fieldguide'
 inputs:
   github_token:
-    description: 'Repository GITHUB_TOKEN or personal access token secret'
-    required: false
-    default: ${{ github.token }}
+    description: 'GitHub organization personal access token secret'
+    required: true
   github_org:
     description: 'GitHub organization name from which members are fetched'
     required: true
