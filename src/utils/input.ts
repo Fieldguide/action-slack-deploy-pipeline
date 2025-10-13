@@ -1,7 +1,8 @@
 export enum EnvironmentVariable {
   SlackBotToken = 'SLACK_DEPLOY_BOT_TOKEN',
   SlackChannel = 'SLACK_DEPLOY_CHANNEL',
-  SlackErrorReaction = 'SLACK_DEPLOY_ERROR_REACTION'
+  SlackErrorReaction = 'SLACK_DEPLOY_ERROR_REACTION',
+  SlackGithubUsers = 'SLACK_DEPLOY_GITHUB_USERS'
 }
 
 /**

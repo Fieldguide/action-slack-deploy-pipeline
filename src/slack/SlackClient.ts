@@ -1,24 +1,25 @@
 import {info, isDebug, warning} from '@actions/core'
 import {LogLevel, WebClient, WebClientEvent} from '@slack/web-api'
 import {isMissingScopeError, MissingScopeError} from './MissingScopeError'
-import type {
-  AddReactionArguments,
-  Member,
-  PostMessageArguments,
-  UpdateMessageArguments
+import {
+  isMemberWithProfile,
+  MemberWithProfile,
+  type AddReactionArguments,
+  type PostMessageArguments,
+  type UpdateMessageArguments
 } from './types'
 import {isCodedPlatformError} from './utils/isCodedPlatformError'
 
 interface Dependencies {
   token: string
-  channel: string
-  errorReaction: string | null
+  channel?: string
+  errorReaction?: string | null
 }
 
 export class SlackClient {
   private readonly web: WebClient
-  private readonly channel: string
-  private readonly errorReaction: string | null
+  private readonly channel?: string
+  private readonly errorReaction?: string | null
 
   constructor({token, channel, errorReaction}: Dependencies) {
     this.channel = channel
@@ -32,11 +33,11 @@ export class SlackClient {
   }
 
   /**
-   * Return the set of non-bot users.
+   * Return the set of non-bot users with a defined profile.
    *
    * @throws {MissingScopeError} if the bot token is missing the required OAuth scope
    */
-  async getRealUsers(): Promise<Member[]> {
+  async getRealUsers(): Promise<MemberWithProfile[]> {
     try {
       const {members} = await this.web.users.list({})
 
@@ -44,10 +45,11 @@ export class SlackClient {
         throw new Error('Error fetching users')
       }
 
-      return members.filter(({id, is_bot}) => {
+      return members.filter((user): user is MemberWithProfile => {
         return (
-          'USLACKBOT' !== id && // USLACKBOT is a special user ID for @SlackBot
-          !is_bot
+          isMemberWithProfile(user) &&
+          'USLACKBOT' !== user.id && // USLACKBOT is a special user ID for @SlackBot
+          !user.is_bot
         )
       })
     } catch (error) {
@@ -63,6 +65,10 @@ export class SlackClient {
    * @returns message timestamp ID
    */
   async postMessage(options: PostMessageArguments): Promise<string> {
+    if (!this.channel) {
+      throw new Error('channel dependency is required')
+    }
+
     const {ts} = await this.web.chat.postMessage({
       ...options,
       channel: this.channel
@@ -76,6 +82,10 @@ export class SlackClient {
   }
 
   async updateMessage(options: UpdateMessageArguments): Promise<void> {
+    if (!this.channel) {
+      throw new Error('channel dependency is required')
+    }
+
     await this.web.chat.update({...options, channel: this.channel})
   }
 
@@ -83,6 +93,10 @@ export class SlackClient {
    * @throws {MissingScopeError} if the bot token is missing the required OAuth scope
    */
   async maybeAddErrorReaction({ts}: AddReactionArguments): Promise<void> {
+    if (!this.channel) {
+      throw new Error('channel dependency is required')
+    }
+
     if (!this.errorReaction) {
       return
     }

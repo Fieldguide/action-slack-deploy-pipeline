@@ -1,10 +1,13 @@
 import {endGroup, info, isDebug, startGroup, warning} from '@actions/core'
 import {context} from '@actions/github'
 import type {Commit} from '@octokit/webhooks-types'
-import {OctokitClient} from './github/types'
-import {GitHubSender, isPushEvent, senderFromPayload} from './github/webhook'
-import {SlackClient} from './slack/SlackClient'
-import {MemberWithProfile, MessageAuthor} from './slack/types'
+import * as yaml from 'js-yaml'
+import {OctokitClient} from '../github/types'
+import {GitHubSender, isPushEvent, senderFromPayload} from '../github/webhook'
+import {getSlackUserFromName} from '../slack/getSlackUserFromName'
+import type {SlackClient} from '../slack/SlackClient'
+import {isMessageAuthor, MessageAuthor} from '../slack/types'
+import {EnvironmentVariable} from './input'
 
 export const GH_MERGE_QUEUE_BOT_USERNAME = 'github-merge-queue[bot]'
 
@@ -14,24 +17,39 @@ export type GetMessageAuthor = (
 
 interface GetMessageAuthorOptions {
   /** `false` falls back to GitHub username, skipping a conservatively rate-limited Slack API call */
-  withSlackUserId: boolean
+  withSlackUserId?: boolean
+}
+
+/**
+ * GitHub usernames mapped to their Slack {@link MessageAuthor}.
+ *
+ * A `null` value indicates no matching Slack user.
+ */
+export type GitHubUserMapping = Record<string, MessageAuthor | null>
+
+interface GetMessageAuthorFactoryOptions {
+  /** JSON or YAML-serialized {@link GitHubUserMapping} */
+  githubUserMapping: string | null
 }
 
 export function getMessageAuthorFactory(
   octokit: OctokitClient,
-  slack: SlackClient
+  slack: SlackClient,
+  options: GetMessageAuthorFactoryOptions
 ): GetMessageAuthor {
   return async (
     {withSlackUserId}: GetMessageAuthorOptions = {withSlackUserId: false}
   ): Promise<MessageAuthor | null> => {
-    return getMessageAuthor(octokit, slack, withSlackUserId)
+    return getMessageAuthor(octokit, slack, {withSlackUserId, ...options})
   }
 }
+
+type Options = GetMessageAuthorOptions & GetMessageAuthorFactoryOptions
 
 async function getMessageAuthor(
   octokit: OctokitClient,
   slack: SlackClient,
-  withSlackUserId: boolean
+  {withSlackUserId, githubUserMapping}: Options
 ): Promise<MessageAuthor | null> {
   startGroup('Getting message author')
 
@@ -44,11 +62,27 @@ async function getMessageAuthor(
   }
 
   try {
+    const messageAuthor = maybeGetMessageAuthorFromGithubUserMapping(
+      githubSender.login,
+      githubUserMapping
+    )
+
+    if (messageAuthor) {
+      return messageAuthor // favor githubUserMapping if defined
+    }
+
     if (!withSlackUserId) {
       return {
         username: githubSender.login,
         icon_url: githubSender.avatar_url
       }
+    }
+
+    if (null === messageAuthor) {
+      // falls back to GitHub username below
+      throw new Error(
+        `GitHub user "${githubSender.login}" not mapped to Slack user in ${EnvironmentVariable.SlackGithubUsers}.`
+      )
     }
 
     info('Fetching Slack users')
@@ -61,35 +95,12 @@ async function getMessageAuthor(
       })
     ).data
 
-    info(`Finding Slack user by name: ${githubUser.name}`)
-    const matchingSlackUsers = slackUsers.filter(
-      (user): user is MemberWithProfile => {
-        return Boolean(
-          user.profile?.real_name === githubUser.name &&
-            user.profile.display_name &&
-            user.profile.image_48
-        )
-      }
-    )
-
-    const matchingSlackUser = matchingSlackUsers[0]
-
-    if (!matchingSlackUser) {
-      throw new Error(
-        `Unable to match GitHub user "${githubUser.name}" to Slack user by name.`
-      )
-    }
-
-    if (matchingSlackUsers.length > 1) {
-      throw new Error(
-        `${matchingSlackUsers.length} Slack users match GitHub user name "${githubUser.name}".`
-      )
-    }
+    const slackUser = getSlackUserFromName(slackUsers, githubUser.name)
 
     return {
-      slack_user_id: matchingSlackUser.id,
-      username: matchingSlackUser.profile.display_name,
-      icon_url: matchingSlackUser.profile.image_48
+      slack_user_id: slackUser.id,
+      username: slackUser.profile.display_name,
+      icon_url: slackUser.profile.image_48
     }
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
@@ -177,4 +188,60 @@ async function getPullRequestMergerFromPushCommit(
   }
 
   return mergedBy
+}
+
+/**
+ * Parse `githubUserMapping`, and return the Slack {@link MessageAuthor}
+ * associated with the specified `username`.
+ *
+ * - `null` indicates no matching Slack user
+ * - `undefined` indicates unknown `username`
+ */
+function maybeGetMessageAuthorFromGithubUserMapping(
+  username: string,
+  githubUserMapping: string | null
+): MessageAuthor | null | undefined {
+  if (!githubUserMapping) {
+    return undefined
+  }
+
+  let messageAuthor: MessageAuthor | null | undefined
+  let warningMessage = ''
+
+  try {
+    let mapping: unknown
+
+    if (githubUserMapping.trim().startsWith('{')) {
+      info(`Parsing ${EnvironmentVariable.SlackGithubUsers} JSON`)
+      mapping = JSON.parse(githubUserMapping)
+    } else {
+      info(`Parsing ${EnvironmentVariable.SlackGithubUsers} YAML`)
+      mapping = yaml.load(githubUserMapping)
+    }
+
+    if (!isGitHubUserMapping(mapping)) {
+      throw new Error('Expected author objects, keyed by GitHub username')
+    }
+
+    messageAuthor = mapping[username]
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err)
+    warningMessage = `${EnvironmentVariable.SlackGithubUsers} is invalid: ${message}. `
+  }
+
+  if (undefined === messageAuthor) {
+    warning(`${warningMessage}Falling back to name matching via Slack API.`)
+  }
+
+  return messageAuthor
+}
+
+function isGitHubUserMapping(mapping: unknown): mapping is GitHubUserMapping {
+  return (
+    'object' === typeof mapping &&
+    null !== mapping &&
+    Object.values(mapping).every(
+      value => null === value || isMessageAuthor(value)
+    )
+  )
 }

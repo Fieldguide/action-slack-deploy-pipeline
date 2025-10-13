@@ -22,34 +22,38 @@
     "progress"
   ],
   "exports": {
-    ".": "./dist/index.js"
+    "notifySlack": "./dist/notifySlack/index.js",
+    "generateUserMapping": "./dist/generateUserMapping/index.js"
   },
   "engines": {
     "node": ">=20"
   },
   "packageManager": "pnpm@10.12.4",
   "scripts": {
-    "dev": "pnpm package --watch",
-    "bundle": "pnpm format:write && pnpm package",
+    "dev": "pnpm package:notifySlack --watch & pnpm package:generateUserMapping --watch",
+    "bundle": "pnpm format:write && pnpm package:notifySlack && pnpm package:generateUserMapping",
     "format:write": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint . --ext .ts",
-    "package": "ncc build src/main.ts --license licenses.txt",
+    "package:notifySlack": "ncc build src/notifySlack.ts -o dist/notifySlack --license licenses.txt",
+    "package:generateUserMapping": "ncc build src/generateUserMapping.ts -o dist/generateUserMapping --license licenses.txt",
     "test": "jest --watch",
     "test:ci": "jest",
-    "all": "pnpm format:check && pnpm lint && pnpm test:ci && pnpm package"
+    "all": "pnpm format:check && pnpm lint && pnpm test:ci && pnpm package:notifySlack && pnpm package:generateUserMapping"
   },
   "license": "MIT",
   "dependencies": {
     "@actions/core": "^1.11.1",
     "@actions/github": "^6.0.1",
     "@slack/web-api": "^7.9.3",
-    "date-fns": "^4.1.0"
+    "date-fns": "^4.1.0",
+    "js-yaml": "^4.1.0"
   },
   "devDependencies": {
     "@jest/globals": "^30.2.0",
     "@octokit/types": "^15.0.0",
     "@octokit/webhooks-types": "^7.6.1",
+    "@types/js-yaml": "^4.0.9",
     "@types/node": "^20.19.21",
     "@typescript-eslint/parser": "^7.9.0",
     "@vercel/ncc": "^0.38.3",

@@ -1,0 +1,20 @@
+---
+name: 'Generate Slack Deploy User Mapping'
+description: 'Generate mapping of Slack user details by GitHub username for use in Slack Deploy Pipeline Notifications'
+author: 'Fieldguide'
+inputs:
+  github_token:
+    description: 'GitHub organization personal access token secret'
+    required: true
+  github_org:
+    description: 'GitHub organization name from which members are fetched'
+    required: true
+outputs:
+  json:
+    description: 'JSON-serialized mapping of Slack user details by GitHub username'
+runs:
+  using: 'node20'
+  main: '../../../dist/generateUserMapping/index.js'
+branding:
+  icon: bell
+  color: purple

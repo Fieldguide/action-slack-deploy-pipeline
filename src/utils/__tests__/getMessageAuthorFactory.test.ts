@@ -5,9 +5,9 @@ import {
   getMessageAuthorFactory,
   GH_MERGE_QUEUE_BOT_USERNAME
 } from '../getMessageAuthorFactory'
-import {OctokitClient} from '../github/types'
-import {SlackClient} from '../slack/SlackClient'
-import {Member, MessageAuthor} from '../slack/types'
+import {OctokitClient} from '../../github/types'
+import {SlackClient} from '../../slack/SlackClient'
+import {MemberWithProfile, MessageAuthor} from '../../slack/types'
 
 describe('getMessageAuthorFactory', () => {
   let getMessageAuthor: GetMessageAuthor
@@ -59,7 +59,9 @@ describe('getMessageAuthorFactory', () => {
       getRealUsers: jest.fn()
     } as unknown as SlackClient
 
-    getMessageAuthor = getMessageAuthorFactory(octokit, slack)
+    getMessageAuthor = getMessageAuthorFactory(octokit, slack, {
+      githubUserMapping: null
+    })
   })
 
   afterEach(() => {
@@ -104,7 +106,7 @@ describe('getMessageAuthorFactory', () => {
   describe('Slack user not found', () => {
     beforeEach(async () => {
       jest.mocked(slack.getRealUsers).mockReturnValue(
-        Promise.resolve<Member[]>([
+        Promise.resolve<MemberWithProfile[]>([
           {
             profile: {
               real_name: 'first last 1',
@@ -149,7 +151,7 @@ describe('getMessageAuthorFactory', () => {
   describe('multiple Slack users with same name', () => {
     beforeEach(async () => {
       jest.mocked(slack.getRealUsers).mockReturnValue(
-        Promise.resolve<Member[]>([
+        Promise.resolve<MemberWithProfile[]>([
           {
             id: 'U1',
             profile: {
@@ -180,7 +182,7 @@ describe('getMessageAuthorFactory', () => {
   describe('Slack user found', () => {
     beforeEach(async () => {
       jest.mocked(slack.getRealUsers).mockReturnValue(
-        Promise.resolve<Member[]>([
+        Promise.resolve<MemberWithProfile[]>([
           {
             id: 'U1',
             profile: {
@@ -212,6 +214,213 @@ describe('getMessageAuthorFactory', () => {
     })
   })
 
+  describe('githubUserMapping', () => {
+    describe('when mapping is provided as JSON', () => {
+      beforeEach(() => {
+        getMessageAuthor = getMessageAuthorFactory(octokit, slack, {
+          githubUserMapping: JSON.stringify({
+            namoscato: {
+              slack_user_id: 'U123',
+              username: 'Nick from Mapping',
+              icon_url: 'slack.com/mapped-nick'
+            },
+            anotheruser: null
+          })
+        })
+      })
+
+      describe('defined mapping', () => {
+        beforeEach(async () => {
+          messageAuthor = await getMessageAuthor({withSlackUserId: true})
+        })
+
+        it('returns mapped user', () => {
+          expect(messageAuthor).toStrictEqual({
+            slack_user_id: 'U123',
+            username: 'Nick from Mapping',
+            icon_url: 'slack.com/mapped-nick'
+          })
+        })
+
+        it('does not call Slack API ', async () => {
+          expect(slack.getRealUsers).not.toHaveBeenCalled()
+        })
+      })
+
+      describe('null mapping', () => {
+        beforeEach(async () => {
+          github.context.payload.sender!.login = 'anotheruser'
+
+          messageAuthor = await getMessageAuthor({withSlackUserId: true})
+        })
+
+        it('falls back to GitHub username', async () => {
+          expect(messageAuthor).toStrictEqual({
+            username: 'anotheruser',
+            icon_url: 'github.com/namoscato'
+          })
+        })
+
+        it('does not call Slack API ', async () => {
+          expect(slack.getRealUsers).not.toHaveBeenCalled()
+        })
+      })
+
+      describe('username not in mapping', () => {
+        beforeEach(() => {
+          getMessageAuthor = getMessageAuthorFactory(octokit, slack, {
+            githubUserMapping: JSON.stringify({
+              differentuser: {
+                slack_user_id: 'U789',
+                username: 'Different User',
+                icon_url: 'slack.com/different'
+              }
+            })
+          })
+        })
+
+        describe('with Slack user ID', () => {
+          beforeEach(async () => {
+            jest.mocked(slack.getRealUsers).mockReturnValue(
+              Promise.resolve<MemberWithProfile[]>([
+                {
+                  id: 'U2',
+                  profile: {
+                    real_name: 'Miles Davis',
+                    display_name: 'Miles',
+                    image_48: 'slack.com/img-miles'
+                  }
+                }
+              ])
+            )
+
+            messageAuthor = await getMessageAuthor({withSlackUserId: true})
+          })
+
+          it('falls back to Slack API lookup', () => {
+            expect(slack.getRealUsers).toHaveBeenCalled()
+            expect(messageAuthor).toStrictEqual({
+              slack_user_id: 'U2',
+              username: 'Miles',
+              icon_url: 'slack.com/img-miles'
+            })
+          })
+        })
+
+        describe('without Slack user ID', () => {
+          beforeEach(async () => {
+            messageAuthor = await getMessageAuthor({withSlackUserId: false})
+          })
+
+          it('falls back to GitHub username', () => {
+            expect(messageAuthor).toStrictEqual({
+              username: 'namoscato',
+              icon_url: 'github.com/namoscato'
+            })
+          })
+
+          it('does not call Slack API', async () => {
+            expect(slack.getRealUsers).not.toHaveBeenCalled()
+          })
+        })
+      })
+    })
+
+    describe('when mapping is provided as YAML', () => {
+      beforeEach(() => {
+        getMessageAuthor = getMessageAuthorFactory(octokit, slack, {
+          githubUserMapping: `
+namoscato:
+  slack_user_id: U456
+  username: Nick from YAML
+  icon_url: slack.com/yaml-nick
+otheruser:
+  username: Other User
+  icon_url: slack.com/other
+`
+        })
+      })
+
+      it('returns mapped user when GitHub username matches', async () => {
+        messageAuthor = await getMessageAuthor({withSlackUserId: true})
+
+        expect(messageAuthor).toStrictEqual({
+          slack_user_id: 'U456',
+          username: 'Nick from YAML',
+          icon_url: 'slack.com/yaml-nick'
+        })
+      })
+    })
+
+    describe('when mapping is invalid JSON', () => {
+      beforeEach(() => {
+        getMessageAuthor = getMessageAuthorFactory(octokit, slack, {
+          githubUserMapping: '{invalid json'
+        })
+
+        jest.mocked(slack.getRealUsers).mockReturnValue(
+          Promise.resolve<MemberWithProfile[]>([
+            {
+              id: 'U2',
+              profile: {
+                real_name: 'Miles Davis',
+                display_name: 'Miles',
+                image_48: 'slack.com/img-miles'
+              }
+            }
+          ])
+        )
+      })
+
+      it('falls back to Slack API lookup', async () => {
+        messageAuthor = await getMessageAuthor({withSlackUserId: true})
+
+        expect(slack.getRealUsers).toHaveBeenCalled()
+        expect(messageAuthor).toStrictEqual({
+          slack_user_id: 'U2',
+          username: 'Miles',
+          icon_url: 'slack.com/img-miles'
+        })
+      })
+    })
+
+    describe('when mapping contains invalid MessageAuthor objects', () => {
+      beforeEach(() => {
+        getMessageAuthor = getMessageAuthorFactory(octokit, slack, {
+          githubUserMapping: JSON.stringify({
+            namoscato: {
+              invalid_field: 'value'
+            }
+          })
+        })
+
+        jest.mocked(slack.getRealUsers).mockReturnValue(
+          Promise.resolve<MemberWithProfile[]>([
+            {
+              id: 'U2',
+              profile: {
+                real_name: 'Miles Davis',
+                display_name: 'Miles',
+                image_48: 'slack.com/img-miles'
+              }
+            }
+          ])
+        )
+      })
+
+      it('falls back to Slack API lookup', async () => {
+        messageAuthor = await getMessageAuthor({withSlackUserId: true})
+
+        expect(slack.getRealUsers).toHaveBeenCalled()
+        expect(messageAuthor).toStrictEqual({
+          slack_user_id: 'U2',
+          username: 'Miles',
+          icon_url: 'slack.com/img-miles'
+        })
+      })
+    })
+  })
+
   describe('merged by the GH merge queue', () => {
     beforeEach(async () => {
       github.context.eventName = 'push'
@@ -234,7 +443,7 @@ describe('getMessageAuthorFactory', () => {
     describe('when a slack user match is found', () => {
       beforeEach(async () => {
         jest.mocked(slack.getRealUsers).mockReturnValue(
-          Promise.resolve<Member[]>([
+          Promise.resolve<MemberWithProfile[]>([
             {
               id: 'U2',
               profile: {
@@ -276,7 +485,7 @@ describe('getMessageAuthorFactory', () => {
       beforeEach(() => {
         jest
           .mocked(slack.getRealUsers)
-          .mockReturnValue(Promise.resolve<Member[]>([]))
+          .mockReturnValue(Promise.resolve<MemberWithProfile[]>([]))
       })
 
       it('does not fallback on the merge queue user', async () => {

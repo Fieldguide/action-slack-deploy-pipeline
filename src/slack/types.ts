@@ -9,6 +9,13 @@ export interface MemberWithProfile extends Member {
   }
 }
 
+export function isMemberWithProfile(user: Member): user is MemberWithProfile {
+  return (
+    'string' === typeof user.profile?.display_name &&
+    'string' === typeof user.profile?.image_48
+  )
+}
+
 /**
  * @see https://api.slack.com/methods/chat.postMessage#authorship
  */
@@ -19,6 +26,14 @@ export interface MessageAuthor {
   username: string
   /** URL to an image to use as the icon for this message */
   icon_url: string
+}
+
+export function isMessageAuthor(author: unknown): author is MessageAuthor {
+  return (
+    typeof author === 'object' &&
+    typeof (author as MessageAuthor).username === 'string' &&
+    typeof (author as MessageAuthor).icon_url == 'string'
+  )
 }
 
 export interface Link {

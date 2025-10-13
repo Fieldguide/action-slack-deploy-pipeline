@@ -27,18 +27,24 @@ jest.mock('@slack/web-api', () => ({
 }))
 
 describe('SlackClient', () => {
-  const client = new SlackClient({
-    token: 'TOKEN',
-    channel: 'CHANNEL',
-    errorReaction: 'REACTION'
-  })
+  let client: SlackClient
 
   beforeEach(() => {
     jest.resetAllMocks()
+
+    client = new SlackClient({
+      token: 'TOKEN',
+      channel: 'CHANNEL',
+      errorReaction: 'REACTION'
+    })
   })
 
   describe('getRealUsers', () => {
     let users: Member[] | null
+
+    beforeEach(() => {
+      client = new SlackClient({token: 'TOKEN'}) // inherently assert optional dependencies
+    })
 
     describe('unexpected response', () => {
       let error: unknown
@@ -77,10 +83,11 @@ describe('SlackClient', () => {
         listUsers.mockReturnValueOnce(
           Promise.resolve({
             members: [
-              {id: 'U1'},
-              {id: 'U2', is_bot: false},
-              {id: 'U3', is_bot: true},
-              {id: 'USLACKBOT', is_bot: false}
+              createMockMember({id: 'U1'}),
+              createMockMember({id: 'U2', is_bot: false}),
+              createMockMember({id: 'U3', is_bot: true}),
+              createMockMember({id: 'USLACKBOT', is_bot: false}),
+              createMockMember({id: 'U4', profile: undefined})
             ]
           })
         )
@@ -89,7 +96,10 @@ describe('SlackClient', () => {
       })
 
       it('should filter real users', () => {
-        expect(users).toStrictEqual([{id: 'U1'}, {id: 'U2', is_bot: false}])
+        expect(users).toStrictEqual([
+          expect.objectContaining({id: 'U1'}),
+          expect.objectContaining({id: 'U2', is_bot: false})
+        ])
       })
     })
   })
@@ -147,5 +157,18 @@ class SlackCodedError extends Error implements CodedError {
     super(error)
 
     this.data = {ok: false, error}
+  }
+}
+
+/**
+ * Create a mock Slack user with a defined `profile`.
+ */
+function createMockMember(overrides: Member): Member {
+  return {
+    profile: {
+      display_name: 'John Doe',
+      image_48: 'https://example.com/image.png'
+    },
+    ...overrides
   }
 }
