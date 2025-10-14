@@ -39931,7 +39931,7 @@ function generateUserMapping() {
             const slack = createSlackClient();
             const github_org = (0, core_1.getInput)('github_org', { required: true });
             const mapping = yield (0, githubToSlackMapping_1.githubToSlackMapping)(octokit, slack, github_org);
-            const mappingJson = JSON.stringify(mapping, null, 2);
+            const mappingJson = JSON.stringify(mapping);
             (0, core_1.setOutput)('json', mappingJson);
         }
         catch (err) {

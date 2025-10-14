@@ -14,7 +14,7 @@ async function generateUserMapping(): Promise<void> {
 
     const github_org = getInput('github_org', {required: true})
     const mapping = await githubToSlackMapping(octokit, slack, github_org)
-    const mappingJson = JSON.stringify(mapping, null, 2)
+    const mappingJson = JSON.stringify(mapping)
 
     setOutput('json', mappingJson)
   } catch (err) {
