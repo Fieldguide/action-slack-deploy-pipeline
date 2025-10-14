@@ -87,7 +87,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download Slack deploy user mapping artifact
-        uses: dawidd6/action-download-artifact@v6
+        uses: dawidd6/action-download-artifact@v11
         with:
           workflow: slack_deploy_user_mapping.yaml
           name: slack-deploy-user-mapping
