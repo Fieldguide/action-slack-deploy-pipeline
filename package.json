@@ -43,8 +43,8 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "^1.11.1",
-    "@actions/github": "^6.0.1",
+    "@actions/core": "^2.0.3",
+    "@actions/github": "^7.0.0",
     "@slack/web-api": "^7.11.0",
     "date-fns": "^4.1.0",
     "js-yaml": "^4.1.0"
@@ -55,7 +55,7 @@
     "@octokit/webhooks-types": "^7.6.1",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^24.0.0",
-    "@typescript-eslint/parser": "^7.9.0",
+    "@typescript-eslint/parser": "^8.58.2",
     "@vercel/ncc": "^0.38.4",
     "eslint": "^8.57.0",
     "eslint-plugin-github": "^4.10.2",
