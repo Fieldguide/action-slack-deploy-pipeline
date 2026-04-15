@@ -42,7 +42,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Generate user mapping
-        uses: Fieldguide/action-slack-deploy-pipeline/.github/actions/generate-user-mapping@v2
+        uses: Fieldguide/action-slack-deploy-pipeline/.github/actions/generate-user-mapping@v3
         id: user-mapping
         env:
           SLACK_DEPLOY_BOT_TOKEN: ${{ secrets.SLACK_DEPLOY_BOT_TOKEN }}
@@ -101,14 +101,14 @@ jobs:
           echo "EOF" >> $GITHUB_ENV
 
       - name: Post to Slack
-        uses: Fieldguide/action-slack-deploy-pipeline@v2
+        uses: Fieldguide/action-slack-deploy-pipeline@v3
         id: slack
 
       - name: Deploy code
         run: sleep 10 # replace with your deploy steps
 
       - name: Post to Slack
-        uses: Fieldguide/action-slack-deploy-pipeline@v2
+        uses: Fieldguide/action-slack-deploy-pipeline@v3
         if: always()
         with:
           thread_ts: ${{ steps.slack.outputs.ts }}
