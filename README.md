@@ -96,12 +96,12 @@ jobs:
 
 Global configuration to be used across all Slack Deploy actions within the workflow.
 
-| variable                      | description                                                                                                  |
-| ----------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| `SLACK_DEPLOY_BOT_TOKEN`      | **Required** Slack bot user OAuth token                                                                      |
-| `SLACK_DEPLOY_CHANNEL`        | **Required** Slack channel ID                                                                                |
-| `SLACK_DEPLOY_ERROR_REACTION` | Optional Slack emoji name                                                                                    |
-| `SLACK_DEPLOY_GITHUB_USERS`   | [Optional mapping](#predefined-user-mapping) of Slack user details by GitHub username in JSON or YAML format |
+| variable                      | description                                                                                             |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `SLACK_DEPLOY_BOT_TOKEN`      | **Required** Slack bot user OAuth token                                                                 |
+| `SLACK_DEPLOY_CHANNEL`        | **Required** Slack channel ID                                                                           |
+| `SLACK_DEPLOY_ERROR_REACTION` | Optional Slack emoji name                                                                               |
+| `SLACK_DEPLOY_GITHUB_USERS`   | [Optional mapping](#slack-user-mapping) of Slack user details by GitHub username in JSON or YAML format |
 
 ### Inputs
 
