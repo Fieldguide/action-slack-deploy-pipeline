@@ -65,5 +65,10 @@
     "prettier": "^3.6.2",
     "ts-jest": "^29.4.5",
     "typescript": "^5.9.3"
+  },
+  "pnpm": {
+    "overrides": {
+      "handlebars@<4.7.9": "^4.7.9"
+    }
   }
 }
