@@ -42,6 +42,11 @@
     "all": "pnpm format:check && pnpm lint && pnpm test:ci && pnpm package:notifySlack && pnpm package:generateUserMapping"
   },
   "license": "MIT",
+  "pnpm": {
+    "overrides": {
+      "axios": "1.16.0"
+    }
+  },
   "dependencies": {
     "@actions/core": "^2.0.3",
     "@actions/github": "^7.0.0",
