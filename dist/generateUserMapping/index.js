@@ -68305,13 +68305,37 @@ const web_api_1 = __nccwpck_require__(9213);
 const MissingScopeError_1 = __nccwpck_require__(6675);
 const types_1 = __nccwpck_require__(9843);
 const isCodedPlatformError_1 = __nccwpck_require__(6926);
+/**
+ * Abandon a single request after 30 seconds.
+ *
+ * The SDK defaults to `0`, meaning a half-open connection hangs until the OS
+ * gives up — minutes per attempt. Generous enough for an unpaginated
+ * `users.list` against a large workspace, which is the slowest call we make.
+ */
+const REQUEST_TIMEOUT = 30 * 1000;
+/**
+ * Give up on a request after roughly two minutes.
+ *
+ * The SDK defaults to `tenRetriesInAboutThirtyMinutes`, which combined with the
+ * unbounded request timeout above could otherwise stall a step for ~50 minutes
+ * during a network outage.
+ */
+const RETRY_CONFIG = {
+    retries: 3,
+    factor: 2,
+    minTimeout: 1000,
+    maxTimeout: 10 * 1000,
+    maxRetryTime: 2 * 60 * 1000
+};
 class SlackClient {
     constructor({ token, channel, errorReaction }) {
         this.channel = channel;
         this.errorReaction = errorReaction;
         this.web = new web_api_1.WebClient(token, {
             logLevel: (0, core_1.isDebug)() ? web_api_1.LogLevel.DEBUG : web_api_1.LogLevel.INFO,
-            rejectRateLimitedCalls: true
+            rejectRateLimitedCalls: true,
+            timeout: REQUEST_TIMEOUT,
+            retryConfig: RETRY_CONFIG
         });
         this.logRateLimits();
     }
@@ -68461,6 +68485,20 @@ function isMessageAuthor(author) {
 
 /***/ }),
 
+/***/ 6268:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.isCodedError = isCodedError;
+function isCodedError(error) {
+    return (error instanceof Error && 'string' === typeof error.code);
+}
+
+
+/***/ }),
+
 /***/ 6926:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
@@ -68469,11 +68507,9 @@ function isMessageAuthor(author) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.isCodedPlatformError = isCodedPlatformError;
 const web_api_1 = __nccwpck_require__(9213);
+const isCodedError_1 = __nccwpck_require__(6268);
 function isCodedPlatformError(error) {
-    return isCodedError(error) && web_api_1.ErrorCode.PlatformError === error.code;
-}
-function isCodedError(error) {
-    return (error instanceof Error && 'string' === typeof error.code);
+    return (0, isCodedError_1.isCodedError)(error) && web_api_1.ErrorCode.PlatformError === error.code;
 }
 
 
