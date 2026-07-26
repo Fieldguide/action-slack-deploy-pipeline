@@ -72657,10 +72657,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getWorkflowJobs = getWorkflowJobs;
 const github_1 = __nccwpck_require__(98087);
 /**
- * Return every job in the current workflow run.
- *
- * Jobs that have not yet been created are absent from the response, rather than
- * enumerated as queued.
+ * Return every workflow job that has been created in the current run.
  */
 function getWorkflowJobs(octokit) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -72741,6 +72738,7 @@ function resolveRunStatus(status, jobs) {
     }
     const unsuccessfulJob = findUnsuccessfulJob(jobs);
     if (!unsuccessfulJob) {
+        (0, core_1.info)(`No unsuccessful jobs found in run of ${jobs.length} job(s)`);
         return status;
     }
     (0, core_1.info)(`Deriving ${unsuccessfulJob.status} status from job: ${unsuccessfulJob.name}`);

@@ -25,6 +25,7 @@ export function resolveRunStatus(status: string, jobs: WorkflowJob[]): string {
   const unsuccessfulJob = findUnsuccessfulJob(jobs)
 
   if (!unsuccessfulJob) {
+    info(`No unsuccessful jobs found in run of ${jobs.length} job(s)`)
     return status
   }
 

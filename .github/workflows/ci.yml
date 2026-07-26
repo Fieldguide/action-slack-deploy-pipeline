@@ -38,6 +38,7 @@ jobs:
         run: pnpm test:ci
 
   test:
+    needs: build # the conclusive stage reports the status of the run as a whole
     runs-on: ubuntu-latest
     permissions:
       actions: read # read workflow run jobs

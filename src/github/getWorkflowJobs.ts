@@ -2,10 +2,7 @@ import {context} from '@actions/github'
 import {OctokitClient, WorkflowJob} from './types'
 
 /**
- * Return every job in the current workflow run.
- *
- * Jobs that have not yet been created are absent from the response, rather than
- * enumerated as queued.
+ * Return every workflow job that has been created in the current run.
  */
 export async function getWorkflowJobs(
   octokit: OctokitClient

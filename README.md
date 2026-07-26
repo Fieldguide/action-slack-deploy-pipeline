@@ -15,7 +15,6 @@ Post [GitHub Action](https://github.com/features/actions) deploy workflow progre
 - Threads intermediate stage completions, sending unexpected failures back to the channel
 - Adds summary message reaction to unsuccessful jobs (useful with [Reacji Channeler](https://reacji-channeler.builtbyslack.com/))
 - Updates summary message with workflow duration at its conclusion
-- Reports failures from anywhere in the deploy, not just the reporting job (see [Run Status](#run-status))
 - Supports `pull_request`, `push`, `release`, `schedule`, and `workflow_dispatch` [event types](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows)
 
 ## Setup
@@ -48,7 +47,6 @@ env:
   SLACK_DEPLOY_CHANNEL: 'C040YVCUDRR' # required - replace with your Slack Channel ID
   SLACK_DEPLOY_ERROR_REACTION: 'x' # optional emoji name added as non-successful summary message reaction
 
-# 2. Grant the required token permissions
 permissions:
   actions: read # see "Permissions" below
   contents: read
@@ -59,7 +57,7 @@ jobs:
     outputs:
       slack_ts: ${{ steps.slack.outputs.ts }}
     steps:
-      # 3. Post summary message at the beginning of your workflow
+      # 2. Post summary message at the beginning of your workflow
       - name: Post to Slack
         uses: Fieldguide/action-slack-deploy-pipeline@v3
         id: slack
@@ -67,7 +65,7 @@ jobs:
       - name: Deploy to staging
         run: sleep 10 # replace with your deploy steps
 
-      # 4. Post threaded stage updates throughout
+      # 3. Post threaded stage updates throughout
       - name: Post to Slack
         uses: Fieldguide/action-slack-deploy-pipeline@v3
         if: always()
@@ -82,7 +80,7 @@ jobs:
       - name: Deploy to production
         run: sleep 5 # replace with your deploy steps
 
-      # 5. Post last "conclusion" stage
+      # 4. Post last "conclusion" stage
       - name: Post to Slack
         uses: Fieldguide/action-slack-deploy-pipeline@v3
         if: always()
@@ -92,41 +90,11 @@ jobs:
 ```
 
 1. Configure required `SLACK_DEPLOY_BOT_TOKEN` and `SLACK_DEPLOY_CHANNEL` [environment variables](https://docs.github.com/en/actions/learn-github-actions/environment-variables).
-1. Grant the [token permissions](#permissions) this action requires.
 1. Use this action at the beginning of your workflow to post a "Deploying" message in your configured channel.
 1. As your workflow progresses, use this action with the `thread_ts` input to post threaded replies.
-1. Denote the last step with the `conclusion` input to update the initial message's status.
-
-The conclusive stage reports the status of the workflow run as a whole, rather than that of its own job. This matters because a conclusive job conventionally runs with `if: always()`, so its own status is successful even when an earlier job failed — and jobs depending on that failure are _skipped_ rather than failed. See [Run Status](#run-status).
+1. Denote the last step with the `conclusion` input to update the initial message's status, reflecting the [status of the run](#run-status) as a whole.
 
 ## Configuration
-
-### Permissions
-
-This action reads the GitHub API with the `github_token` input, which defaults to [`github.token`](https://docs.github.com/en/actions/learn-github-actions/contexts#github-context). It requires the following [token permissions](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/control-permissions-for-github_token):
-
-| permission            | required for                                                                                                                                                                                                 |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `actions: read`       | **Required** reading workflow run jobs, for stage durations and the conclusive [run status](#run-status)                                                                                                     |
-| `contents: read`      | Reading commit details on `schedule` and `workflow_dispatch` events                                                                                                                                          |
-| `pull-requests: read` | Resolving the pull request author on [Merge Queue](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/managing-a-merge-queue) pushes |
-
-If your workflow declares no `permissions` block at all, it inherits the repository or organization default, which may already be sufficient. Note that declaring a `permissions` block narrows _every_ unlisted scope to `none`, so add whatever your own deploy steps need alongside the above.
-
-Without `actions: read`, threaded stage steps fail rather than degrade — the action cannot determine stage durations or detect failed jobs.
-
-### Run Status
-
-A conclusive stage — one using the `conclusion` input — reports the status of the workflow run as a whole, rather than that of the job it runs in. Any job concluding as failed or timed out is reported as a failure; a cancelled job is reported as cancelled.
-
-Skipped jobs are deliberately ignored, because a job skipped by an upstream failure is indistinguishable from one skipped by an unmet `if` condition. The upstream failure itself is detected directly, so conditionally skipped jobs never cause a false failure.
-
-Two consequences worth noting:
-
-- A job that fails while having [`continue-on-error`](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#jobscontinue-on-error) set is still reported as a failure, as the GitHub API does not expose that setting.
-- Jobs that have not started yet are absent from the API response, so only jobs that exist when the conclusive stage runs are considered. Have your conclusive job `needs` the end of your deploy graph.
-
-Intermediate stages continue to report the status of their own job.
 
 ### Environment Variables
 
@@ -155,6 +123,22 @@ Optional step-specific input enables threading and denotes the conclusion.
 | output | description                |
 | ------ | -------------------------- |
 | `ts`   | Slack message timestamp ID |
+
+### Permissions
+
+This action reads the GitHub API with the `github_token` input, which defaults to [`github.token`](https://docs.github.com/en/actions/learn-github-actions/contexts#github-context). It requires the following [token permissions](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/control-permissions-for-github_token):
+
+| permission            | required for                                                                                                                                                                                                 |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `actions: read`       | **Required** reading workflow run jobs, for stage durations and the conclusive [run status](#run-status)                                                                                                     |
+| `contents: read`      | Reading commit details on `schedule` and `workflow_dispatch` events                                                                                                                                          |
+| `pull-requests: read` | Resolving the pull request author on [Merge Queue](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/managing-a-merge-queue) pushes |
+
+Threaded stages fail without `actions: read`, rather than degrading. If your workflow declares no `permissions` block at all, it inherits the repository or organization default, which may already be sufficient.
+
+## Run Status
+
+A conclusive stage — one using the `conclusion` input — reports the status of the workflow run as a whole, while intermediate stages report the status of their own job. Any job concluding as failed or timed out is reported as a failure; a cancelled job is reported as cancelled. Skipped jobs are ignored, as a job skipped by an upstream failure is indistinguishable from one skipped by an unmet `if` condition.
 
 ## Slack User Mapping
 
