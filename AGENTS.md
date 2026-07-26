@@ -61,6 +61,6 @@ Every failure path degrades to the GitHub username with a `warning()` rather tha
 - Yoda conditions throughout (`'true' === getInput('conclusion')`, `null === messageAuthor`). Match it.
 - Config comes from two places and they are not interchangeable: workflow-wide settings are **environment variables** enumerated in the `EnvironmentVariable` enum (`utils/input.ts`), while per-step settings are **action inputs** read with `getInput` and declared in `action.yml`.
 - User-facing text goes through `slack/mrkdwn.ts` helpers, which escape `& < >` via `slack/utils/escapeText.ts`. Don't hand-build mrkdwn.
-- Slack API errors are narrowed with `slack/utils/isCodedPlatformError.ts`; missing OAuth scopes are rethrown as `MissingScopeError` naming the needed scope.
+- Slack API errors are narrowed with `instanceof WebAPIPlatformError`; missing OAuth scopes are rethrown as `MissingScopeError` naming the needed scope.
 - Tests live in `__tests__/` beside the code and mock `@slack/web-api` / a fake `OctokitClient` object rather than hitting the network. `github.context` is mutated directly in `beforeEach` and restored afterward.
 - Updating the README's required Slack scopes list matters — the action's error messages reference those scope names.
