@@ -72428,9 +72428,9 @@ const types_1 = __nccwpck_require__(5941);
  * Return a progressed stage message, posted via threaded reply.
  */
 function getStageMessage(_a) {
-    return __awaiter(this, arguments, void 0, function* ({ octokit, status, now, getMessageAuthor }) {
+    return __awaiter(this, arguments, void 0, function* ({ jobs, status, now, getMessageAuthor }) {
         const text = getText(status);
-        const duration = yield computeDuration(octokit, now);
+        const duration = computeDuration(jobs, now);
         const contextBlock = (0, getContextBlock_1.getContextBlock)(duration);
         const author = yield getMessageAuthor();
         return Object.assign(Object.assign({}, (0, message_1.createMessage)({ text, contextBlock, author })), { successful: (0, types_1.isSuccessfulStatus)(status) });
@@ -72460,21 +72460,18 @@ function verbFromStatus(status) {
             throw new Error(`Unexpected status ${status}`);
     }
 }
-function computeDuration(octokit, now) {
-    return __awaiter(this, void 0, void 0, function* () {
-        var _a, _b;
-        const { data } = yield octokit.rest.actions.listJobsForWorkflowRun(Object.assign(Object.assign({}, github_1.context.repo), { run_id: github_1.context.runId }));
-        const currentJob = data.jobs.find(({ name }) => name === github_1.context.job);
-        const slackRegex = /[^A-Za-z]slack[^A-Za-z]/i;
-        const lastCompletedSlackStep = (_a = currentJob === null || currentJob === void 0 ? void 0 : currentJob.steps) === null || _a === void 0 ? void 0 : _a.filter(types_1.isCompletedJobStep).filter(({ name }) => slackRegex.test(` ${name} `)).pop();
-        const start = (_b = lastCompletedSlackStep === null || lastCompletedSlackStep === void 0 ? void 0 : lastCompletedSlackStep.completed_at) !== null && _b !== void 0 ? _b : currentJob === null || currentJob === void 0 ? void 0 : currentJob.started_at;
-        if (start) {
-            return (0, date_fns_1.intervalToDuration)({
-                start: new Date(start),
-                end: now
-            });
-        }
-    });
+function computeDuration(jobs, now) {
+    var _a, _b;
+    const currentJob = jobs.find(({ name }) => name === github_1.context.job);
+    const slackRegex = /[^A-Za-z]slack[^A-Za-z]/i;
+    const lastCompletedSlackStep = (_a = currentJob === null || currentJob === void 0 ? void 0 : currentJob.steps) === null || _a === void 0 ? void 0 : _a.filter(types_1.isCompletedJobStep).filter(({ name }) => slackRegex.test(` ${name} `)).pop();
+    const start = (_b = lastCompletedSlackStep === null || lastCompletedSlackStep === void 0 ? void 0 : lastCompletedSlackStep.completed_at) !== null && _b !== void 0 ? _b : currentJob === null || currentJob === void 0 ? void 0 : currentJob.started_at;
+    if (start) {
+        return (0, date_fns_1.intervalToDuration)({
+            start: new Date(start),
+            end: now
+        });
+    }
 }
 
 
@@ -72642,6 +72639,38 @@ function getEventLinkText(message) {
 
 /***/ }),
 
+/***/ 96669:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getWorkflowJobs = getWorkflowJobs;
+const github_1 = __nccwpck_require__(98087);
+/**
+ * Return every job in the current workflow run.
+ *
+ * Jobs that have not yet been created are absent from the response, rather than
+ * enumerated as queued.
+ */
+function getWorkflowJobs(octokit) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return octokit.paginate(octokit.rest.actions.listJobsForWorkflowRun, Object.assign(Object.assign({}, github_1.context.repo), { run_id: github_1.context.runId, per_page: 100 }));
+    });
+}
+
+
+/***/ }),
+
 /***/ 74255:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
@@ -72681,6 +72710,65 @@ function emojiFromStatus(status) {
         default:
             throw new Error(`Unexpected status ${status}`);
     }
+}
+
+
+/***/ }),
+
+/***/ 79153:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.resolveRunStatus = resolveRunStatus;
+const core_1 = __nccwpck_require__(47153);
+const types_1 = __nccwpck_require__(5941);
+/**
+ * Return the status of the workflow run as a whole, deriving unsuccessful
+ * statuses from its `jobs` when the current job's `status` is successful.
+ *
+ * A conclusive reporting job conventionally runs with `if: always()`, so its own
+ * status is successful even when a preceding job failed. Jobs depending on that
+ * failure are *skipped* rather than failed, so the failure is invisible from the
+ * reporting job alone.
+ *
+ * @see https://docs.github.com/en/actions/reference/workflows-and-actions/contexts#job-context
+ */
+function resolveRunStatus(status, jobs) {
+    if (!(0, types_1.isSuccessfulStatus)(status)) {
+        return status;
+    }
+    const unsuccessfulJob = findUnsuccessfulJob(jobs);
+    if (!unsuccessfulJob) {
+        return status;
+    }
+    (0, core_1.info)(`Deriving ${unsuccessfulJob.status} status from job: ${unsuccessfulJob.name}`);
+    return unsuccessfulJob.status;
+}
+/**
+ * Return the first unsuccessful `jobs` entry, favoring failures over
+ * cancellations.
+ *
+ * Only completed jobs are considered; the reporting job itself is necessarily
+ * still in progress. Skipped jobs are deliberately ignored, as a skip caused by
+ * an upstream failure is indistinguishable from one caused by an unmet `if`
+ * condition.
+ */
+function findUnsuccessfulJob(jobs) {
+    let cancelledJob;
+    for (const { name, status, conclusion } of jobs) {
+        if ('completed' !== status) {
+            continue;
+        }
+        if ('failure' === conclusion || 'timed_out' === conclusion) {
+            return { name, status: types_1.JobStatus.Failure };
+        }
+        if ('cancelled' === conclusion && !cancelledJob) {
+            cancelledJob = { name, status: types_1.JobStatus.Cancelled };
+        }
+    }
+    return cancelledJob;
 }
 
 
@@ -73431,11 +73519,16 @@ exports.postMessage = postMessage;
 const core_1 = __nccwpck_require__(47153);
 const getStageMessage_1 = __nccwpck_require__(69905);
 const getSummaryMessage_1 = __nccwpck_require__(76135);
+const getWorkflowJobs_1 = __nccwpck_require__(96669);
+const resolveRunStatus_1 = __nccwpck_require__(79153);
 const types_1 = __nccwpck_require__(5941);
 /**
  * Post an initial summary message or progress reply when `thread_ts` input is set.
  *
  * Conditionally updates initial message when `conclusion` is set or stage is unsuccessful.
+ *
+ * The conclusive stage reports the status of the workflow run as a whole, rather
+ * than that of its own job.
  *
  * @returns message timestamp ID
  */
@@ -73447,17 +73540,21 @@ function postMessage(_a) {
             const message = yield (0, getSummaryMessage_1.getSummaryMessage)({ octokit, getMessageAuthor });
             return slack.postMessage(message);
         }
-        const status = (0, core_1.getInput)('status', { required: true });
+        const jobStatus = (0, core_1.getInput)('status', { required: true });
+        const isConclusion = 'true' === (0, core_1.getInput)('conclusion');
         const now = new Date();
+        const jobs = yield (0, getWorkflowJobs_1.getWorkflowJobs)(octokit);
+        // the conclusive job conventionally runs with `if: always()`, masking
+        // preceding job failures behind its own successful status
+        const status = isConclusion ? (0, resolveRunStatus_1.resolveRunStatus)(jobStatus, jobs) : jobStatus;
         const _b = yield (0, getStageMessage_1.getStageMessage)({
-            octokit,
+            jobs,
             status,
             now,
             getMessageAuthor
         }), { successful } = _b, stageMessage = __rest(_b, ["successful"]);
         (0, core_1.info)(`Posting stage message in thread: ${threadTs}`);
         yield slack.postMessage(Object.assign(Object.assign({}, stageMessage), { reply_broadcast: !successful, thread_ts: threadTs }));
-        const isConclusion = 'true' === (0, core_1.getInput)('conclusion');
         const isSuccessful = (0, types_1.isSuccessfulStatus)(status);
         if (isConclusion || !isSuccessful) {
             (0, core_1.info)(`Updating summary message: ${status}`);

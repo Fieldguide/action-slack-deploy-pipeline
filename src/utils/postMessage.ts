@@ -1,6 +1,8 @@
 import {getInput, info} from '@actions/core'
 import {getStageMessage} from '../github/getStageMessage'
 import {getSummaryMessage} from '../github/getSummaryMessage'
+import {getWorkflowJobs} from '../github/getWorkflowJobs'
+import {resolveRunStatus} from '../github/resolveRunStatus'
 import {OctokitClient, isSuccessfulStatus} from '../github/types'
 import type {SlackClient} from '../slack/SlackClient'
 import type {GetMessageAuthor} from './getMessageAuthorFactory'
@@ -15,6 +17,9 @@ interface Dependencies {
  * Post an initial summary message or progress reply when `thread_ts` input is set.
  *
  * Conditionally updates initial message when `conclusion` is set or stage is unsuccessful.
+ *
+ * The conclusive stage reports the status of the workflow run as a whole, rather
+ * than that of its own job.
  *
  * @returns message timestamp ID
  */
@@ -32,10 +37,17 @@ export async function postMessage({
     return slack.postMessage(message)
   }
 
-  const status = getInput('status', {required: true})
+  const jobStatus = getInput('status', {required: true})
+  const isConclusion = 'true' === getInput('conclusion')
   const now = new Date()
+  const jobs = await getWorkflowJobs(octokit)
+
+  // the conclusive job conventionally runs with `if: always()`, masking
+  // preceding job failures behind its own successful status
+  const status = isConclusion ? resolveRunStatus(jobStatus, jobs) : jobStatus
+
   const {successful, ...stageMessage} = await getStageMessage({
-    octokit,
+    jobs,
     status,
     now,
     getMessageAuthor
@@ -48,7 +60,6 @@ export async function postMessage({
     thread_ts: threadTs
   })
 
-  const isConclusion = 'true' === getInput('conclusion')
   const isSuccessful = isSuccessfulStatus(status)
 
   if (isConclusion || !isSuccessful) {
