@@ -67140,20 +67140,6 @@ const CONTROL_CHARACTER_REGEX = new RegExp(`[${Object.keys(CONTROL_CHARACTER_HTM
 
 /***/ }),
 
-/***/ 96268:
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.isCodedError = isCodedError;
-function isCodedError(error) {
-    return (error instanceof Error && 'string' === typeof error.code);
-}
-
-
-/***/ }),
-
 /***/ 35747:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
@@ -67162,7 +67148,6 @@ function isCodedError(error) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.isTransientError = isTransientError;
 const web_api_1 = __nccwpck_require__(66332);
-const isCodedError_1 = __nccwpck_require__(96268);
 /**
  * Lowest HTTP status code treated as a Slack-side failure.
  */
@@ -67172,18 +67157,11 @@ const SERVER_ERROR_STATUS = 500;
  * a misconfigured app or invalid request.
  */
 function isTransientError(error) {
-    if (!(0, isCodedError_1.isCodedError)(error)) {
-        return false;
-    }
-    if (isHttpError(error)) {
+    if (error instanceof web_api_1.WebAPIHTTPError) {
         return error.statusCode >= SERVER_ERROR_STATUS;
     }
-    return (web_api_1.ErrorCode.RequestError === error.code ||
-        web_api_1.ErrorCode.RateLimitedError === error.code);
-}
-function isHttpError(error) {
-    return (web_api_1.ErrorCode.HTTPError === error.code &&
-        'number' === typeof error.statusCode);
+    return (error instanceof web_api_1.WebAPIRequestError ||
+        error instanceof web_api_1.WebAPIRateLimitedError);
 }
 
 
