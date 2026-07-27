@@ -1,5 +1,10 @@
 import {info, isDebug, warning} from '@actions/core'
-import {LogLevel, WebClient, WebClientEvent} from '@slack/web-api'
+import {
+  LogLevel,
+  WebAPIPlatformError,
+  WebClient,
+  WebClientEvent
+} from '@slack/web-api'
 import {isMissingScopeError, MissingScopeError} from './MissingScopeError'
 import {
   isMemberWithProfile,
@@ -8,7 +13,6 @@ import {
   type PostMessageArguments,
   type UpdateMessageArguments
 } from './types'
-import {isCodedPlatformError} from './utils/isCodedPlatformError'
 
 interface Dependencies {
   token: string
@@ -110,7 +114,7 @@ export class SlackClient {
       })
     } catch (error) {
       if (
-        isCodedPlatformError(error) &&
+        error instanceof WebAPIPlatformError &&
         'already_reacted' === error.data.error
       ) {
         info('Error reaction already added')
