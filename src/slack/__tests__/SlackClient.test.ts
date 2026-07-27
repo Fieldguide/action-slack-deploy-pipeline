@@ -1,18 +1,20 @@
 import {beforeEach, describe, expect, it, jest} from '@jest/globals'
-import {CodedError, ErrorCode} from '@slack/web-api'
+import {WebAPIPlatformError} from '@slack/web-api'
 import {MissingScopeError} from '../MissingScopeError'
 import {SlackClient} from '../SlackClient'
 import {Member} from '../types'
 
 const listUsers = jest.fn()
 const addReaction = jest.fn()
+const constructWebClient = jest.fn()
 
+// stub only the transport, preserving real error classes for `instanceof` narrowing
 jest.mock('@slack/web-api', () => ({
-  ErrorCode: {
-    PlatformError: 'slack_webapi_platform_error'
-  },
-  LogLevel: {},
+  ...jest.requireActual<object>('@slack/web-api'),
   WebClient: class MockWebClient {
+    constructor(token: string, options: unknown) {
+      constructWebClient(token, options)
+    }
     on(): void {
       // noop
     }
@@ -22,8 +24,7 @@ jest.mock('@slack/web-api', () => ({
     reactions = {
       add: addReaction
     }
-  },
-  WebClientEvent: {}
+  }
 }))
 
 describe('SlackClient', () => {
@@ -36,6 +37,21 @@ describe('SlackClient', () => {
       token: 'TOKEN',
       channel: 'CHANNEL',
       errorReaction: 'REACTION'
+    })
+  })
+
+  describe('web client', () => {
+    it('should bound request timeout and retries', () => {
+      expect(constructWebClient).toHaveBeenCalledWith(
+        'TOKEN',
+        expect.objectContaining({
+          timeout: 30000,
+          retryConfig: expect.objectContaining({
+            retries: 3,
+            maxRetryTime: 120000
+          })
+        })
+      )
     })
   })
 
@@ -67,7 +83,7 @@ describe('SlackClient', () => {
     describe('missing scope error', () => {
       beforeEach(async () => {
         listUsers.mockImplementation(() => {
-          throw new SlackCodedError(ErrorCode.PlatformError, 'missing_scope')
+          throw platformError('missing_scope')
         })
       })
 
@@ -108,7 +124,7 @@ describe('SlackClient', () => {
     describe('missing scope error', () => {
       beforeEach(async () => {
         addReaction.mockImplementation(() => {
-          throw new SlackCodedError(ErrorCode.PlatformError, 'already_reacted')
+          throw platformError('already_reacted')
         })
       })
 
@@ -120,7 +136,7 @@ describe('SlackClient', () => {
     describe('missing scope error', () => {
       beforeEach(async () => {
         addReaction.mockImplementation(() => {
-          throw new SlackCodedError(ErrorCode.PlatformError, 'missing_scope')
+          throw platformError('missing_scope')
         })
       })
 
@@ -147,17 +163,8 @@ describe('SlackClient', () => {
   })
 })
 
-class SlackCodedError extends Error implements CodedError {
-  data: unknown
-
-  constructor(
-    readonly code: ErrorCode,
-    error: string
-  ) {
-    super(error)
-
-    this.data = {ok: false, error}
-  }
+function platformError(error: string): WebAPIPlatformError {
+  return new WebAPIPlatformError({ok: false, error})
 }
 
 /**

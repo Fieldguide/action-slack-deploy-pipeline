@@ -16,6 +16,7 @@ Post [GitHub Action](https://github.com/features/actions) deploy workflow progre
 - Adds summary message reaction to unsuccessful jobs (useful with [Reacji Channeler](https://reacji-channeler.builtbyslack.com/))
 - Updates summary message with workflow duration at its conclusion
 - Supports `pull_request`, `push`, `release`, `schedule`, and `workflow_dispatch` [event types](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows)
+- Tolerates Slack connectivity failures without failing your deploy; misconfiguration still fails the step
 
 ## Setup
 
@@ -113,7 +114,7 @@ Optional step-specific input enables threading and denotes the conclusion.
 
 | input          | description                                                                                                                                                          |
 | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `thread_ts`    | Initial Slack message timestamp ID                                                                                                                                   |
+| `thread_ts`    | Initial Slack message timestamp ID; omit this input entirely to post the summary message                                                                             |
 | `conclusion`   | `true` denotes last stage                                                                                                                                            |
 | `github_token` | Repository `GITHUB_TOKEN` or personal access token secret; defaults to [`github.token`](https://docs.github.com/en/actions/tutorials/authenticate-with-github_token) |
 | `status`       | The current status of the job; defaults to [`job.status`](https://docs.github.com/en/actions/learn-github-actions/contexts#job-context)                              |

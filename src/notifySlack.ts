@@ -2,6 +2,7 @@ import {error, getInput, isDebug, setFailed, setOutput} from '@actions/core'
 import {getOctokit} from '@actions/github'
 import {OctokitClient} from './github/types'
 import {SlackClient} from './slack/SlackClient'
+import {isTransientError} from './slack/utils/isTransientError'
 import {getMessageAuthorFactory} from './utils/getMessageAuthorFactory'
 import {EnvironmentVariable, getEnv, getRequiredEnv} from './utils/input'
 import {postMessage} from './utils/postMessage'
@@ -23,7 +24,14 @@ async function notifySlack(): Promise<void> {
       setOutput('ts', ts)
     }
   } catch (err) {
-    setFailed(err instanceof Error ? err : String(err))
+    const message = err instanceof Error ? err : String(err)
+
+    if (isTransientError(err)) {
+      // Slack being unreachable is not a deploy failure
+      error(message)
+    } else {
+      setFailed(message)
+    }
 
     if (isDebug() && err instanceof Error && err.stack) {
       error(err.stack)
