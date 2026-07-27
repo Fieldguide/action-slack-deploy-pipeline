@@ -5,6 +5,9 @@ inputs:
   thread_ts:
     description: 'Initial Slack message timestamp ID'
     required: false
+    # Distinguish an omitted input from one explicitly set to an empty string;
+    # see SUMMARY_THREAD_TS in src/utils/postMessage.ts
+    default: 'summary'
   conclusion:
     description: "'true' denotes last stage"
     required: false

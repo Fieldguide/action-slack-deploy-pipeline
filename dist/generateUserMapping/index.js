@@ -63172,6 +63172,28 @@ const core_1 = __nccwpck_require__(7153);
 const web_api_1 = __nccwpck_require__(6332);
 const MissingScopeError_1 = __nccwpck_require__(6675);
 const types_1 = __nccwpck_require__(9843);
+/**
+ * Abandon a single request after 30 seconds.
+ *
+ * The SDK defaults to `0`, meaning a half-open connection hangs until the OS
+ * gives up — minutes per attempt. Generous enough for an unpaginated
+ * `users.list` against a large workspace, which is the slowest call we make.
+ */
+const REQUEST_TIMEOUT = 30 * 1000;
+/**
+ * Give up on a request after roughly two minutes.
+ *
+ * The SDK defaults to `tenRetriesInAboutThirtyMinutes`, which combined with the
+ * unbounded request timeout above could otherwise stall a step for ~50 minutes
+ * during a network outage.
+ */
+const RETRY_CONFIG = {
+    retries: 3,
+    factor: 2,
+    minTimeout: 1000,
+    maxTimeout: 10 * 1000,
+    maxRetryTime: 2 * 60 * 1000
+};
 class SlackClient {
     web;
     channel;
@@ -63181,7 +63203,9 @@ class SlackClient {
         this.errorReaction = errorReaction;
         this.web = new web_api_1.WebClient(token, {
             logLevel: (0, core_1.isDebug)() ? web_api_1.LogLevel.DEBUG : web_api_1.LogLevel.INFO,
-            rejectRateLimitedCalls: true
+            rejectRateLimitedCalls: true,
+            timeout: REQUEST_TIMEOUT,
+            retryConfig: RETRY_CONFIG
         });
         this.logRateLimits();
     }

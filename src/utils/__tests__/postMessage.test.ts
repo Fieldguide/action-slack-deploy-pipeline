@@ -1,11 +1,23 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import * as core from '@actions/core'
 import * as github from '@actions/github'
-import {afterAll, beforeEach, describe, expect, it, jest} from '@jest/globals'
+import {
+  afterAll,
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  jest
+} from '@jest/globals'
+import {readFileSync} from 'fs'
+import {load} from 'js-yaml'
+import {join} from 'path'
 import {EVENT_NAME_IMAGE_MAP} from '../../github/getContextBlock'
 import type {OctokitClient} from '../../github/types'
 import type {SlackClient} from '../../slack/SlackClient'
 import {GetMessageAuthor} from '../getMessageAuthorFactory'
-import {postMessage} from '../postMessage'
+import {postMessage, SUMMARY_THREAD_TS} from '../postMessage'
 
 describe('postMessage', () => {
   let octokit: OctokitClient
@@ -33,6 +45,7 @@ describe('postMessage', () => {
 
     process.env = {...OLD_ENV}
     process.env.GITHUB_REPOSITORY = 'namoscato/action-testing'
+    process.env.INPUT_THREAD_TS = SUMMARY_THREAD_TS // the runner always supplies the declared default
 
     github.context.workflow = 'Deploy App'
     github.context.runId = 123
@@ -110,6 +123,72 @@ describe('postMessage', () => {
 
     it('should return timestamp ID', () => {
       expect(ts).toStrictEqual('TS')
+    })
+  })
+
+  describe('empty thread_ts input', () => {
+    let warn: jest.Spied<typeof core.warning>
+
+    beforeEach(async () => {
+      warn = jest.spyOn(core, 'warning').mockImplementation(() => undefined)
+      process.env.INPUT_THREAD_TS = '' // an earlier step failed to post the summary
+
+      github.context.eventName = 'pull_request'
+      github.context.payload = {
+        pull_request: {
+          title: 'PR-TITLE',
+          number: 1,
+          html_url: 'github.com/PR-1',
+          head: {
+            ref: 'my-pr'
+          }
+        }
+      }
+
+      ts = await postMessage({
+        octokit,
+        slack,
+        async getMessageAuthor() {
+          return Promise.resolve({
+            username: 'namoscato',
+            icon_url: 'github.com/namoscato'
+          })
+        }
+      })
+    })
+
+    afterEach(() => {
+      warn.mockRestore()
+    })
+
+    it('should warn', () => {
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining('thread_ts'))
+    })
+
+    it('should fall back to an unthreaded summary message', () => {
+      expect(slack.postMessage).toHaveBeenCalledTimes(1)
+      expect(slack.postMessage).toHaveBeenCalledWith(
+        expect.objectContaining({
+          text: 'Deploying action-testing: PR-TITLE (#1)'
+        })
+      )
+      expect(slack.postMessage).not.toHaveBeenCalledWith(
+        expect.objectContaining({thread_ts: expect.anything()})
+      )
+    })
+
+    it('should return timestamp ID', () => {
+      expect(ts).toStrictEqual('TS')
+    })
+  })
+
+  describe('thread_ts input default', () => {
+    it('should match the summary sentinel declared in action.yml', () => {
+      const manifest = load(
+        readFileSync(join(__dirname, '../../../action.yml'), 'utf8')
+      ) as {inputs: Record<string, {default?: string}>}
+
+      expect(manifest.inputs.thread_ts.default).toStrictEqual(SUMMARY_THREAD_TS)
     })
   })
 

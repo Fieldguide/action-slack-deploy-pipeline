@@ -66881,6 +66881,28 @@ const core_1 = __nccwpck_require__(47153);
 const web_api_1 = __nccwpck_require__(66332);
 const MissingScopeError_1 = __nccwpck_require__(76675);
 const types_1 = __nccwpck_require__(12224);
+/**
+ * Abandon a single request after 30 seconds.
+ *
+ * The SDK defaults to `0`, meaning a half-open connection hangs until the OS
+ * gives up — minutes per attempt. Generous enough for an unpaginated
+ * `users.list` against a large workspace, which is the slowest call we make.
+ */
+const REQUEST_TIMEOUT = 30 * 1000;
+/**
+ * Give up on a request after roughly two minutes.
+ *
+ * The SDK defaults to `tenRetriesInAboutThirtyMinutes`, which combined with the
+ * unbounded request timeout above could otherwise stall a step for ~50 minutes
+ * during a network outage.
+ */
+const RETRY_CONFIG = {
+    retries: 3,
+    factor: 2,
+    minTimeout: 1000,
+    maxTimeout: 10 * 1000,
+    maxRetryTime: 2 * 60 * 1000
+};
 class SlackClient {
     web;
     channel;
@@ -66890,7 +66912,9 @@ class SlackClient {
         this.errorReaction = errorReaction;
         this.web = new web_api_1.WebClient(token, {
             logLevel: (0, core_1.isDebug)() ? web_api_1.LogLevel.DEBUG : web_api_1.LogLevel.INFO,
-            rejectRateLimitedCalls: true
+            rejectRateLimitedCalls: true,
+            timeout: REQUEST_TIMEOUT,
+            retryConfig: RETRY_CONFIG
         });
         this.logRateLimits();
     }
@@ -67112,6 +67136,33 @@ const CONTROL_CHARACTER_HTML_ENTITY_MAP = {
     '>': '&gt;'
 };
 const CONTROL_CHARACTER_REGEX = new RegExp(`[${Object.keys(CONTROL_CHARACTER_HTML_ENTITY_MAP).join('')}]`, 'g');
+
+
+/***/ }),
+
+/***/ 35747:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.isTransientError = isTransientError;
+const web_api_1 = __nccwpck_require__(66332);
+/**
+ * Lowest HTTP status code treated as a Slack-side failure.
+ */
+const SERVER_ERROR_STATUS = 500;
+/**
+ * Return true if `error` reflects a transient connectivity failure rather than
+ * a misconfigured app or invalid request.
+ */
+function isTransientError(error) {
+    if (error instanceof web_api_1.WebAPIHTTPError) {
+        return error.statusCode >= SERVER_ERROR_STATUS;
+    }
+    return (error instanceof web_api_1.WebAPIRequestError ||
+        error instanceof web_api_1.WebAPIRateLimitedError);
+}
 
 
 /***/ }),
@@ -67360,11 +67411,23 @@ function getEnv(name) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.SUMMARY_THREAD_TS = void 0;
 exports.postMessage = postMessage;
 const core_1 = __nccwpck_require__(47153);
 const getStageMessage_1 = __nccwpck_require__(69905);
 const getSummaryMessage_1 = __nccwpck_require__(76135);
 const types_1 = __nccwpck_require__(5941);
+/**
+ * Default `thread_ts` input value, denoting the initial summary message.
+ *
+ * The runner materializes every declared input, so an omitted `thread_ts` and
+ * one set to an empty string are otherwise indistinguishable. Declaring a
+ * default in `action.yml` separates them: the default only applies when the
+ * caller omits the input entirely.
+ *
+ * @see https://github.com/actions/runner/blob/main/src/Runner.Worker/ActionRunner.cs
+ */
+exports.SUMMARY_THREAD_TS = 'summary';
 /**
  * Post an initial summary message or progress reply when `thread_ts` input is set.
  *
@@ -67373,8 +67436,8 @@ const types_1 = __nccwpck_require__(5941);
  * @returns message timestamp ID
  */
 async function postMessage({ octokit, slack, getMessageAuthor }) {
-    const threadTs = (0, core_1.getInput)('thread_ts');
-    if (!threadTs) {
+    const threadTs = getThreadTs();
+    if (null === threadTs) {
         (0, core_1.info)('Posting summary message');
         const message = await (0, getSummaryMessage_1.getSummaryMessage)({ octokit, getMessageAuthor });
         return slack.postMessage(message);
@@ -67411,6 +67474,20 @@ async function postMessage({ octokit, slack, getMessageAuthor }) {
         await slack.maybeAddErrorReaction({ ts: threadTs });
     }
     return null;
+}
+/**
+ * @returns thread timestamp ID, or null to post a summary message
+ */
+function getThreadTs() {
+    const threadTs = (0, core_1.getInput)('thread_ts');
+    if (exports.SUMMARY_THREAD_TS === threadTs) {
+        return null;
+    }
+    if (!threadTs) {
+        (0, core_1.warning)('Empty thread_ts input; posting an unthreaded summary message. An earlier step likely failed to post the summary.');
+        return null;
+    }
+    return threadTs;
 }
 
 
@@ -91324,6 +91401,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core_1 = __nccwpck_require__(47153);
 const github_1 = __nccwpck_require__(98087);
 const SlackClient_1 = __nccwpck_require__(30558);
+const isTransientError_1 = __nccwpck_require__(35747);
 const getMessageAuthorFactory_1 = __nccwpck_require__(33354);
 const input_1 = __nccwpck_require__(37416);
 const postMessage_1 = __nccwpck_require__(65829);
@@ -91342,7 +91420,14 @@ async function notifySlack() {
         }
     }
     catch (err) {
-        (0, core_1.setFailed)(err instanceof Error ? err : String(err));
+        const message = err instanceof Error ? err : String(err);
+        if ((0, isTransientError_1.isTransientError)(err)) {
+            // Slack being unreachable is not a deploy failure
+            (0, core_1.error)(message);
+        }
+        else {
+            (0, core_1.setFailed)(message);
+        }
         if ((0, core_1.isDebug)() && err instanceof Error && err.stack) {
             (0, core_1.error)(err.stack);
         }
