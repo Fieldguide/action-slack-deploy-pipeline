@@ -1,6 +1,7 @@
 import {info, isDebug, warning} from '@actions/core'
 import {
   LogLevel,
+  WebAPIPlatformError,
   WebClient,
   WebClientEvent,
   type RetryOptions
@@ -13,7 +14,6 @@ import {
   type PostMessageArguments,
   type UpdateMessageArguments
 } from './types'
-import {isCodedPlatformError} from './utils/isCodedPlatformError'
 
 interface Dependencies {
   token: string
@@ -141,7 +141,7 @@ export class SlackClient {
       })
     } catch (error) {
       if (
-        isCodedPlatformError(error) &&
+        error instanceof WebAPIPlatformError &&
         'already_reacted' === error.data.error
       ) {
         info('Error reaction already added')
