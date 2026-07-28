@@ -20,8 +20,10 @@ export type SupportedEventName = (typeof SUPPORTED_EVENT_NAMES)[number]
 
 export type GitHubContext = Omit<typeof context, 'payload'>
 
-export interface Context<E extends SupportedEventName, P = unknown>
-  extends GitHubContext {
+export interface Context<
+  E extends SupportedEventName,
+  P = unknown
+> extends GitHubContext {
   eventName: E
   payload: P
 }
