@@ -66495,9 +66495,9 @@ const types_1 = __nccwpck_require__(5941);
 /**
  * Return a progressed stage message, posted via threaded reply.
  */
-async function getStageMessage({ octokit, status, now, getMessageAuthor }) {
+async function getStageMessage({ jobs, status, now, getMessageAuthor }) {
     const text = getText(status);
-    const duration = await computeDuration(octokit, now);
+    const duration = computeDuration(jobs, now);
     const contextBlock = (0, getContextBlock_1.getContextBlock)(duration);
     const author = await getMessageAuthor();
     return {
@@ -66529,12 +66529,8 @@ function verbFromStatus(status) {
             throw new Error(`Unexpected status ${status}`);
     }
 }
-async function computeDuration(octokit, now) {
-    const { data } = await octokit.rest.actions.listJobsForWorkflowRun({
-        ...github_1.context.repo,
-        run_id: github_1.context.runId
-    });
-    const currentJob = data.jobs.find(({ name }) => name === github_1.context.job);
+function computeDuration(jobs, now) {
+    const currentJob = jobs.find(({ name }) => name === github_1.context.job);
     const slackRegex = /[^A-Za-z]slack[^A-Za-z]/i;
     const lastCompletedSlackStep = currentJob?.steps
         ?.filter(types_1.isCompletedJobStep)
@@ -66701,6 +66697,28 @@ function getEventLinkText(message) {
 
 /***/ }),
 
+/***/ 96669:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getWorkflowJobs = getWorkflowJobs;
+const github_1 = __nccwpck_require__(98087);
+/**
+ * Return every workflow job that has been created in the current run.
+ */
+async function getWorkflowJobs(octokit) {
+    return octokit.paginate(octokit.rest.actions.listJobsForWorkflowRun, {
+        ...github_1.context.repo,
+        run_id: github_1.context.runId,
+        per_page: 100
+    });
+}
+
+
+/***/ }),
+
 /***/ 74255:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
@@ -66740,6 +66758,66 @@ function emojiFromStatus(status) {
         default:
             throw new Error(`Unexpected status ${status}`);
     }
+}
+
+
+/***/ }),
+
+/***/ 79153:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.resolveRunStatus = resolveRunStatus;
+const core_1 = __nccwpck_require__(47153);
+const types_1 = __nccwpck_require__(5941);
+/**
+ * Return the status of the workflow run as a whole, deriving unsuccessful
+ * statuses from its `jobs` when the current job's `status` is successful.
+ *
+ * A conclusive reporting job conventionally runs with `if: always()`, so its own
+ * status is successful even when a preceding job failed. Jobs depending on that
+ * failure are *skipped* rather than failed, so the failure is invisible from the
+ * reporting job alone.
+ *
+ * @see https://docs.github.com/en/actions/reference/workflows-and-actions/contexts#job-context
+ */
+function resolveRunStatus(status, jobs) {
+    if (!(0, types_1.isSuccessfulStatus)(status)) {
+        return status;
+    }
+    const unsuccessfulJob = findUnsuccessfulJob(jobs);
+    if (!unsuccessfulJob) {
+        (0, core_1.info)(`No unsuccessful jobs found in run of ${jobs.length} job(s)`);
+        return status;
+    }
+    (0, core_1.info)(`Deriving ${unsuccessfulJob.status} status from job: ${unsuccessfulJob.name}`);
+    return unsuccessfulJob.status;
+}
+/**
+ * Return the first unsuccessful `jobs` entry, favoring failures over
+ * cancellations.
+ *
+ * Only completed jobs are considered; the reporting job itself is necessarily
+ * still in progress. Skipped jobs are deliberately ignored, as a skip caused by
+ * an upstream failure is indistinguishable from one caused by an unmet `if`
+ * condition.
+ */
+function findUnsuccessfulJob(jobs) {
+    let cancelledJob;
+    for (const { name, status, conclusion } of jobs) {
+        if ('completed' !== status) {
+            continue;
+        }
+        if ('failure' === conclusion || 'timed_out' === conclusion) {
+            return { name, status: types_1.JobStatus.Failure };
+        }
+        if ('cancelled' === conclusion && !cancelledJob) {
+            cancelledJob = { name, status: types_1.JobStatus.Cancelled };
+        }
+    }
+    return cancelledJob;
 }
 
 
@@ -67416,6 +67494,8 @@ exports.postMessage = postMessage;
 const core_1 = __nccwpck_require__(47153);
 const getStageMessage_1 = __nccwpck_require__(69905);
 const getSummaryMessage_1 = __nccwpck_require__(76135);
+const getWorkflowJobs_1 = __nccwpck_require__(96669);
+const resolveRunStatus_1 = __nccwpck_require__(79153);
 const types_1 = __nccwpck_require__(5941);
 /**
  * Default `thread_ts` input value, denoting the initial summary message.
@@ -67433,6 +67513,9 @@ exports.SUMMARY_THREAD_TS = 'summary';
  *
  * Conditionally updates initial message when `conclusion` is set or stage is unsuccessful.
  *
+ * The conclusive stage reports the status of the workflow run as a whole, rather
+ * than that of its own job.
+ *
  * @returns message timestamp ID
  */
 async function postMessage({ octokit, slack, getMessageAuthor }) {
@@ -67442,10 +67525,15 @@ async function postMessage({ octokit, slack, getMessageAuthor }) {
         const message = await (0, getSummaryMessage_1.getSummaryMessage)({ octokit, getMessageAuthor });
         return slack.postMessage(message);
     }
-    const status = (0, core_1.getInput)('status', { required: true });
+    const jobStatus = (0, core_1.getInput)('status', { required: true });
+    const isConclusion = 'true' === (0, core_1.getInput)('conclusion');
     const now = new Date();
+    const jobs = await (0, getWorkflowJobs_1.getWorkflowJobs)(octokit);
+    // the conclusive job conventionally runs with `if: always()`, masking
+    // preceding job failures behind its own successful status
+    const status = isConclusion ? (0, resolveRunStatus_1.resolveRunStatus)(jobStatus, jobs) : jobStatus;
     const { successful, ...stageMessage } = await (0, getStageMessage_1.getStageMessage)({
-        octokit,
+        jobs,
         status,
         now,
         getMessageAuthor
@@ -67456,7 +67544,6 @@ async function postMessage({ octokit, slack, getMessageAuthor }) {
         reply_broadcast: !successful,
         thread_ts: threadTs
     });
-    const isConclusion = 'true' === (0, core_1.getInput)('conclusion');
     const isSuccessful = (0, types_1.isSuccessfulStatus)(status);
     if (isConclusion || !isSuccessful) {
         (0, core_1.info)(`Updating summary message: ${status}`);

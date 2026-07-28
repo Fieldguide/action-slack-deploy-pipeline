@@ -7,6 +7,9 @@ on:
       - main
       - 'releases/*'
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -35,7 +38,11 @@ jobs:
         run: pnpm test:ci
 
   test:
+    needs: build # the conclusive stage reports the status of the run as a whole
     runs-on: ubuntu-latest
+    permissions:
+      actions: read # read workflow run jobs
+      contents: read
     env:
       SLACK_DEPLOY_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN_FOR_TESTING }}
       SLACK_DEPLOY_CHANNEL: 'C040YVCUDRR' #github_action_testing

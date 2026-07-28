@@ -48,6 +48,10 @@ env:
   SLACK_DEPLOY_CHANNEL: 'C040YVCUDRR' # required - replace with your Slack Channel ID
   SLACK_DEPLOY_ERROR_REACTION: 'x' # optional emoji name added as non-successful summary message reaction
 
+permissions:
+  actions: read # see "Permissions" below
+  contents: read
+
 jobs:
   staging:
     runs-on: ubuntu-latest
@@ -89,7 +93,7 @@ jobs:
 1. Configure required `SLACK_DEPLOY_BOT_TOKEN` and `SLACK_DEPLOY_CHANNEL` [environment variables](https://docs.github.com/en/actions/learn-github-actions/environment-variables).
 1. Use this action at the beginning of your workflow to post a "Deploying" message in your configured channel.
 1. As your workflow progresses, use this action with the `thread_ts` input to post threaded replies.
-1. Denote the last step with the `conclusion` input to update the initial message's status.
+1. Denote the last step with the `conclusion` input to update the initial message's status, reflecting the [status of the run](#run-status) as a whole.
 
 ## Configuration
 
@@ -108,18 +112,34 @@ Global configuration to be used across all Slack Deploy actions within the workf
 
 Optional step-specific input enables threading and denotes the conclusion.
 
-| input          | description                                                                                                                                                              |
-| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `thread_ts`    | Initial Slack message timestamp ID; omit this input entirely to post the summary message                                                                                 |
-| `conclusion`   | `true` denotes last stage                                                                                                                                                |
-| `github_token` | Repository `GITHUB_TOKEN` or personal access token secret; defaults to [`github.token`](https://docs.github.com/en/actions/learn-github-actions/contexts#github-context) |
-| `status`       | The current status of the job; defaults to [`job.status`](https://docs.github.com/en/actions/learn-github-actions/contexts#job-context)                                  |
+| input          | description                                                                                                                                                          |
+| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `thread_ts`    | Initial Slack message timestamp ID; omit this input entirely to post the summary message                                                                             |
+| `conclusion`   | `true` denotes last stage                                                                                                                                            |
+| `github_token` | Repository `GITHUB_TOKEN` or personal access token secret; defaults to [`github.token`](https://docs.github.com/en/actions/tutorials/authenticate-with-github_token) |
+| `status`       | The current status of the job; defaults to [`job.status`](https://docs.github.com/en/actions/learn-github-actions/contexts#job-context)                              |
 
 ### Outputs
 
 | output | description                |
 | ------ | -------------------------- |
 | `ts`   | Slack message timestamp ID |
+
+### Permissions
+
+This action reads the GitHub API with the `github_token` input, which defaults to [`github.token`](https://docs.github.com/en/actions/learn-github-actions/contexts#github-context). It requires the following [token permissions](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/control-permissions-for-github_token):
+
+| permission            | required for                                                                                                                                                                                                 |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `actions: read`       | **Required** reading workflow run jobs, for stage durations and the conclusive [run status](#run-status)                                                                                                     |
+| `contents: read`      | Reading commit details on `schedule` and `workflow_dispatch` events                                                                                                                                          |
+| `pull-requests: read` | Resolving the pull request author on [Merge Queue](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/managing-a-merge-queue) pushes |
+
+Threaded stages fail without `actions: read`, rather than degrading. If your workflow declares no `permissions` block at all, it inherits the repository or organization default, which may already be sufficient.
+
+## Run Status
+
+A conclusive stage — one using the `conclusion` input — reports the status of the workflow run as a whole, while intermediate stages report the status of their own job. Any job concluding as failed or timed out is reported as a failure; a cancelled job is reported as cancelled. Skipped jobs are ignored, as a job skipped by an upstream failure is indistinguishable from one skipped by an unmet `if` condition.
 
 ## Slack User Mapping
 

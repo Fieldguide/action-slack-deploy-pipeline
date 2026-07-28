@@ -37,6 +37,8 @@ on:
   schedule:
     - cron: '0 0 * * *' # midnight UTC
 
+permissions: {} # this action authenticates with the personal access token below
+
 jobs:
   generate:
     runs-on: ubuntu-latest
@@ -81,6 +83,10 @@ on:
 env:
   SLACK_DEPLOY_BOT_TOKEN: ${{ secrets.SLACK_DEPLOY_BOT_TOKEN }}
   SLACK_DEPLOY_CHANNEL: 'C040YVCUDRR' # replace with your Slack Channel ID
+
+permissions:
+  actions: read # see "Permissions" in the parent README
+  contents: read
 
 jobs:
   deploy:
