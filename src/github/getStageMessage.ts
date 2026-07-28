@@ -6,15 +6,15 @@ import {getContextBlock} from './getContextBlock'
 import {createMessage, emojiFromStatus} from './message'
 import {
   JobStatus,
-  OctokitClient,
   StageMessage,
   Text,
+  WorkflowJob,
   isCompletedJobStep,
   isSuccessfulStatus
 } from './types'
 
 interface Dependencies {
-  octokit: OctokitClient
+  jobs: WorkflowJob[]
   status: string
   now: Date
   getMessageAuthor: GetMessageAuthor
@@ -24,14 +24,14 @@ interface Dependencies {
  * Return a progressed stage message, posted via threaded reply.
  */
 export async function getStageMessage({
-  octokit,
+  jobs,
   status,
   now,
   getMessageAuthor
 }: Dependencies): Promise<StageMessage> {
   const text = getText(status)
 
-  const duration = await computeDuration(octokit, now)
+  const duration = computeDuration(jobs, now)
   const contextBlock = getContextBlock(duration)
   const author = await getMessageAuthor()
 
@@ -69,16 +69,8 @@ function verbFromStatus(status: string): string {
   }
 }
 
-async function computeDuration(
-  octokit: OctokitClient,
-  now: Date
-): Promise<Duration | undefined> {
-  const {data} = await octokit.rest.actions.listJobsForWorkflowRun({
-    ...context.repo,
-    run_id: context.runId
-  })
-
-  const currentJob = data.jobs.find(({name}) => name === context.job)
+function computeDuration(jobs: WorkflowJob[], now: Date): Duration | undefined {
+  const currentJob = jobs.find(({name}) => name === context.job)
 
   const slackRegex = /[^A-Za-z]slack[^A-Za-z]/i
   const lastCompletedSlackStep = currentJob?.steps

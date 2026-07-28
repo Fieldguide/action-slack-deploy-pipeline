@@ -1,11 +1,23 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import * as core from '@actions/core'
 import * as github from '@actions/github'
-import {afterAll, beforeEach, describe, expect, it, jest} from '@jest/globals'
+import {
+  afterAll,
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  jest
+} from '@jest/globals'
+import {readFileSync} from 'fs'
+import {load} from 'js-yaml'
+import {join} from 'path'
 import {EVENT_NAME_IMAGE_MAP} from '../../github/getContextBlock'
 import type {OctokitClient} from '../../github/types'
 import type {SlackClient} from '../../slack/SlackClient'
 import {GetMessageAuthor} from '../getMessageAuthorFactory'
-import {postMessage} from '../postMessage'
+import {postMessage, SUMMARY_THREAD_TS} from '../postMessage'
 
 describe('postMessage', () => {
   let octokit: OctokitClient
@@ -17,8 +29,11 @@ describe('postMessage', () => {
 
   beforeEach(() => {
     octokit = {
+      paginate: jest.fn(async () => []),
       rest: {
-        actions: {},
+        actions: {
+          listJobsForWorkflowRun: jest.fn()
+        },
         repos: {}
       }
     } as unknown as OctokitClient
@@ -33,6 +48,7 @@ describe('postMessage', () => {
 
     process.env = {...OLD_ENV}
     process.env.GITHUB_REPOSITORY = 'namoscato/action-testing'
+    process.env.INPUT_THREAD_TS = SUMMARY_THREAD_TS // the runner always supplies the declared default
 
     github.context.workflow = 'Deploy App'
     github.context.runId = 123
@@ -110,6 +126,72 @@ describe('postMessage', () => {
 
     it('should return timestamp ID', () => {
       expect(ts).toStrictEqual('TS')
+    })
+  })
+
+  describe('empty thread_ts input', () => {
+    let warn: jest.Spied<typeof core.warning>
+
+    beforeEach(async () => {
+      warn = jest.spyOn(core, 'warning').mockImplementation(() => undefined)
+      process.env.INPUT_THREAD_TS = '' // an earlier step failed to post the summary
+
+      github.context.eventName = 'pull_request'
+      github.context.payload = {
+        pull_request: {
+          title: 'PR-TITLE',
+          number: 1,
+          html_url: 'github.com/PR-1',
+          head: {
+            ref: 'my-pr'
+          }
+        }
+      }
+
+      ts = await postMessage({
+        octokit,
+        slack,
+        async getMessageAuthor() {
+          return Promise.resolve({
+            username: 'namoscato',
+            icon_url: 'github.com/namoscato'
+          })
+        }
+      })
+    })
+
+    afterEach(() => {
+      warn.mockRestore()
+    })
+
+    it('should warn', () => {
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining('thread_ts'))
+    })
+
+    it('should fall back to an unthreaded summary message', () => {
+      expect(slack.postMessage).toHaveBeenCalledTimes(1)
+      expect(slack.postMessage).toHaveBeenCalledWith(
+        expect.objectContaining({
+          text: 'Deploying action-testing: PR-TITLE (#1)'
+        })
+      )
+      expect(slack.postMessage).not.toHaveBeenCalledWith(
+        expect.objectContaining({thread_ts: expect.anything()})
+      )
+    })
+
+    it('should return timestamp ID', () => {
+      expect(ts).toStrictEqual('TS')
+    })
+  })
+
+  describe('thread_ts input default', () => {
+    it('should match the summary sentinel declared in action.yml', () => {
+      const manifest = load(
+        readFileSync(join(__dirname, '../../../action.yml'), 'utf8')
+      ) as {inputs: Record<string, {default?: string}>}
+
+      expect(manifest.inputs.thread_ts.default).toStrictEqual(SUMMARY_THREAD_TS)
     })
   })
 
@@ -292,32 +374,32 @@ describe('postMessage', () => {
         }
       }
 
-      octokit.rest.actions.listJobsForWorkflowRun = jest.fn(async () => ({
-        data: {
-          jobs: [
+      mockWorkflowJobs([
+        {
+          name: 'JOB 1',
+          status: 'completed',
+          conclusion: 'success',
+          started_at: '2022-09-10T00:00:04.000Z',
+          steps: [
             {
-              name: 'JOB 1',
-              started_at: '2022-09-10T00:00:04.000Z',
-              steps: [
-                {
-                  name: 'Post to Slack',
-                  completed_at: '2022-09-10T00:00:05.000Z'
-                }
-              ]
-            },
+              name: 'Post to Slack',
+              completed_at: '2022-09-10T00:00:05.000Z'
+            }
+          ]
+        },
+        {
+          name: 'JOB 2',
+          status: 'in_progress',
+          conclusion: null,
+          started_at: '2022-09-10T00:00:06.000Z',
+          steps: [
             {
-              name: 'JOB 2',
-              started_at: '2022-09-10T00:00:06.000Z',
-              steps: [
-                {
-                  name: 'Run namoscato/action-slack-deploy-pipeline',
-                  completed_at: null
-                }
-              ]
+              name: 'Run namoscato/action-slack-deploy-pipeline',
+              completed_at: null
             }
           ]
         }
-      })) as any
+      ])
     })
 
     describe('intermediate success', () => {
@@ -332,13 +414,15 @@ describe('postMessage', () => {
       })
 
       it('should fetch workflow run jobs', () => {
-        expect(
-          octokit.rest.actions.listJobsForWorkflowRun
-        ).toHaveBeenCalledWith({
-          owner: 'namoscato',
-          repo: 'action-testing',
-          run_id: 123
-        })
+        expect(octokit.paginate).toHaveBeenCalledWith(
+          octokit.rest.actions.listJobsForWorkflowRun,
+          {
+            owner: 'namoscato',
+            repo: 'action-testing',
+            run_id: 123,
+            per_page: 100
+          }
+        )
       })
 
       it('should post slack message', () => {
@@ -542,34 +626,191 @@ describe('postMessage', () => {
       })
     })
 
+    // https://app.shortcut.com/fieldguide/story/70792
+    describe('conclusion success with failed preceding job', () => {
+      beforeEach(async () => {
+        mockWorkflowJobs([
+          {
+            name: 'build-lambda',
+            status: 'completed',
+            conclusion: 'failure',
+            started_at: '2022-09-10T00:00:04.000Z',
+            steps: []
+          },
+          {
+            name: 'deploy-production',
+            status: 'completed',
+            conclusion: 'skipped',
+            started_at: '2022-09-10T00:00:05.000Z',
+            steps: []
+          },
+          {
+            name: 'JOB 2',
+            status: 'in_progress',
+            conclusion: null,
+            started_at: '2022-09-10T00:00:06.000Z',
+            steps: []
+          }
+        ])
+
+        process.env.INPUT_STATUS = 'success'
+        process.env.INPUT_CONCLUSION = 'true'
+
+        ts = await postMessage({
+          octokit,
+          slack,
+          getMessageAuthor: getNullMessageAuthor
+        })
+      })
+
+      it('should post unsuccessful stage message, broadcast to channel', () => {
+        expect(slack.postMessage).toHaveBeenCalledWith(
+          expect.objectContaining({
+            text: 'Failed JOB 2',
+            reply_broadcast: true
+          })
+        )
+      })
+
+      it('should update summary message as failed', () => {
+        expect(slack.updateMessage).toHaveBeenCalledWith(
+          expect.objectContaining({
+            text: 'Failed deploying action-testing: COMMIT-MESSAGE'
+          })
+        )
+      })
+
+      it('should add error reaction', () => {
+        expect(slack.maybeAddErrorReaction).toHaveBeenCalledWith({
+          ts: '1662768000'
+        })
+      })
+    })
+
+    // a stage reports its own job, not the run
+    describe('intermediate success with failed preceding job', () => {
+      beforeEach(async () => {
+        mockWorkflowJobs([
+          {
+            name: 'build-lambda',
+            status: 'completed',
+            conclusion: 'failure',
+            started_at: '2022-09-10T00:00:04.000Z',
+            steps: []
+          },
+          {
+            name: 'JOB 2',
+            status: 'in_progress',
+            conclusion: null,
+            started_at: '2022-09-10T00:00:06.000Z',
+            steps: []
+          }
+        ])
+
+        process.env.INPUT_STATUS = 'success'
+
+        ts = await postMessage({
+          octokit,
+          slack,
+          getMessageAuthor: getNullMessageAuthor
+        })
+      })
+
+      it('should post successful stage message', () => {
+        expect(slack.postMessage).toHaveBeenCalledWith(
+          expect.objectContaining({
+            text: 'Finished JOB 2',
+            reply_broadcast: false
+          })
+        )
+      })
+
+      it('should not update summary message', () => {
+        expect(slack.updateMessage).not.toHaveBeenCalled()
+      })
+
+      it('should not add error reaction', () => {
+        expect(slack.maybeAddErrorReaction).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('conclusion success with skipped preceding jobs', () => {
+      beforeEach(async () => {
+        mockWorkflowJobs([
+          {
+            name: 'deploy-production',
+            status: 'completed',
+            conclusion: 'skipped',
+            started_at: '2022-09-10T00:00:04.000Z',
+            steps: []
+          },
+          {
+            name: 'JOB 2',
+            status: 'in_progress',
+            conclusion: null,
+            started_at: '2022-09-10T00:00:06.000Z',
+            steps: []
+          }
+        ])
+
+        process.env.INPUT_STATUS = 'success'
+        process.env.INPUT_CONCLUSION = 'true'
+
+        ts = await postMessage({
+          octokit,
+          slack,
+          getMessageAuthor: getNullMessageAuthor
+        })
+      })
+
+      it('should post successful stage message', () => {
+        expect(slack.postMessage).toHaveBeenCalledWith(
+          expect.objectContaining({
+            text: 'Finished JOB 2',
+            reply_broadcast: false
+          })
+        )
+      })
+
+      it('should update summary message as deployed', () => {
+        expect(slack.updateMessage).toHaveBeenCalledWith(
+          expect.objectContaining({
+            text: 'Deployed action-testing: COMMIT-MESSAGE'
+          })
+        )
+      })
+
+      it('should not add error reaction', () => {
+        expect(slack.maybeAddErrorReaction).not.toHaveBeenCalled()
+      })
+    })
+
     describe('multiple slack steps in job', () => {
       beforeEach(async () => {
-        octokit.rest.actions.listJobsForWorkflowRun = jest.fn(async () => ({
-          data: {
-            jobs: [
+        mockWorkflowJobs([
+          {
+            name: 'JOB 2',
+            status: 'in_progress',
+            conclusion: null,
+            started_at: '2022-09-10T00:00:04.000Z',
+            steps: [
               {
-                name: 'JOB 2',
-                started_at: '2022-09-10T00:00:04.000Z',
-                steps: [
-                  {
-                    name: 'Post to Slack',
-                    completed_at: '2022-09-10T00:00:05.000Z',
-                    conclusion: 'success'
-                  },
-                  {
-                    name: 'Post to Slack (skipped)',
-                    completed_at: '2022-09-10T00:00:06.000Z',
-                    conclusion: 'skipped'
-                  },
-                  {
-                    name: 'Run namoscato/action-slack-deploy-pipeline',
-                    completed_at: null
-                  }
-                ]
+                name: 'Post to Slack',
+                completed_at: '2022-09-10T00:00:05.000Z',
+                conclusion: 'success'
+              },
+              {
+                name: 'Post to Slack (skipped)',
+                completed_at: '2022-09-10T00:00:06.000Z',
+                conclusion: 'skipped'
+              },
+              {
+                name: 'Run namoscato/action-slack-deploy-pipeline',
+                completed_at: null
               }
             ]
           }
-        })) as any
+        ])
 
         process.env.INPUT_STATUS = 'success'
 
@@ -667,6 +908,10 @@ describe('postMessage', () => {
       )
     })
   })
+
+  function mockWorkflowJobs(jobs: unknown[]): void {
+    octokit.paginate = jest.fn(async () => jobs) as any
+  }
 })
 
 const getNullMessageAuthor: GetMessageAuthor = async () => {

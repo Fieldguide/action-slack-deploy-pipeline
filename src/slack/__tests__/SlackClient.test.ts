@@ -6,11 +6,15 @@ import {Member} from '../types'
 
 const listUsers = jest.fn()
 const addReaction = jest.fn()
+const constructWebClient = jest.fn()
 
 // stub only the transport, preserving real error classes for `instanceof` narrowing
 jest.mock('@slack/web-api', () => ({
   ...jest.requireActual<object>('@slack/web-api'),
   WebClient: class MockWebClient {
+    constructor(token: string, options: unknown) {
+      constructWebClient(token, options)
+    }
     on(): void {
       // noop
     }
@@ -33,6 +37,21 @@ describe('SlackClient', () => {
       token: 'TOKEN',
       channel: 'CHANNEL',
       errorReaction: 'REACTION'
+    })
+  })
+
+  describe('web client', () => {
+    it('should bound request timeout and retries', () => {
+      expect(constructWebClient).toHaveBeenCalledWith(
+        'TOKEN',
+        expect.objectContaining({
+          timeout: 30000,
+          retryConfig: expect.objectContaining({
+            retries: 3,
+            maxRetryTime: 120000
+          })
+        })
+      )
     })
   })
 

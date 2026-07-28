@@ -36,9 +36,10 @@ export function isSuccessfulStatus(
   return JobStatus.Success === status
 }
 
-export type JobStep = NonNullable<
-  Endpoints['GET /repos/{owner}/{repo}/actions/runs/{run_id}/jobs']['response']['data']['jobs'][0]['steps']
->[0]
+export type WorkflowJob =
+  Endpoints['GET /repos/{owner}/{repo}/actions/runs/{run_id}/jobs']['response']['data']['jobs'][0]
+
+export type JobStep = NonNullable<WorkflowJob['steps']>[0]
 
 export interface CompletedJobStep extends JobStep {
   completed_at: string
