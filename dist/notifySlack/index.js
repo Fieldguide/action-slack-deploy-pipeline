@@ -66442,8 +66442,7 @@ function getImage() {
 /**
  * Return a link to the current workflow name.
  *
- * When `url` is provided (e.g. a specific job's `html_url` for stage messages),
- * link directly to it; otherwise fall back to the run's checks page.
+ * @param url optional deep link; otherwise fall back to the run's checks page
  */
 function getWorkflow(url) {
     const text = github_1.context.workflow;
