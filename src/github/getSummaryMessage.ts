@@ -1,9 +1,9 @@
 import * as github from '@actions/github'
 import {intervalToDuration} from 'date-fns'
-import type {GetMessageAuthor} from '../utils/getMessageAuthorFactory'
 import {bold, emoji, link} from '../slack/mrkdwn'
 import {Link, MessageAuthor} from '../slack/types'
 import {dateFromTs} from '../slack/utils/dateFromTs'
+import type {GetMessageAuthor} from '../utils/getMessageAuthorFactory'
 import {getContextBlock} from './getContextBlock'
 import {createMessage, emojiFromStatus} from './message'
 import {JobStatus, Message, OctokitClient, Text} from './types'
@@ -47,7 +47,7 @@ export async function getSummaryMessage({
       })
     : undefined
 
-  const contextBlock = getContextBlock(duration)
+  const contextBlock = getContextBlock({duration})
 
   return createMessage({text, contextBlock, author})
 }

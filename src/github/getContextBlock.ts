@@ -23,8 +23,16 @@ export const EVENT_NAME_IMAGE_MAP: Record<SupportedEventName, string> = {
     'https://user-images.githubusercontent.com/847532/197601879-3bc8bf73-87c0-4216-8de7-c55d34993ef1.png'
 } as const
 
-export function getContextBlock(duration?: Duration): ContextBlock {
-  const textParts = [link(getWorkflow()), getRef()]
+interface Options {
+  duration: Duration | undefined
+  workflowUrl?: string
+}
+
+export function getContextBlock({
+  duration,
+  workflowUrl
+}: Options): ContextBlock {
+  const textParts = [link(getWorkflow(workflowUrl)), getRef()]
 
   if (duration) {
     textParts.push(formatDuration(duration) || '0 seconds')
@@ -58,9 +66,15 @@ function getImage(): Image {
 
 /**
  * Return a link to the current workflow name.
+ *
+ * @param url optional deep link; otherwise fall back to the run's checks page
  */
-function getWorkflow(): Link {
+function getWorkflow(url: string | undefined): Link {
   const text = context.workflow
+
+  if (url) {
+    return {text, url}
+  }
 
   if (isPullRequestEvent(context)) {
     return {

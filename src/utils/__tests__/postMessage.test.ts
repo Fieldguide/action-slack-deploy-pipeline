@@ -392,6 +392,8 @@ describe('postMessage', () => {
           status: 'in_progress',
           conclusion: null,
           started_at: '2022-09-10T00:00:06.000Z',
+          html_url:
+            'https://github.com/namoscato/action-testing/actions/runs/123/job/456',
           steps: [
             {
               name: 'Run namoscato/action-slack-deploy-pipeline',
@@ -450,7 +452,7 @@ describe('postMessage', () => {
                 },
                 {
                   type: 'mrkdwn',
-                  text: '<https://github.com/namoscato/action-testing/commit/05b16c3beb3a07dceaf6cf964d0be9eccbc026e8/checks|Deploy App>  ∙  05b16c3  ∙  9 seconds' // from job.started_at = 00:06
+                  text: '<https://github.com/namoscato/action-testing/actions/runs/123/job/456|Deploy App>  ∙  05b16c3  ∙  9 seconds' // from job.started_at = 00:06
                 }
               ]
             }
@@ -793,6 +795,8 @@ describe('postMessage', () => {
             status: 'in_progress',
             conclusion: null,
             started_at: '2022-09-10T00:00:04.000Z',
+            html_url:
+              'https://github.com/namoscato/action-testing/actions/runs/123/job/456',
             steps: [
               {
                 name: 'Post to Slack',
@@ -835,7 +839,7 @@ describe('postMessage', () => {
                     image_url: EVENT_NAME_IMAGE_MAP['push']
                   },
                   {
-                    text: '<https://github.com/namoscato/action-testing/commit/05b16c3beb3a07dceaf6cf964d0be9eccbc026e8/checks|Deploy App>  ∙  05b16c3  ∙  10 seconds', // from step.completed_at = 00:05
+                    text: '<https://github.com/namoscato/action-testing/actions/runs/123/job/456|Deploy App>  ∙  05b16c3  ∙  10 seconds', // from step.completed_at = 00:05
                     type: 'mrkdwn'
                   }
                 ]
@@ -874,7 +878,7 @@ describe('postMessage', () => {
                   },
                   {
                     type: 'mrkdwn',
-                    text: '<https://github.com/namoscato/action-testing/commit/05b16c3beb3a07dceaf6cf964d0be9eccbc026e8/checks|Deploy App>  ∙  05b16c3  ∙  0 seconds'
+                    text: '<https://github.com/namoscato/action-testing/actions/runs/123/job/456|Deploy App>  ∙  05b16c3  ∙  0 seconds'
                   }
                 ]
               }
