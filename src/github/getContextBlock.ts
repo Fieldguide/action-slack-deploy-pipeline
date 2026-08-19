@@ -7,7 +7,6 @@ import {
   SupportedEventName,
   UnsupportedEventError,
   isPullRequestEvent,
-  isReleaseEvent,
   isSupportedEvent
 } from './webhook'
 
@@ -23,8 +22,16 @@ export const EVENT_NAME_IMAGE_MAP: Record<SupportedEventName, string> = {
     'https://user-images.githubusercontent.com/847532/197601879-3bc8bf73-87c0-4216-8de7-c55d34993ef1.png'
 } as const
 
-export function getContextBlock(duration?: Duration): ContextBlock {
-  const textParts = [link(getWorkflow()), getRef()]
+interface Options {
+  duration: Duration | undefined
+  workflowUrl?: string
+}
+
+export function getContextBlock({
+  duration,
+  workflowUrl
+}: Options): ContextBlock {
+  const textParts = [link(getWorkflow(workflowUrl)), getRef()]
 
   if (duration) {
     textParts.push(formatDuration(duration) || '0 seconds')
@@ -58,30 +65,24 @@ function getImage(): Image {
 
 /**
  * Return a link to the current workflow name.
+ *
+ * @param url optional deep link (e.g. a specific job); otherwise fall back to
+ * the workflow run
  */
-function getWorkflow(): Link {
-  const text = context.workflow
-
-  if (isPullRequestEvent(context)) {
-    return {
-      text,
-      url: `${context.payload.pull_request.html_url}/checks`
-    }
-  }
-
-  if (isReleaseEvent(context)) {
-    const {owner, repo} = context.repo
-
-    return {
-      text,
-      url: `https://github.com/${owner}/${repo}/actions`
-    }
-  }
-
+function getWorkflow(url: string | undefined): Link {
   return {
-    text,
-    url: `${getCommitUrl()}/checks`
+    text: context.workflow,
+    url: url ?? getRunUrl()
   }
+}
+
+/**
+ * Return a link to the current workflow run.
+ */
+function getRunUrl(): string {
+  const {owner, repo} = context.repo
+
+  return `https://github.com/${owner}/${repo}/actions/runs/${context.runId}`
 }
 
 /**
@@ -93,10 +94,4 @@ function getRef(): string {
   }
 
   return context.sha.substring(0, 7)
-}
-
-function getCommitUrl(): string {
-  const {owner, repo} = context.repo
-
-  return `https://github.com/${owner}/${repo}/commit/${context.sha}`
 }

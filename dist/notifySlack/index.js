@@ -66411,8 +66411,8 @@ exports.EVENT_NAME_IMAGE_MAP = {
     release: 'https://user-images.githubusercontent.com/847532/265212273-b8c1036a-26b0-4196-bb11-0cbcb85d57c0.png',
     workflow_dispatch: 'https://user-images.githubusercontent.com/847532/197601879-3bc8bf73-87c0-4216-8de7-c55d34993ef1.png'
 };
-function getContextBlock(duration) {
-    const textParts = [(0, mrkdwn_1.link)(getWorkflow()), getRef()];
+function getContextBlock({ duration, workflowUrl }) {
+    const textParts = [(0, mrkdwn_1.link)(getWorkflow(workflowUrl)), getRef()];
     if (duration) {
         textParts.push((0, date_fns_1.formatDuration)(duration) || '0 seconds');
     }
@@ -66441,26 +66441,22 @@ function getImage() {
 }
 /**
  * Return a link to the current workflow name.
+ *
+ * @param url optional deep link (e.g. a specific job); otherwise fall back to
+ * the workflow run
  */
-function getWorkflow() {
-    const text = github_1.context.workflow;
-    if ((0, webhook_1.isPullRequestEvent)(github_1.context)) {
-        return {
-            text,
-            url: `${github_1.context.payload.pull_request.html_url}/checks`
-        };
-    }
-    if ((0, webhook_1.isReleaseEvent)(github_1.context)) {
-        const { owner, repo } = github_1.context.repo;
-        return {
-            text,
-            url: `https://github.com/${owner}/${repo}/actions`
-        };
-    }
+function getWorkflow(url) {
     return {
-        text,
-        url: `${getCommitUrl()}/checks`
+        text: github_1.context.workflow,
+        url: url ?? getRunUrl()
     };
+}
+/**
+ * Return a link to the current workflow run.
+ */
+function getRunUrl() {
+    const { owner, repo } = github_1.context.repo;
+    return `https://github.com/${owner}/${repo}/actions/runs/${github_1.context.runId}`;
 }
 /**
  * Return the pull request head branch or short commit hash.
@@ -66470,10 +66466,6 @@ function getRef() {
         return github_1.context.payload.pull_request.head.ref;
     }
     return github_1.context.sha.substring(0, 7);
-}
-function getCommitUrl() {
-    const { owner, repo } = github_1.context.repo;
-    return `https://github.com/${owner}/${repo}/commit/${github_1.context.sha}`;
 }
 
 
@@ -66497,8 +66489,12 @@ const types_1 = __nccwpck_require__(5941);
  */
 async function getStageMessage({ jobs, status, now, getMessageAuthor }) {
     const text = getText(status);
-    const duration = computeDuration(jobs, now);
-    const contextBlock = (0, getContextBlock_1.getContextBlock)(duration);
+    const currentJob = jobs.find(({ name }) => name === github_1.context.job);
+    const duration = computeDuration(currentJob, now);
+    const contextBlock = (0, getContextBlock_1.getContextBlock)({
+        duration,
+        workflowUrl: currentJob?.html_url ?? undefined
+    });
     const author = await getMessageAuthor();
     return {
         ...(0, message_1.createMessage)({ text, contextBlock, author }),
@@ -66529,8 +66525,7 @@ function verbFromStatus(status) {
             throw new Error(`Unexpected status ${status}`);
     }
 }
-function computeDuration(jobs, now) {
-    const currentJob = jobs.find(({ name }) => name === github_1.context.job);
+function computeDuration(currentJob, now) {
     const slackRegex = /[^A-Za-z]slack[^A-Za-z]/i;
     const lastCompletedSlackStep = currentJob?.steps
         ?.filter(types_1.isCompletedJobStep)
@@ -66608,7 +66603,7 @@ async function getSummaryMessage({ octokit, options, getMessageAuthor }) {
             end: options.now
         })
         : undefined;
-    const contextBlock = (0, getContextBlock_1.getContextBlock)(duration);
+    const contextBlock = (0, getContextBlock_1.getContextBlock)({ duration });
     return (0, message_1.createMessage)({ text, contextBlock, author });
 }
 async function getText(octokit, status, author) {
