@@ -31,8 +31,12 @@ export async function getStageMessage({
 }: Dependencies): Promise<StageMessage> {
   const text = getText(status)
 
-  const duration = computeDuration(jobs, now)
-  const contextBlock = getContextBlock(duration)
+  const currentJob = jobs.find(({name}) => name === context.job)
+  const duration = computeDuration(currentJob, now)
+  const contextBlock = getContextBlock({
+    duration,
+    workflowUrl: currentJob?.html_url ?? undefined
+  })
   const author = await getMessageAuthor()
 
   return {
@@ -69,9 +73,10 @@ function verbFromStatus(status: string): string {
   }
 }
 
-function computeDuration(jobs: WorkflowJob[], now: Date): Duration | undefined {
-  const currentJob = jobs.find(({name}) => name === context.job)
-
+function computeDuration(
+  currentJob: WorkflowJob | undefined,
+  now: Date
+): Duration | undefined {
   const slackRegex = /[^A-Za-z]slack[^A-Za-z]/i
   const lastCompletedSlackStep = currentJob?.steps
     ?.filter(isCompletedJobStep)
