@@ -43,7 +43,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "^2.0.3",
+    "@actions/core": "^3.0.1",
     "@actions/github": "^7.0.0",
     "@slack/web-api": "^8.0.0",
     "date-fns": "^4.1.0",
