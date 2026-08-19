@@ -66442,30 +66442,21 @@ function getImage() {
 /**
  * Return a link to the current workflow name.
  *
- * @param url optional deep link; otherwise fall back to the run's checks page
+ * @param url optional deep link (e.g. a specific job); otherwise fall back to
+ * the workflow run
  */
 function getWorkflow(url) {
-    const text = github_1.context.workflow;
-    if (url) {
-        return { text, url };
-    }
-    if ((0, webhook_1.isPullRequestEvent)(github_1.context)) {
-        return {
-            text,
-            url: `${github_1.context.payload.pull_request.html_url}/checks`
-        };
-    }
-    if ((0, webhook_1.isReleaseEvent)(github_1.context)) {
-        const { owner, repo } = github_1.context.repo;
-        return {
-            text,
-            url: `https://github.com/${owner}/${repo}/actions`
-        };
-    }
     return {
-        text,
-        url: `${getCommitUrl()}/checks`
+        text: github_1.context.workflow,
+        url: url ?? getRunUrl()
     };
+}
+/**
+ * Return a link to the current workflow run.
+ */
+function getRunUrl() {
+    const { owner, repo } = github_1.context.repo;
+    return `https://github.com/${owner}/${repo}/actions/runs/${github_1.context.runId}`;
 }
 /**
  * Return the pull request head branch or short commit hash.
@@ -66475,10 +66466,6 @@ function getRef() {
         return github_1.context.payload.pull_request.head.ref;
     }
     return github_1.context.sha.substring(0, 7);
-}
-function getCommitUrl() {
-    const { owner, repo } = github_1.context.repo;
-    return `https://github.com/${owner}/${repo}/commit/${github_1.context.sha}`;
 }
 
 

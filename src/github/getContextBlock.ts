@@ -7,7 +7,6 @@ import {
   SupportedEventName,
   UnsupportedEventError,
   isPullRequestEvent,
-  isReleaseEvent,
   isSupportedEvent
 } from './webhook'
 
@@ -67,35 +66,23 @@ function getImage(): Image {
 /**
  * Return a link to the current workflow name.
  *
- * @param url optional deep link; otherwise fall back to the run's checks page
+ * @param url optional deep link (e.g. a specific job); otherwise fall back to
+ * the workflow run
  */
 function getWorkflow(url: string | undefined): Link {
-  const text = context.workflow
-
-  if (url) {
-    return {text, url}
-  }
-
-  if (isPullRequestEvent(context)) {
-    return {
-      text,
-      url: `${context.payload.pull_request.html_url}/checks`
-    }
-  }
-
-  if (isReleaseEvent(context)) {
-    const {owner, repo} = context.repo
-
-    return {
-      text,
-      url: `https://github.com/${owner}/${repo}/actions`
-    }
-  }
-
   return {
-    text,
-    url: `${getCommitUrl()}/checks`
+    text: context.workflow,
+    url: url ?? getRunUrl()
   }
+}
+
+/**
+ * Return a link to the current workflow run.
+ */
+function getRunUrl(): string {
+  const {owner, repo} = context.repo
+
+  return `https://github.com/${owner}/${repo}/actions/runs/${context.runId}`
 }
 
 /**
@@ -107,10 +94,4 @@ function getRef(): string {
   }
 
   return context.sha.substring(0, 7)
-}
-
-function getCommitUrl(): string {
-  const {owner, repo} = context.repo
-
-  return `https://github.com/${owner}/${repo}/commit/${context.sha}`
 }
