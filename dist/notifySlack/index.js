@@ -12205,10 +12205,10 @@ if (true) {
 
 /***/ }),
 
-/***/ 80144:
+/***/ 78147:
 /***/ ((__unused_webpack_module, exports) => {
 
-/*! js-yaml 5.2.2 https://github.com/nodeca/js-yaml @license MIT */
+/*! js-yaml 5.2.3 https://github.com/nodeca/js-yaml @license MIT */
 Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
 //#region src/tag.ts
 var NOT_RESOLVED = Symbol("NOT_RESOLVED");
@@ -12667,6 +12667,11 @@ var binaryTag = defineScalarTag("tag:yaml.org,2002:binary", {
 //#region src/tag/scalar/timestamp.ts
 var YAML_DATE_REGEXP = /* @__PURE__ */ new RegExp("^([0-9][0-9][0-9][0-9])-([0-9][0-9])-([0-9][0-9])$");
 var YAML_TIMESTAMP_REGEXP = /* @__PURE__ */ new RegExp("^([0-9][0-9][0-9][0-9])-([0-9][0-9]?)-([0-9][0-9]?)(?:[Tt]|[ \\t]+)([0-9][0-9]?):([0-9][0-9]):([0-9][0-9])(?:\\.([0-9]*))?(?:[ \\t]*(Z|([-+])([0-9][0-9]?)(?::([0-9][0-9]))?))?$");
+function makeUtcDate(year, month, day, hour = 0, minute = 0, second = 0, fraction = 0) {
+	const date = new Date(Date.UTC(year, month, day, hour, minute, second, fraction));
+	date.setUTCFullYear(year, month, day);
+	return date;
+}
 function resolveYamlTimestamp(source) {
 	let match = YAML_DATE_REGEXP.exec(source);
 	if (match === null) match = YAML_TIMESTAMP_REGEXP.exec(source);
@@ -12675,7 +12680,7 @@ function resolveYamlTimestamp(source) {
 	const month = +match[2] - 1;
 	const day = +match[3];
 	if (!match[4]) {
-		const date = new Date(Date.UTC(year, month, day));
+		const date = makeUtcDate(year, month, day);
 		if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month || date.getUTCDate() !== day) return NOT_RESOLVED;
 		return date;
 	}
@@ -12689,7 +12694,7 @@ function resolveYamlTimestamp(source) {
 		while (value.length < 3) value += "0";
 		fraction = +value;
 	}
-	const date = new Date(Date.UTC(year, month, day, hour, minute, second, fraction));
+	const date = makeUtcDate(year, month, day, hour, minute, second, fraction);
 	if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month || date.getUTCDate() !== day) return NOT_RESOLVED;
 	if (match[9]) {
 		const offsetHour = +match[10];
@@ -12797,7 +12802,11 @@ var mapTag = defineMappingTag("tag:yaml.org,2002:map", {
 		return Object.prototype.hasOwnProperty.call(container, String(key));
 	},
 	keys: (container) => Object.keys(container),
-	get: (container, key) => container[String(key)]
+	get: (container, key) => {
+		const normalizedKey = String(key);
+		if (!Object.prototype.hasOwnProperty.call(container, normalizedKey)) return null;
+		return container[normalizedKey];
+	}
 });
 //#endregion
 //#region src/tag/mapping/set.ts
@@ -12860,9 +12869,9 @@ function _defineProperty(e, r, t) {
 //#region src/schema.ts
 function createTagDefinitionMap() {
 	return {
-		scalar: {},
-		sequence: {},
-		mapping: {}
+		scalar: Object.create(null),
+		sequence: Object.create(null),
+		mapping: Object.create(null)
 	};
 }
 function createTagDefinitionListMap() {
@@ -13036,7 +13045,11 @@ var legacyMapTag = defineMappingTag("tag:yaml.org,2002:map", {
 		return normalizedKey !== null && Object.prototype.hasOwnProperty.call(container, normalizedKey);
 	},
 	keys: (container) => Object.keys(container),
-	get: (container, key) => container[String(key)]
+	get: (container, key) => {
+		const normalizedKey = String(key);
+		if (!Object.prototype.hasOwnProperty.call(container, normalizedKey)) return null;
+		return container[normalizedKey];
+	}
 });
 //#endregion
 //#region \0@oxc-project+runtime@0.137.0/helpers/esm/objectSpread2.js
@@ -13388,10 +13401,10 @@ function getScalarValue(input, scalar) {
 }
 //#endregion
 //#region src/common/tagname.ts
-var DEFAULT_TAG_HANDLERS = {
+var DEFAULT_TAG_HANDLERS = Object.assign(Object.create(null), {
 	"!": "!",
 	"!!": "tag:yaml.org,2002:"
-};
+});
 function tagPercentEncode(source) {
 	return encodeURI(source).replace(/!/g, "%21");
 }
@@ -13649,6 +13662,10 @@ function constructFromEvents(events, options) {
 			}
 			case 6: {
 				const frame = state.frames.pop();
+				if (frame.kind === "mapping" && frame.hasKey) {
+					state.position = frame.keyPosition;
+					throwError$1(state, "incomplete mapping pair in event stream");
+				}
 				if (frame.kind === "document") state.documents.push(frame.value);
 				else {
 					const value = frame.tag.carrierIsResult ? frame.value : finalizeCollection(state, frame.position, frame.tag, frame.value);
@@ -14321,10 +14338,6 @@ function parseNode(state, parentIndent, nodeContext, allowToSeek, allowCompact, 
 		else if (state.lineIndent === parentIndent) indentStatus = 0;
 		else indentStatus = -1;
 	}
-	if (state.position === state.lineStart && testDocumentSeparator(state)) {
-		state.depth--;
-		return false;
-	}
 	if (indentStatus === 1) while (true) {
 		const ch = state.input.charCodeAt(state.position);
 		const propertyState = snapshotState(state);
@@ -14881,14 +14894,14 @@ function chooseScalarStyle(state, string, layout, singleLineOnly, forceQuote, in
 			if (char === CHAR_LINE_FEED) {
 				hasLineBreak = true;
 				if (shouldTrackWidth) {
-					hasFoldableLine = hasFoldableLine || i - previousLineBreak - 1 > lineWidth && string[previousLineBreak + 1] !== " ";
+					hasFoldableLine = hasFoldableLine || i - previousLineBreak - 1 > lineWidth && !isMoreIndented(string[previousLineBreak + 1]);
 					previousLineBreak = i;
 				}
 			} else if (!isPrintable(char)) return STYLE_DOUBLE;
 			plain = plain && isPlainSafe(char, prevChar, inblock);
 			prevChar = char;
 		}
-		hasFoldableLine = hasFoldableLine || shouldTrackWidth && i - previousLineBreak - 1 > lineWidth && string[previousLineBreak + 1] !== " ";
+		hasFoldableLine = hasFoldableLine || shouldTrackWidth && i - previousLineBreak - 1 > lineWidth && !isMoreIndented(string[previousLineBreak + 1]);
 	}
 	if (!hasLineBreak && !hasFoldableLine) {
 		if (plain && !forceQuote) return STYLE_PLAIN;
@@ -14947,27 +14960,30 @@ function encodeFlowBreaks(string, indent) {
 function dropEndingNewline(string) {
 	return string[string.length - 1] === "\n" ? string.slice(0, -1) : string;
 }
+function isMoreIndented(char) {
+	return char === " " || char === "	";
+}
 function foldBlockScalar(string, width) {
 	const lineRe = /(\n+)([^\n]*)/g;
 	let nextLF = string.indexOf("\n");
 	if (nextLF === -1) nextLF = string.length;
 	lineRe.lastIndex = nextLF;
 	let result = foldLine(string.slice(0, nextLF), width);
-	let prevMoreIndented = string[0] === "\n" || string[0] === " ";
+	let prevMoreIndented = string[0] === "\n" || isMoreIndented(string[0]);
 	let moreIndented;
 	let match;
 	while (match = lineRe.exec(string)) {
 		const prefix = match[1];
 		const line = match[2];
-		moreIndented = line[0] === " ";
+		moreIndented = line !== "" && isMoreIndented(line[0]);
 		result += prefix + (!prevMoreIndented && !moreIndented && line !== "" ? "\n" : "") + foldLine(line, width);
 		prevMoreIndented = moreIndented;
 	}
 	return result;
 }
 function foldLine(line, width) {
-	if (line === "" || line[0] === " ") return line;
-	const breakRe = / [^ ]/g;
+	if (line === "" || isMoreIndented(line[0])) return line;
+	const breakRe = / [^ \t]/g;
 	let match;
 	let start = 0;
 	let end;
@@ -15382,6 +15398,7 @@ function eventsToAst(events, options) {
 			}
 			case 6: {
 				const frame = state.frames.pop();
+				if (frame.kind === "mapping" && frame.key) throw new Error("incomplete mapping pair in event stream");
 				if (frame.kind === "document") state.documents.push(frame.doc);
 				else addNode(state, frame.node);
 				break;
@@ -67283,7 +67300,7 @@ exports.GH_MERGE_QUEUE_BOT_USERNAME = void 0;
 exports.getMessageAuthorFactory = getMessageAuthorFactory;
 const core_1 = __nccwpck_require__(47153);
 const github_1 = __nccwpck_require__(98087);
-const yaml = __importStar(__nccwpck_require__(80144));
+const yaml = __importStar(__nccwpck_require__(78147));
 const webhook_1 = __nccwpck_require__(20721);
 const getSlackUserFromName_1 = __nccwpck_require__(76705);
 const types_1 = __nccwpck_require__(12224);
