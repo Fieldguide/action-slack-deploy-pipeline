@@ -116,7 +116,7 @@ describe('postMessage', () => {
               },
               {
                 type: 'mrkdwn',
-                text: '<github.com/PR-1/checks|Deploy App>  ∙  my-pr'
+                text: '<https://github.com/namoscato/action-testing/actions/runs/123|Deploy App>  ∙  my-pr'
               }
             ]
           }
@@ -235,7 +235,7 @@ describe('postMessage', () => {
                 },
                 {
                   type: 'mrkdwn',
-                  text: '<https://github.com/namoscato/action-testing/actions|Deploy App>  ∙  05b16c3'
+                  text: '<https://github.com/namoscato/action-testing/actions/runs/123|Deploy App>  ∙  05b16c3'
                 }
               ]
             }
@@ -300,7 +300,7 @@ describe('postMessage', () => {
               },
               {
                 type: 'mrkdwn',
-                text: '<https://github.com/namoscato/action-testing/commit/05b16c3beb3a07dceaf6cf964d0be9eccbc026e8/checks|Deploy App>  ∙  05b16c3'
+                text: '<https://github.com/namoscato/action-testing/actions/runs/123|Deploy App>  ∙  05b16c3'
               }
             ]
           }
@@ -527,7 +527,7 @@ describe('postMessage', () => {
                   },
                   {
                     type: 'mrkdwn',
-                    text: '<https://github.com/namoscato/action-testing/commit/05b16c3beb3a07dceaf6cf964d0be9eccbc026e8/checks|Deploy App>  ∙  05b16c3  ∙  15 seconds'
+                    text: '<https://github.com/namoscato/action-testing/actions/runs/123|Deploy App>  ∙  05b16c3  ∙  15 seconds'
                   }
                 ]
               }
@@ -587,7 +587,7 @@ describe('postMessage', () => {
                   },
                   {
                     type: 'mrkdwn',
-                    text: '<https://github.com/namoscato/action-testing/commit/05b16c3beb3a07dceaf6cf964d0be9eccbc026e8/checks|Deploy App>  ∙  05b16c3  ∙  15 seconds'
+                    text: '<https://github.com/namoscato/action-testing/actions/runs/123|Deploy App>  ∙  05b16c3  ∙  15 seconds'
                   }
                 ]
               }
